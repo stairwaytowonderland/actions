@@ -1,64 +1,64 @@
-name: "Create Issue from CSV Row"
-description: "Reusable action to create a GitHub issue from a CSV row and append
-  to the job summary."
+name: 'Create Issue from CSV Row'
+description: 'Reusable action to create a GitHub issue from a CSV row and append
+  to the job summary.'
 
 inputs:
   allow-duplicates:
     required: false
-    description: "Allow creating duplicate issues (default: true)"
-    default: "true"
+    description: 'Allow creating duplicate issues (default: true)'
+    default: 'true'
   allow-closed-duplicates:
     required: false
-    description: "Allow creating duplicate issues for closed issues (default: false)"
-    default: "false"
+    description: 'Allow creating duplicate issues for closed issues (default: false)'
+    default: 'false'
   allow-unrecognized-status:
     required: false
     description: "Allow unrecognized status values (default: true, will default to
       'new' status)"
-    default: "true"
+    default: 'true'
   fail-on-unrecognized-status:
     required: false
-    description: "Fail the action if an unrecognized status value is encountered
-      (default: false)"
+    description: 'Fail the action if an unrecognized status value is encountered
+      (default: false)'
   batch-json:
     required: false
-    description: "JSON array of issue rows for batch creation"
-    default: "[]"
+    description: 'JSON array of issue rows for batch creation'
+    default: '[]'
   title:
-    required: true
-    description: "Issue title"
+    required: false
+    description: 'Issue title'
   priority:
     required: false
-    description: "Priority value"
+    description: 'Priority value'
   effort:
     required: false
-    description: "Effort value"
+    description: 'Effort value'
   description:
     required: false
-    description: "Issue description"
+    description: 'Issue description'
   status:
     required: false
-    description: "Issue status"
+    description: 'Issue status'
   completed:
     required: false
-    description: "Completed flag"
+    description: 'Completed flag'
   dry-run:
     required: true
-    description: "Dry run"
+    description: 'Dry run'
   github-token:
     required: true
-    description: "GitHub token for authentication"
+    description: 'GitHub token for authentication'
 
 outputs:
   issue-url:
     value: ${{ steps.create.outputs.issue-url }}
-    description: "URL of the created issue (empty if dry run)"
+    description: 'URL of the created issue (empty if dry run)'
   issue-urls:
     value: ${{ steps.create.outputs.issue-urls }}
-    description: "JSON array of created issue URLs (batch only) (empty if dry run)"
+    description: 'JSON array of created issue URLs (batch only) (empty if dry run)'
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - id: create-single
       name: Create issue and append to summary
