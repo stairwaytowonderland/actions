@@ -1,4 +1,4 @@
-name: Publish New Release
+name: Publish a Release
 
 on:
   # Fires when a tag matching v* is pushed with personal credentials.
