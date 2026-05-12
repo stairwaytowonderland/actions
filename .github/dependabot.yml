@@ -33,14 +33,9 @@ updates:
   #   open-pull-requests-limit: 5
   #   rebase-strategy: 'auto'
   - package-ecosystem: 'github-actions'
-    directory: '/.github/actions'
-    schedule:
-      interval: 'weekly'
-    labels: ['dependencies', 'github-actions']
-    open-pull-requests-limit: 5
-    rebase-strategy: 'auto'
-  - package-ecosystem: 'github-actions'
-    directory: '/.github/workflows'
+    directories:
+      - '/'
+      - '.github/actions/**'
     schedule:
       interval: 'weekly'
     labels: ['dependencies', 'github-actions']
