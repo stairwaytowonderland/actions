@@ -1,4 +1,4 @@
-name: 💡 Task
+name: 💡 General Task
 description: Track a general task or chore
 title: '[TASK] <short summary>'
 labels: [task]

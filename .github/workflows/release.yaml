@@ -8,4 +8,4 @@ on:
 jobs:
   release:
     name: Release
-    uses: stairwaytowonderland/create-release/.github/workflows/release.yaml@main
+    uses: stairwaytowonderland/create-release/.github/workflows/release.yaml@v1.4.0
