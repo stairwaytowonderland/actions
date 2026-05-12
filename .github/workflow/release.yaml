@@ -23,13 +23,13 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GH_PAT_CREATE_REPO }}
 
-      - name: Semantic release
+      - name: Semantic Release
         id: release
         uses: stairwaytowonderland/node-semantic-release@main
         with:
           github-token: ${{ secrets.GH_PAT_CREATE_REPO }}
 
-      - name: Dispatch Publish workflow
+      - name: Dispatch Publish Workflow
         if: steps.release.outputs.new-release-published == 'true'
         uses: stairwaytowonderland/simple-workflow-dispatch@main
         with:
