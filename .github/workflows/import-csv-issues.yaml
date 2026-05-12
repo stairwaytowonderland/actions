@@ -48,6 +48,7 @@ on:
       github-token:
         description: 'GitHub Personal Access Token with permissions to create issues'
         required: true
+
     inputs:
       secret-token-name:
         description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT_CREATE_ISSUE)'
