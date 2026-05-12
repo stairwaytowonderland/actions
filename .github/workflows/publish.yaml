@@ -17,7 +17,7 @@ on:
 
 jobs:
   publish:
-    name: Publish GitHub Release
+    name: Publish
     uses: stairwaytowonderland/create-release/.github/workflows/publish.yaml@main
     with:
       tag: ${{ github.event.inputs.tag }}
