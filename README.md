@@ -1,4 +1,4 @@
-# Repository Template
+# actions
 
 A minimal starting point for a basic repository.
 
