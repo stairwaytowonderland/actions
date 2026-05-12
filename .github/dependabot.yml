@@ -1,0 +1,41 @@
+version: 2
+updates:
+  # - package-ecosystem: 'npm'
+  #   directory: '/'
+  #   schedule:
+  #     # interval: "monthly"
+  #     # day: "friday"
+  #     # internal: "daily"
+  #     interval: 'weekly'
+  #   ignore:
+  #     - dependency-name: '*'
+  #       update-types: ['version-update:semver-major']
+  #   labels:
+  #     - 'dependencies'
+  #   groups:
+  #     npm:
+  #       applies-to: version-updates
+  #       patterns:
+  #         - '*'
+  #   rebase-strategy: 'auto'
+  # - package-ecosystem: 'pip'
+  #   directory: '/src/'
+  #   schedule:
+  #     interval: 'weekly'
+  #   labels: ['dependencies', 'python']
+  #   open-pull-requests-limit: 5
+  #   rebase-strategy: 'auto'
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+    labels: ['dependencies', 'github-actions']
+    open-pull-requests-limit: 5
+    rebase-strategy: 'auto'
+  - package-ecosystem: 'docker'
+    directory: '/docker/'
+    schedule:
+      interval: 'weekly'
+    labels: ['dependencies', 'docker']
+    open-pull-requests-limit: 5
+    rebase-strategy: 'auto'
