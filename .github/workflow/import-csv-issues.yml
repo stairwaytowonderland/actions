@@ -1,0 +1,191 @@
+name: Import Issues from CSV
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+        default: true
+
+      batch:
+        description: 'Create issues in batches (by type)'
+        required: true
+        type: boolean
+        default: true
+
+      allow-duplicates:
+        description: 'Allow creating duplicate issues'
+        required: true
+        type: boolean
+        default: false
+
+      allow-closed-duplicates:
+        description: 'Allow creating duplicate issues for closed issues'
+        required: true
+        type: boolean
+        default: false
+
+      csv-path:
+        description: 'Path (relative) to the CSV file'
+        required: true
+        default: 'TODO.csv'
+
+jobs:
+  check-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check token scopes
+        run: |
+          curl -sI -H "Authorization: token ${{ secrets.GH_PAT_CREATE_ISSUE }}" https://api.github.com | grep -i 'X-OAuth-Scopes'
+
+      - name: Check token identity
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.GH_PAT_CREATE_ISSUE }}" https://api.github.com/user
+
+      - name: Check token limit
+        run: |
+          curl -s -H "Authorization: token ${{ secrets.GH_PAT_CREATE_ISSUE }}" https://api.github.com/rate_limit
+
+  parse-csv:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.parse.outputs.matrix }}
+      types: ${{ steps.parse.outputs.types }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: Install PapaParse
+        run: npm install papaparse
+
+      - name: Parse CSV and build matrix
+        id: parse
+        uses: stairwaytowonderland/actions/.github/actions/csv-parse-action@main
+        with:
+          csv-path: ${{ github.event.inputs.csv-path }}
+
+      - name: Show outputs
+        uses: actions/github-script@v9
+        env:
+          MATRIX: ${{ steps.parse.outputs.matrix }}
+          TYPES: ${{ steps.parse.outputs.types }}
+        with:
+          script: |
+            const matrix = JSON.parse(process.env.MATRIX);
+            const types = JSON.parse(process.env.TYPES);
+            console.log("matrix:", matrix);
+            console.log("types:", types);
+            console.log(`Total issues parsed: ${types.reduce((sum, type) => sum + (matrix[type].include.length || 0), 0)}`);
+            console.log(`Issues by type: ${types.map(type => `${type}: ${matrix[type].include.length || 0}`).join(', ')}`);
+
+      - name: Set lengths
+        uses: actions/github-script@v9
+        env:
+          MATRIX: ${{ steps.parse.outputs.matrix }}
+          TYPES: ${{ steps.parse.outputs.types }}
+        with:
+          script: |
+            const matrix = JSON.parse(process.env.MATRIX);
+            const types = JSON.parse(process.env.TYPES);
+            console.log(`Total issues parsed: ${types.reduce((sum, type) => sum + (matrix[type].include.length || 0), 0)}`);
+            console.log(`Issues by type: ${types.map(type => `${type}: ${matrix[type].include.length || 0}`).join(', ')}`);
+            for (const type of types) {
+              const count = (matrix[type] && matrix[type].include) ? matrix[type].include.length : 0;
+              console.log(`${type}-count: ${count}`);
+              core.setOutput(`${type}-count`, count);
+            }
+
+  create-labels:
+    runs-on: ubuntu-latest
+    needs: parse-csv
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Ensure only needed labels exist
+        uses: stairwaytowonderland/actions/.github/actions/label-sync-action@main
+        with:
+          matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
+          dry-run: ${{ github.event.inputs.dry-run }}
+          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+
+  create-issue-batch:
+    if: ${{ github.event.inputs.batch == 'true' }}
+    needs: [parse-csv, create-labels]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        type: ${{ fromJson(needs.parse-csv.outputs.types) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Create issues by type
+        if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
+        uses: stairwaytowonderland/actions/.github/actions/issue-create-action@main
+        with:
+          batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
+          allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
+          allow-closed-duplicates: ${{ github.event.inputs.allow-closed-duplicates }}
+          dry-run: ${{ github.event.inputs.dry-run }}
+          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+
+  merge-matrix:
+    if: ${{ github.event.inputs.batch != 'true' }}
+    needs: parse-csv
+    runs-on: ubuntu-latest
+    outputs:
+      all: ${{ steps.merge.outputs.all }}
+    steps:
+      - name: Merge all issue arrays
+        id: merge
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const matrix = JSON.parse('${{ needs.parse-csv.outputs.matrix }}');
+            const types = JSON.parse('${{ needs.parse-csv.outputs.types }}');
+            const merged = [];
+            for (const type of types) {
+              if (matrix[type] && Array.isArray(matrix[type].include)) {
+                merged.push(...matrix[type].include);
+              }
+            }
+            core.setOutput('all', JSON.stringify(merged));
+
+  create-issue:
+    if: ${{ github.event.inputs.batch != 'true' }}
+    needs: [merge-matrix, create-labels]
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 5
+      matrix:
+        issue: ${{ fromJson(needs.merge-matrix.outputs.all) }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Create issue
+        uses: stairwaytowonderland/actions/.github/actions/issue-create-action@main
+        with:
+          title: ${{ matrix.issue.title }}
+          priority: ${{ matrix.issue.priority }}
+          effort: ${{ matrix.issue.effort }}
+          description: ${{ matrix.issue.description }}
+          status: ${{ matrix.issue.status }}
+          completed: ${{ matrix.issue.completed }}
+          dry-run: ${{ github.event.inputs.dry-run }}
+          allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
+          allow-closed-duplicates: ${{ github.event.inputs.allow-closed-duplicates }}
+          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}

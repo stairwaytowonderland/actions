@@ -1,0 +1,558 @@
+name: "Create Issue from CSV Row"
+description: "Reusable action to create a GitHub issue from a CSV row and append
+  to the job summary."
+
+inputs:
+  allow-duplicates:
+    required: false
+    description: "Allow creating duplicate issues (default: true)"
+    default: "true"
+  allow-closed-duplicates:
+    required: false
+    description: "Allow creating duplicate issues for closed issues (default: false)"
+    default: "false"
+  allow-unrecognized-status:
+    required: false
+    description: "Allow unrecognized status values (default: true, will default to
+      'new' status)"
+    default: "true"
+  fail-on-unrecognized-status:
+    required: false
+    description: "Fail the action if an unrecognized status value is encountered
+      (default: false)"
+  batch-json:
+    required: false
+    description: "JSON array of issue rows for batch creation"
+    default: "[]"
+  title:
+    required: true
+    description: "Issue title"
+  priority:
+    required: false
+    description: "Priority value"
+  effort:
+    required: false
+    description: "Effort value"
+  description:
+    required: false
+    description: "Issue description"
+  status:
+    required: false
+    description: "Issue status"
+  completed:
+    required: false
+    description: "Completed flag"
+  dry-run:
+    required: true
+    description: "Dry run"
+  github-token:
+    required: true
+    description: "GitHub token for authentication"
+
+outputs:
+  issue-url:
+    value: ${{ steps.create.outputs.issue-url }}
+    description: "URL of the created issue (empty if dry run)"
+  issue-urls:
+    value: ${{ steps.create.outputs.issue-urls }}
+    description: "JSON array of created issue URLs (batch only) (empty if dry run)"
+
+runs:
+  using: "composite"
+  steps:
+    - id: create-single
+      name: Create issue and append to summary
+      uses: actions/github-script@v9
+      if: inputs.batch-json == '[]'
+      env:
+        TITLE: ${{ inputs.title }}
+        PRIORITY: ${{ inputs.priority }}
+        EFFORT: ${{ inputs.effort }}
+        DESCRIPTION: ${{ inputs.description }}
+        STATUS: ${{ inputs.status }}
+        COMPLETED: ${{ inputs.completed }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        ALLOW_DUPLICATES: ${{ inputs.allow-duplicates }}
+        ALLOW_CLOSED_DUPLICATES: ${{ inputs.allow-closed-duplicates }}
+        ALLOW_UNRECOGNIZED_STATUS: ${{ inputs.allow-unrecognized-status }}
+        FAIL_ON_UNRECOGNIZED_STATUS: ${{ inputs.fail-on-unrecognized-status }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const title = process.env.TITLE;
+          const priority = process.env.PRIORITY;
+          const effort = process.env.EFFORT;
+          const description = process.env.DESCRIPTION;
+          const completed = process.env.COMPLETED === 'true';
+          const dryRun = process.env.DRY_RUN === 'true';
+          const allowDuplicates = process.env.ALLOW_DUPLICATES === 'true';
+          const allowClosedDuplicates = process.env.ALLOW_CLOSED_DUPLICATES === 'true';
+          const allowUnrecognizedStatus = process.env.ALLOW_UNRECOGNIZED_STATUS === 'true';
+          const failOnUnrecognizedStatus = process.env.FAIL_ON_UNRECOGNIZED_STATUS === 'true';
+          let status = process.env.STATUS;
+          const closed = status.toLowerCase() === 'closed';
+          const open = status.toLowerCase() === 'open';
+          const new = status.toLowerCase() === 'new';
+          try {
+            if (!['open', 'closed', 'new'].includes(rowStatus.toLowerCase())) {
+              if (!allowUnrecognizedStatus) {
+                throw new Error(`Unrecognized status "${rowStatus}" and allow-unrecognized-status is false, aborting. Please provide a valid status (open, closed, new) or set allow-unrecognized-status to true.`);
+              }
+              console.warn(`Unrecognized status "${rowStatus}", but allow-unrecognized-status is true, defaulting to "new"`);
+              rowStatus = 'new';
+            }
+          } catch (e) {
+            console.error(e.message);
+            if (failOnUnrecognizedStatus) {
+              core.setFailed(`Failing due to unrecognized status and fail-on-unrecognized-status is true.`);
+            }
+            // Skip this row and continue with the next one
+            console.warn(`Skipping row with title "${rowTitle}" due to unrecognized status.`);
+            continue;
+          }
+          // Map CSV values to normalized label names
+          const priorityMap = { higher: 'high', high: 'high', medium: 'medium', lower: 'low', low: 'low' };
+          const effortMap = { larger: 'high', large: 'high', medium: 'medium', smaller: 'low', small: 'low', low: 'low', high: 'high' };
+          const labels = [];
+          const mappedPriority = priorityMap[(priority || '').toLowerCase()];
+          if (mappedPriority) labels.push(`priority:${mappedPriority}`);
+          const mappedEffort = effortMap[(effort || '').toLowerCase()];
+          if (mappedEffort) labels.push(`effort:${mappedEffort}`);
+          let template = 'task';
+          let label = 'task';
+          if (/bugs?|fix|errors?|fail/i.test(title)) {
+            template = 'bug_report';
+            label = 'bug';
+          } else if (/feat:|features?|implement|support/i.test(title)) {
+            template = 'feature_request';
+            label = 'enhancement';
+          } else if (/docs?:|documentation/i.test(title)) {
+            template = 'documentation';
+            label = 'documentation';
+          }
+          labels.push(label);
+          let issueUrl = null;
+          let exists = false;
+          let existsClosed = false;
+          // Check for existing open issues with the same title
+          const { data: existingIssues } = await github.rest.search.issuesAndPullRequests({
+            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`
+          });
+          const { data: existingClosedIssues } = await github.rest.search.issuesAndPullRequests({
+            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:closed in:title "${title}"`
+          });
+          exists = existingIssues.total_count > 0 || open;
+          existsClosed = existingClosedIssues.total_count > 0 || closed;
+          if (exists) {
+            issueUrl = existingIssues.items[0].html_url;
+            console.log(`An Open Issue with title "${title}" already exists: ${issueUrl}`);
+          }
+          if (existsClosed) {
+            issueUrl = existingClosedIssues.items[0].html_url;
+            console.log(`A Closed Issue with title "${title}" already exists: ${issueUrl}`);
+          }
+          // Only create if doesn't exist, or exists (open) and createIfExists, or exists (closed) and createIfClosed
+          let isDuplicate = false;
+          if (!dryRun) {
+            if (
+              (!exists && !existsClosed) ||
+              (exists && allowDuplicates) ||
+              (existsClosed && allowClosedDuplicates)
+            ) {
+              if ((exists && allowDuplicates) || (existsClosed && allowClosedDuplicates)) {
+                labels.push('duplicate');
+                isDuplicate = true;
+              }
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body: `Imported from CSV.\n\n**Priority:** ${priority}\n**Effort:** ${effort}\n\n${description}`,
+                labels
+              });
+              issueUrl = issue.data.html_url;
+              if (completed) {
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.data.number,
+                  state: 'closed'
+                });
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.data.number,
+                  body: 'Automatically closed because this item was marked completed during import.'
+                });
+              }
+            }
+          }
+          // Append to job summary as a Markdown table (always)
+          const titleField = `[${title}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(title)})`;
+          // Add emoji for type
+          let issueType = template.replace('_', ' ');
+          let typeEmoji = '';
+          switch (template) {
+            case 'bug_report':
+              typeEmoji = ':lady_beetle:';
+              issueType = 'Bug';
+              break;
+            case 'feature_request':
+              typeEmoji = ':sparkles:';
+              issueType = 'Enhancement';
+              break;
+            case 'documentation':
+              typeEmoji = ':books:';
+              issueType = 'Documentation';
+              break;
+            default:
+              typeEmoji = ':memo:';
+              issueType = 'Task';
+          }
+          const completedField = completed ? ':white_check_mark:&nbsp;*Yes*' : ':x:&nbsp;*No*';
+          const issueTypeField = `${typeEmoji}&nbsp;${issueType}`;
+          const descriptionField = `${(description || '').trim() ? description : '—'}`;
+          let priorityField = priority || '';
+          let effortField = effort || '';
+          switch (mappedPriority) {
+            case 'high':
+              priorityField = ':red_square:&nbsp;High&nbsp;:one:';
+              break;
+            case 'medium':
+              priorityField = ':orange_square:&nbsp;Medium&nbsp;:two:';
+              break;
+            case 'low':
+              priorityField = ':green_square:&nbsp;Low&nbsp;:three:';
+              break;
+            default:
+              priorityField = priority ? `:white_large_square:&nbsp;${priorityField}` : ':black_large_square:&nbsp;—';
+          }
+          switch (mappedEffort) {
+            case 'high':
+              effortField = ':red_circle:&nbsp;High';
+              break;
+            case 'medium':
+              effortField = ':orange_circle:&nbsp;Medium';
+              break;
+            case 'low':
+              effortField = ':green_circle:&nbsp;Low';
+              break;
+            default:
+              effortField = effort ? `:white_circle:&nbsp;${effortField}` : ':black_circle:&nbsp;—';
+          }
+          let statusKey;
+          if (dryRun) {
+            if (exists && !allowDuplicates) statusKey = 'open';
+            else if (existsClosed && !allowClosedDuplicates) statusKey = 'closed';
+            else statusKey = 'new';
+          } else {
+            if (exists) statusKey = 'open';
+            else if (existsClosed) statusKey = 'closed';
+            else statusKey = 'new';
+          }
+          const statusField =
+            statusKey === 'open' ? ':green_circle:&nbsp;*Open*' :
+            statusKey === 'closed' ? ':red_circle:&nbsp;*Closed*' :
+            ':star:&nbsp;*New*';
+          const tableHeader  = '| Status | Title | Type | Completed | Priority | Effort | Description |';
+          const tableDivider = '|--------|------|-------|-----------|----------|--------|-------------|';
+          const tableRow = `| ${statusField} | ${titleField} | ${issueTypeField} | ${completedField} | ${priorityField} | ${effortField} | ${descriptionField} |`;
+          // Only add header if this is the first issue (by checking if summary already contains the header)
+          let prevSummary = '';
+          try { prevSummary = await core.summary.stringify(); } catch {}
+          let summary = '';
+          if (!prevSummary.includes(tableHeader)) {
+            summary += `### Issue Imported\n\n`;
+            summary += dryRun ? 'Issue not created (dry run)\n\n' : '';
+            summary += tableHeader + '\n' + tableDivider + '\n';
+          }
+          summary += tableRow + '\n\n';
+          await core.summary.addRaw(summary).write();
+          core.setOutput('issue-url', issueUrl || '');
+
+    - id: create-batch
+      name: Create issue and append to summary
+      uses: actions/github-script@v9
+      if: inputs.batch-json != '[]'
+      env:
+        ROWS_JSON: ${{ inputs.batch-json }}
+        TITLE: ${{ inputs.title }}
+        PRIORITY: ${{ inputs.priority }}
+        EFFORT: ${{ inputs.effort }}
+        DESCRIPTION: ${{ inputs.description }}
+        STATUS: ${{ inputs.status }}
+        COMPLETED: ${{ inputs.completed }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        ALLOW_DUPLICATES: ${{ inputs.allow-duplicates }}
+        ALLOW_CLOSED_DUPLICATES: ${{ inputs.allow-closed-duplicates }}
+        ALLOW_UNRECOGNIZED_STATUS: ${{ inputs.allow-unrecognized-status }}
+        FAIL_ON_UNRECOGNIZED_STATUS: ${{ inputs.fail-on-unrecognized-status }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const title = process.env.TITLE;
+          const priority = process.env.PRIORITY;
+          const effort = process.env.EFFORT;
+          const description = process.env.DESCRIPTION;
+          const status = process.env.STATUS;
+          const completed = process.env.COMPLETED === 'true';
+          const rowsJson = (process.env.ROWS_JSON || '').trim();
+          const dryRun = process.env.DRY_RUN === 'true';
+          const allowDuplicates = process.env.ALLOW_DUPLICATES === 'true';
+          const allowClosedDuplicates = process.env.ALLOW_CLOSED_DUPLICATES === 'true';
+          const allowUnrecognizedStatus = process.env.ALLOW_UNRECOGNIZED_STATUS === 'true';
+          const failOnUnrecognizedStatus = process.env.FAIL_ON_UNRECOGNIZED_STATUS === 'true';
+
+          const rows = rowsJson
+            ? JSON.parse(rowsJson)
+            : [{ title, priority, effort, description, status }];
+
+          // Map CSV values to normalized label names
+          const priorityMap = { higher: 'high', high: 'high', medium: 'medium', lower: 'low', low: 'low' };
+          const effortMap = { larger: 'high', large: 'high', medium: 'medium', smaller: 'low', small: 'low', low: 'low', high: 'high' };
+
+          const tableHeader  = '| Status | Title | Type | Completed | Priority | Effort | Description |';
+          const tableDivider = '|--------|------|-------|-----------|----------|--------|-------------|';
+
+          let prevSummary = '';
+          try { prevSummary = await core.summary.stringify(); } catch {}
+          let summary = '';
+          if (!prevSummary.includes(tableHeader)) {
+            summary += `### Issues Imported\n\n`;
+            summary += dryRun ? 'Issues not created (dry run)\n\n' : '';
+            summary += tableHeader + '\n' + tableDivider + '\n';
+          }
+
+          const issueUrls = [];
+          let firstIssueUrl = '';
+
+          // Fetch all open and closed issues once
+          let allOpenIssues = [];
+          let allClosedIssues = [];
+          let page = 1;
+          let openDone = false;
+          let closedDone = false;
+          while (!openDone) {
+            const { data } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+              page
+            });
+            allOpenIssues = allOpenIssues.concat(data);
+            if (data.length < 100) openDone = true;
+            else page++;
+          }
+          page = 1;
+          while (!closedDone) {
+            const { data } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              per_page: 100,
+              page
+            });
+            allClosedIssues = allClosedIssues.concat(data);
+            if (data.length < 100) closedDone = true;
+            else page++;
+          }
+
+          for (const row of rows) {
+            const rowTitle = row.title || '';
+            const rowPriority = row.priority || '';
+            const rowEffort = row.effort || '';
+            const rowDescription = row.description || '';
+            const rowCompleted = row.completed === true || row.completed === 'true';
+            let rowStatus = row.status || '';
+            const rowClosed = rowStatus.toLowerCase() === 'closed';
+            const rowOpen = rowStatus.toLowerCase() === 'open';
+            const rowNew = rowStatus.toLowerCase() === 'new';
+
+            try {
+              if (!['open', 'closed', 'new'].includes(rowStatus.toLowerCase())) {
+                if (!allowUnrecognizedStatus) {
+                  throw new Error(`Unrecognized status "${rowStatus}" and allow-unrecognized-status is false, aborting. Please provide a valid status (open, closed, new) or set allow-unrecognized-status to true.`);
+                }
+                console.warn(`Unrecognized status "${rowStatus}", but allow-unrecognized-status is true, defaulting to "new"`);
+                rowStatus = 'new';
+              }
+            } catch (e) {
+              console.error(e.message);
+              if (failOnUnrecognizedStatus) {
+                core.setFailed(`Failing due to unrecognized status and fail-on-unrecognized-status is true.`);
+              }
+              // Skip this row and continue with the next one
+              console.warn(`Skipping row with title "${rowTitle}" due to unrecognized status.`);
+              continue;
+            }
+
+            const labels = [];
+            const mappedPriority = priorityMap[(rowPriority || '').toLowerCase()];
+            if (mappedPriority) labels.push(`priority:${mappedPriority}`);
+            const mappedEffort = effortMap[(rowEffort || '').toLowerCase()];
+            if (mappedEffort) labels.push(`effort:${mappedEffort}`);
+
+            let template = 'task';
+            let label = 'task';
+            if (/bugs?|fix|errors?|fail/i.test(rowTitle)) {
+              template = 'bug_report';
+              label = 'bug';
+            } else if (/feat:|features?|implement|support/i.test(rowTitle)) {
+              template = 'feature_request';
+              label = 'feature';
+            } else if (/docs?:|documentation/i.test(rowTitle)) {
+              template = 'documentation';
+              label = 'documentation';
+            }
+            labels.push(label);
+
+            // Find existing open/closed issues with the same title
+            const openMatch = allOpenIssues.find(i => i.title === rowTitle);
+            const closedMatch = allClosedIssues.find(i => i.title === rowTitle);
+            const exists = !!openMatch || rowOpen;
+            const existsClosed = !!closedMatch || rowClosed;
+            let isDuplicate = false;
+            let issueUrl = '';
+            if (exists) {
+              issueUrl = openMatch.html_url;
+              console.log(`An Open Issue with title "${rowTitle}" already exists: ${issueUrl}`);
+            }
+            if (existsClosed) {
+              issueUrl = closedMatch.html_url;
+              console.log(`A Closed Issue with title "${rowTitle}" already exists: ${issueUrl}`);
+            }
+            // Only create if doesn't exist, or exists (open) and allowDuplicates, or exists (closed) and allowClosedDuplicates
+            if (!dryRun) {
+              if (
+                (!exists && !existsClosed) ||
+                (exists && allowDuplicates) ||
+                (existsClosed && allowClosedDuplicates)
+              ) {
+                if ((exists && allowDuplicates) || (existsClosed && allowClosedDuplicates)) {
+                  labels.push('duplicate');
+                  isDuplicate = true;
+                }
+                const issue = await github.rest.issues.create({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: rowTitle,
+                  body: `Imported from CSV.\n\n**Priority:** ${rowPriority}\n**Effort:** ${rowEffort}\n\n${rowDescription}`,
+                  labels
+                });
+                issueUrl = issue.data.html_url;
+                if (rowCompleted) {
+                  await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.data.number,
+                    state: 'closed'
+                  });
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.data.number,
+                    body: 'Automatically closed because this item was marked completed during import.'
+                  });
+                }
+              }
+            }
+
+            if (issueUrl) {
+              issueUrls.push(issueUrl);
+              if (!firstIssueUrl) firstIssueUrl = issueUrl;
+            }
+
+            const titleField = `[${rowTitle}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(rowTitle)})`;
+            // Add emoji for type
+            let issueType = template.replace('_', ' ');
+            let typeEmoji = '';
+            switch (template) {
+              case 'bug_report':
+                typeEmoji = ':lady_beetle:';
+                issueType = 'Bug';
+                break;
+              case 'feature_request':
+                typeEmoji = ':sparkles:';
+                issueType = 'Enhancement';
+                break;
+              case 'documentation':
+                typeEmoji = ':books:';
+                issueType = 'Documentation';
+                break;
+              default:
+                typeEmoji = ':memo:';
+                issueType = 'Task';
+            }
+            const issueTypeField = `${typeEmoji}&nbsp;${issueType}`;
+            const descriptionField = `${(rowDescription || '').trim() ? rowDescription : '—'}`;
+            const completedField = rowCompleted ? ':white_check_mark:&nbsp;*Yes*' : ':x:&nbsp;*No*';
+            let priorityField = rowPriority || '';
+            let effortField = rowEffort || '';
+            switch (mappedPriority) {
+              case 'high':
+                priorityField = `:red_square:&nbsp;${priorityField}&nbsp;:one:`;
+                break;
+              case 'medium':
+                priorityField = `:orange_square:&nbsp;${priorityField}&nbsp;:two:`;
+                break;
+              case 'low':
+                priorityField = `:green_square:&nbsp;${priorityField}&nbsp;:three:`;
+                break;
+              default:
+                priorityField = rowPriority ? `:white_large_square:&nbsp;${priorityField}` : ':black_large_square:&nbsp;—';
+            }
+            switch (mappedEffort) {
+              case 'high':
+                effortField = `:red_circle:&nbsp;${effortField}`;
+                break;
+              case 'medium':
+                effortField = `:orange_circle:&nbsp;${effortField}`;
+                break;
+              case 'low':
+                effortField = `:green_circle:&nbsp;${effortField}`;
+                break;
+              default:
+                effortField = rowEffort ? `:white_circle:&nbsp;${effortField}` : ':black_circle:&nbsp;—';
+            }
+            let statusKey;
+            if (dryRun) {
+              if (exists && !allowDuplicates) statusKey = 'open';
+              else if (existsClosed && !allowClosedDuplicates) statusKey = 'closed';
+              else statusKey = 'new';
+            } else {
+              if (exists) statusKey = 'open';
+              else if (existsClosed) statusKey = 'closed';
+              else statusKey = 'new';
+            }
+            const statusField =
+              statusKey === 'open' ? ':green_circle:&nbsp;*Open*' :
+              statusKey === 'closed' ? ':red_circle:&nbsp;*Closed*' :
+              ':star:&nbsp;*New*';
+            const tableRow = `| ${statusField} | ${titleField} | ${issueTypeField} | ${completedField} | ${priorityField} | ${effortField} | ${descriptionField} |`;
+            summary += tableRow + '\n';
+          }
+
+          await core.summary.addRaw(summary).write();
+          core.setOutput('issue-url', firstIssueUrl || '');
+          core.setOutput('issue-urls', JSON.stringify(issueUrls));
+
+    - id: create
+      name: Normalize outputs
+      uses: actions/github-script@v9
+      env:
+        BATCH_JSON: ${{ inputs.batch-json }}
+        ISSUE_URL_BATCH: ${{ steps.create-batch.outputs.issue-url }}
+        ISSUE_URL_SINGLE: ${{ steps.create-single.outputs.issue-url }}
+        ISSUE_URLS_BATCH: ${{ steps.create-batch.outputs.issue-urls }}
+      with:
+        script: |
+          const batch = (process.env.BATCH_JSON || '[]') !== '[]';
+          const issueUrl = batch
+            ? (process.env.ISSUE_URL_BATCH || '')
+            : (process.env.ISSUE_URL_SINGLE || '');
+          const issueUrls = batch
+            ? (process.env.ISSUE_URLS_BATCH || '[]')
+            : (issueUrl ? JSON.stringify([issueUrl]) : '[]');
+          core.setOutput('issue-url', issueUrl);
+          core.setOutput('issue-urls', issueUrls);

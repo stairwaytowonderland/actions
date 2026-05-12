@@ -25,17 +25,17 @@ updates:
   #   labels: ['dependencies', 'python']
   #   open-pull-requests-limit: 5
   #   rebase-strategy: 'auto'
+  # - package-ecosystem: 'docker'
+  #   directory: '/docker/'
+  #   schedule:
+  #     interval: 'weekly'
+  #   labels: ['dependencies', 'docker']
+  #   open-pull-requests-limit: 5
+  #   rebase-strategy: 'auto'
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
       interval: 'weekly'
     labels: ['dependencies', 'github-actions']
-    open-pull-requests-limit: 5
-    rebase-strategy: 'auto'
-  - package-ecosystem: 'docker'
-    directory: '/docker/'
-    schedule:
-      interval: 'weekly'
-    labels: ['dependencies', 'docker']
     open-pull-requests-limit: 5
     rebase-strategy: 'auto'

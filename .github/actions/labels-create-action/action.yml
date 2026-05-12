@@ -1,0 +1,169 @@
+name: "Create Needed Labels"
+description: "Reusable action to ensure all needed labels exist in the repository."
+
+inputs:
+  priority-labels:
+    description: "JSON array of priority label objects (name, color, description)"
+    required: false
+    default: |
+      [
+        { "name": "priority:high", "color": "d73a4a", "description": "High priority" },
+        { "name": "priority:medium", "color": "e4e669", "description": "Medium priority" },
+        { "name": "priority:low", "color": "a2eeef", "description": "Low priority" }
+      ]
+  effort-labels:
+    description: "JSON array of effort label objects (name, color, description)"
+    required: false
+    default: |
+      [
+        { "name": "effort:high", "color": "b60205", "description": "High effort" },
+        { "name": "effort:medium", "color": "fbca04", "description": "Medium effort" },
+        { "name": "effort:low", "color": "0e8a16", "description": "Low effort" }
+      ]
+  default-labels:
+    description: "JSON array of default label objects (name, color, description)"
+    required: false
+    default: |
+      [
+        { "name": "bug", "color": "e99695", "description": "Something is not working" },
+        { "name": "enhancement", "color": "d4c5f9", "description": "New feature or request" },
+        { "name": "task", "color": "0052cc", "description": "General task" },
+        { "name": "documentation", "color": "0075ca", "description": "Improvements or additions to documentation" }
+      ]
+  priority-map:
+    description: "JSON object mapping priority values to normalized label names"
+    required: false
+    default: |
+      { "higher": "high", "high": "high", "medium": "medium", "lower": "low", "low": "low" }
+  effort-map:
+    description: "JSON object mapping effort values to normalized label names"
+    required: false
+    default: |
+      { "high": "high", "larger": "high", "large": "high", "medium": "medium", "low": "low", "smaller": "low", "small": "low" }
+  matrix:
+    description: "JSON matrix of issues to process (from parse-csv output)"
+    required: true
+  dry-run:
+    description: "Dry run"
+    required: true
+  github-token:
+    description: "GitHub token for authentication"
+    required: true
+
+outputs:
+  created-labels:
+    description: "JSON array of needed label names that were created or already exist"
+    value: ${{ steps.ensure.outputs.created-labels }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Ensure only needed labels exist
+      uses: actions/github-script@v9
+      env:
+        PRIORITY_LABELS: ${{ inputs.priority-labels }}
+        EFFORT_LABELS: ${{ inputs.effort-labels }}
+        DEFAULT_LABELS: ${{ inputs.default-labels }}
+        PRIORITY_MAP: ${{ inputs.priority-map }}
+        EFFORT_MAP: ${{ inputs.effort-map }}
+        MATRIX: ${{ inputs.matrix }}
+        DRY_RUN: ${{ inputs.dry-run }}
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const priorityLabels = JSON.parse(process.env.PRIORITY_LABELS);
+          const effortLabels = JSON.parse(process.env.EFFORT_LABELS);
+          const defaultLabels = JSON.parse(process.env.DEFAULT_LABELS);
+          const allLabels = [...priorityLabels, ...effortLabels, ...defaultLabels];
+          const priorityMap = JSON.parse(process.env.PRIORITY_MAP);
+          const effortMap = JSON.parse(process.env.EFFORT_MAP);
+          let raw = process.env.MATRIX || '{}';
+          if (raw.startsWith('"')) raw = JSON.parse(raw);
+          const matrix = JSON.parse(raw);
+          const needed = new Set();
+          // Aggregate all rows from all groups (bug, feature, documentation, task)
+          const allRows = [];
+          for (const group of ['bug', 'feature', 'documentation', 'task']) {
+            if (matrix[group] && Array.isArray(matrix[group].include)) {
+              allRows.push(...matrix[group].include);
+            }
+          }
+          for (const row of allRows) {
+            const priority = priorityMap[(row.priority || '').toLowerCase()];
+            if (priority) needed.add(`priority:${priority}`);
+            const effort = effortMap[(row.effort || '').toLowerCase()];
+            if (effort) needed.add(`effort:${effort}`);
+            if (/bugs?|fix|errors?|fail/i.test(row.title)) needed.add('bug');
+            else if (/feat:|features?|implement|support/i.test(row.title)) needed.add('feature');
+            else if (/docs?:|documentation/i.test(row.title)) needed.add('documentation');
+            else needed.add('task');
+          }
+          const dryRun = process.env.DRY_RUN === 'true';
+          if (!dryRun) {
+            for (const label of allLabels) {
+              if (!needed.has(label.name)) continue;
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name
+                });
+                await github.rest.issues.updateLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              } catch (e) {
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.name,
+                  color: label.color,
+                  description: label.description
+                });
+              }
+            }
+          }
+          const neededLabels = allLabels.filter(l => needed.has(l.name));
+          const labelBaseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/issues?q=label%3A`;
+
+          // Check which labels already exist
+          let existingLabels = [];
+          try {
+            const { data: repoLabels } = await github.rest.issues.listLabelsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            existingLabels = repoLabels.map(l => l.name);
+          } catch (e) {
+            // ignore
+          }
+          const neededButMissing = neededLabels.filter(l => !existingLabels.includes(l.name));
+          const alreadyExisting = neededLabels.filter(l => existingLabels.includes(l.name));
+
+          const summary = [
+            '### Labels Processed\n',
+            dryRun ? '\nLabel(s) not created (dry run).\n' : '',
+            '\n**Needed labels (created or updated):**',
+            ...neededButMissing.map(l => {
+              const color = l.color;
+              const labelColor = `#${color}`;
+              const labelLink = dryRun
+                ? l.name
+                : `[${l.name}](${labelBaseUrl}${encodeURIComponent(l.name)})`;
+              return `- ${labelLink} — ${labelColor}`;
+            }),
+            '\n**Existing labels:**',
+            ...alreadyExisting.map(l => {
+              const color = l.color;
+              const labelColor = `#${color}`;
+              // Always render as a link if the label exists, even in dry run
+              const labelLink = `[${l.name}](${labelBaseUrl}${encodeURIComponent(l.name)})`;
+              return `- ${labelLink} — ${labelColor}`;
+            }),
+          ].join('\n');
+          await core.summary.addRaw(summary + '\n').write();
+          core.setOutput('created-labels', JSON.stringify(neededLabels.map(l => l.name)));

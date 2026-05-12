@@ -1,0 +1,110 @@
+name: "Parse Issue CSV"
+description: "Reusable action to parse a CSV file of issues and output a grouped
+  matrix by type."
+
+inputs:
+  csv-path:
+    required: true
+    description: "Path to the CSV file (relative to repo root)"
+  types:
+    required: true
+    description: "Comma-separated list of types to detect (default: bug, feature,
+      documentation, task)"
+    default: |
+      ["bug","feature","documentation","task"]
+
+outputs:
+  matrix:
+    value: ${{ steps.parse.outputs.matrix }}
+    description: "Grouped matrix object by type (bug, feature, documentation, task)"
+  types:
+    value: ${{ steps.parse.outputs.types }}
+    description: "Array of types in the order they were processed"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Parse CSV and build matrix
+      id: parse
+      uses: actions/github-script@v9
+      env:
+        CSV_PATH: ${{ inputs.csv-path }}
+        TYPES: ${{ join(fromJson(inputs.types), ',') }}
+      with:
+        script: |
+          const Papa = require('papaparse');
+          const fs = require('fs');
+          const path = process.env["CSV_PATH"];
+          const csv = fs.readFileSync(path, 'utf8');
+          const parsed = Papa.parse(csv, {header: true});
+          // Enhanced clean function to escape special characters
+          const clean = (v) => {
+            let s = (v ?? '').toString().replace(/\r?\n/g, ' ').trim();
+            // Escape single quotes, double quotes, and backslashes
+            s = s.replace(/'/g, "&#39;").replace(/"/g, '&quot;').replace(/\\/g, '&#92;');
+            return s;
+          };
+          const cleanx = (v) => (v ?? '').toString().replace(/\r?\n/g, ' ').trim();
+          const types = (process.env.TYPES || 'bug,feature,documentation,task').split(',').map(t => t.trim());
+          // Group rows by detected type
+          const groups = {};
+          for (const type of types) {
+            groups[type] = [];
+          }
+          try {
+            for (const row of parsed.data) {
+              if (row.Status && row.Status.trim() !== '') {
+                const entry = {
+                  priority: cleanx(row.Priority),
+                  effort: cleanx(row.Effort),
+                  title: cleanx(row.Title),
+                  description: cleanx(row.Description),
+                  status: (cleanx(row.Status) || '').toLowerCase(),
+                  completed: (cleanx(row.Completed) || '').toLowerCase() === 'true'
+                };
+                // Assign to type by matching regex or fallback to last type
+                let matched = false;
+                for (const type of types) {
+                  let regex;
+                  if (type === 'bug') regex = /bugs?|fix|errors?|fail/i;
+                  else if (type === 'feature') regex = /feat:|features?|implement|support/i;
+                  else if (type === 'documentation') regex = /docs:?|documentation/i;
+                  else regex = null;
+                  if (regex && regex.test(entry.title)) {
+                    groups[type].push(entry);
+                    matched = true;
+                    break;
+                  }
+                }
+                if (!matched) {
+                  // Fallback: assign to last type in list
+                  groups[types[types.length - 1]].push(entry);
+                }
+              }
+            }
+          } catch (e) {
+            console.error("Error parsing CSV:", e);
+            core.setFailed("Failed due to CSV parsing error. Please check the CSV format and content.");
+          }
+
+          // Build dynamic output
+          const matrix = {};
+          try {
+            for (const type of types) {
+              matrix[type] = { include: groups[type] };
+            }
+          } catch (e) {
+            console.error("Error building matrix:", e);
+            core.setFailed("Failed due to matrix building error. Please check the CSV content and ensure it matches expected format.");
+          }
+
+          console.log("matrix:", matrix);
+          console.log("types:", types);
+
+          try {
+            core.setOutput('matrix', JSON.stringify(matrix));
+            core.setOutput('types', JSON.stringify(types));
+          } catch (e) {
+            console.error("Error setting outputs:", e);
+            core.setFailed("Failed due to output setting error. Please check the matrix structure and content.");
+          }
