@@ -7,6 +7,12 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
+      secret-token-name:
+        description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT_CREATE_ISSUE)'
+        required: true
+        type: string
+        default: 'GH_PAT_CREATE_ISSUE'
+
       dry-run:
         description: 'Dry run'
         required: true
@@ -34,23 +40,77 @@ on:
       csv-path:
         description: 'Path (relative) to the CSV file'
         required: true
+        type: string
         default: 'TODO.csv'
+
+  workflow_call:
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with permissions to create issues'
+        required: true
+    inputs:
+      secret-token-name:
+        description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT_CREATE_ISSUE)'
+        required: false
+        type: string
+        default: 'GH_PAT_CREATE_ISSUE'
+
+      dry-run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+        default: true
+
+      batch:
+        description: 'Create issues in batches (by type)'
+        required: true
+        type: boolean
+        default: true
+
+      allow-duplicates:
+        description: 'Allow creating duplicate issues'
+        required: true
+        type: boolean
+        default: false
+
+      allow-closed-duplicates:
+        description: 'Allow creating duplicate issues for closed issues'
+        required: true
+        type: boolean
+        default: false
+
+      csv-path:
+        description: 'Path (relative) to the CSV file'
+        required: true
+        type: string
+        default: 'TODO.csv'
+
+env:
+  TOKEN: ${{ secrets[github.event.inputs.secret-token-name] }}
 
 jobs:
   check-token:
     runs-on: ubuntu-latest
     steps:
+      - name: Set TOKEN env var
+        run: |
+          if [ -n "${{ secrets.github-token }}" ]; then
+            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
+          else
+            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+          fi
+
       - name: Check token scopes
         run: |
-          curl -sI -H "Authorization: token ${{ secrets.GH_PAT_CREATE_ISSUE }}" https://api.github.com | grep -i 'X-OAuth-Scopes'
+          curl -sI -H "Authorization: token ${{ env.TOKEN }}" https://api.github.com | grep -i 'X-OAuth-Scopes'
 
       - name: Check token identity
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GH_PAT_CREATE_ISSUE }}" https://api.github.com/user
+          curl -s -H "Authorization: token ${{ env.TOKEN }}" https://api.github.com/user
 
       - name: Check token limit
         run: |
-          curl -s -H "Authorization: token ${{ secrets.GH_PAT_CREATE_ISSUE }}" https://api.github.com/rate_limit
+          curl -s -H "Authorization: token ${{ env.TOKEN }}" https://api.github.com/rate_limit
 
   parse-csv:
     runs-on: ubuntu-latest
@@ -113,12 +173,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
+      - name: Set TOKEN env var
+        run: |
+          if [ -n "${{ secrets.github-token }}" ]; then
+            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
+          else
+            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+          fi
+
       - name: Ensure only needed labels exist
         uses: stairwaytowonderland/actions/.github/actions/labels-create-action@main
         with:
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ github.event.inputs.dry-run }}
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ env.TOKEN }}
 
   create-issue-batch:
     if: ${{ github.event.inputs.batch == 'true' }}
@@ -132,6 +200,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
+      - name: Set TOKEN env var
+        run: |
+          if [ -n "${{ secrets.github-token }}" ]; then
+            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
+          else
+            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+          fi
+
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
         uses: stairwaytowonderland/actions/.github/actions/issue-create-action@main
@@ -140,7 +216,7 @@ jobs:
           allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ github.event.inputs.allow-closed-duplicates }}
           dry-run: ${{ github.event.inputs.dry-run }}
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ env.TOKEN }}
 
   merge-matrix:
     if: ${{ github.event.inputs.batch != 'true' }}
@@ -176,6 +252,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v6
 
+      - name: Set TOKEN env var
+        run: |
+          if [ -n "${{ secrets.github-token }}" ]; then
+            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
+          else
+            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+          fi
+
       - name: Create issue
         uses: stairwaytowonderland/actions/.github/actions/issue-create-action@main
         with:
@@ -188,4 +272,4 @@ jobs:
           dry-run: ${{ github.event.inputs.dry-run }}
           allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ github.event.inputs.allow-closed-duplicates }}
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ env.TOKEN }}

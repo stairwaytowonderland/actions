@@ -12,9 +12,27 @@ on:
         required: false
         default: '.pre-commit-config.yaml'
 
+  workflow_call:
+    inputs:
+      config:
+        description: 'Path to the pre-commit config file.'
+        type: string
+        required: false
+        default: '.pre-commit-config.yaml'
+
+env:
+  PRE_COMMIT_CONFIG: ${{ inputs.config || '.pre-commit-config.yaml' }}
+
 jobs:
   pre-commit:
-    name: Run pre-commit checks
-    uses: stairwaytowonderland/create-release/.github/workflows/pre-commit.yaml@main
-    with:
-      config: ${{ github.event.inputs.config }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+      - uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: |
+            --all-files -c "$PRE_COMMIT_CONFIG"
