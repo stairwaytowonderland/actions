@@ -126,7 +126,7 @@ jobs:
 
       - name: Parse CSV and build matrix
         id: parse
-        uses: stairwaytowonderland/actions/.github/actions/parse-issue-csv-action@main
+        uses: stairwaytowonderland/actions/.github/actions/parse-issue-csv-action@v1.15.0
         with:
           csv-path: ${{ github.event.inputs.csv-path }}
 
@@ -177,7 +177,7 @@ jobs:
           fi
 
       - name: Ensure only needed labels exist
-        uses: stairwaytowonderland/actions/.github/actions/labels-create-action@main
+        uses: stairwaytowonderland/actions/.github/actions/labels-create-action@v1.15.0
         with:
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ github.event.inputs.dry-run }}
@@ -205,7 +205,7 @@ jobs:
 
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
-        uses: stairwaytowonderland/actions/.github/actions/issue-create-action@main
+        uses: stairwaytowonderland/actions/.github/actions/issue-create-action@v1.15.0
         with:
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
           allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
@@ -256,7 +256,7 @@ jobs:
           fi
 
       - name: Create issue
-        uses: stairwaytowonderland/actions/.github/actions/issue-create-action@main
+        uses: stairwaytowonderland/actions/.github/actions/issue-create-action@v1.15.0
         with:
           title: ${{ matrix.issue.title }}
           priority: ${{ matrix.issue.priority }}
