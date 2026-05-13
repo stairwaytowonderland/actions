@@ -104,9 +104,9 @@ runs:
             if (failOnUnrecognizedStatus) {
               core.setFailed(`Failing due to unrecognized status and fail-on-unrecognized-status is true.`);
             }
-            // Skip this row and continue with the next one
+            // Exit early if status is unrecognized
             console.warn(`Skipping row with title "${rowTitle}" due to unrecognized status.`);
-            continue;
+            return;
           }
           // Map CSV values to normalized label names
           const priorityMap = { higher: 'high', high: 'high', medium: 'medium', lower: 'low', low: 'low' };
