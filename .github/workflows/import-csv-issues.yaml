@@ -91,7 +91,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
+          elif [ -n "${{ inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -128,7 +128,7 @@ jobs:
         id: parse
         uses: stairwaytowonderland/actions/.github/actions/parse-issue-csv-action@v1.15.0
         with:
-          csv-path: ${{ github.event.inputs.csv-path }}
+          csv-path: ${{ inputs.csv-path }}
 
       - name: Show outputs
         uses: actions/github-script@v9
@@ -172,7 +172,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
+          elif [ -n "${{ inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -180,11 +180,11 @@ jobs:
         uses: stairwaytowonderland/actions/.github/actions/labels-create-action@v1.15.0
         with:
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
-          dry-run: ${{ github.event.inputs.dry-run }}
+          dry-run: ${{ inputs.dry-run }}
           github-token: ${{ env.TOKEN }}
 
   create-issue-batch:
-    if: ${{ github.event.inputs.batch == 'true' }}
+    if: ${{ inputs.batch == 'true' }}
     needs: [parse-csv, create-labels]
     runs-on: ubuntu-latest
     strategy:
@@ -199,7 +199,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
+          elif [ -n "${{ inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -208,13 +208,13 @@ jobs:
         uses: stairwaytowonderland/actions/.github/actions/issue-create-action@v1.15.0
         with:
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
-          allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
-          allow-closed-duplicates: ${{ github.event.inputs.allow-closed-duplicates }}
-          dry-run: ${{ github.event.inputs.dry-run }}
+          allow-duplicates: ${{ inputs.allow-duplicates }}
+          allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
+          dry-run: ${{ inputs.dry-run }}
           github-token: ${{ env.TOKEN }}
 
   merge-matrix:
-    if: ${{ github.event.inputs.batch != 'true' }}
+    if: ${{ inputs.batch != 'true' }}
     needs: parse-csv
     runs-on: ubuntu-latest
     outputs:
@@ -236,7 +236,7 @@ jobs:
             core.setOutput('all', JSON.stringify(merged));
 
   create-issue:
-    if: ${{ github.event.inputs.batch != 'true' }}
+    if: ${{ inputs.batch != 'true' }}
     needs: [merge-matrix, create-labels]
     runs-on: ubuntu-latest
     strategy:
@@ -251,7 +251,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
+          elif [ -n "${{ inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -264,7 +264,7 @@ jobs:
           description: ${{ matrix.issue.description }}
           status: ${{ matrix.issue.status }}
           completed: ${{ matrix.issue.completed }}
-          dry-run: ${{ github.event.inputs.dry-run }}
-          allow-duplicates: ${{ github.event.inputs.allow-duplicates }}
-          allow-closed-duplicates: ${{ github.event.inputs.allow-closed-duplicates }}
+          dry-run: ${{ inputs.dry-run }}
+          allow-duplicates: ${{ inputs.allow-duplicates }}
+          allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
           github-token: ${{ env.TOKEN }}
