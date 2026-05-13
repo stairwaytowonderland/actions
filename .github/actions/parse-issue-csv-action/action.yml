@@ -58,14 +58,18 @@ runs:
           try {
             let rowStatus = process.env.STATUS_IF_MISSING;
             for (const row of parsed.data) {
-              rowStatus = (cleanx(row.Status) || rowStatus).toLowerCase()
-              if (row.Status && row.Status.trim() !== '') {
+              if (!row.Status || row.Status.trim() === '') {
+                rowStatus = process.env.STATUS_IF_MISSING;
+              } else {
+                rowStatus = cleanx(row.Status);
+              }
+              if (rowStatus && rowStatus.trim() !== '') {
                 const entry = {
                   priority: cleanx(row.Priority),
                   effort: cleanx(row.Effort),
                   title: cleanx(row.Title),
                   description: cleanx(row.Description),
-                  status: rowStatus,
+                  status: rowStatus.toLowerCase(),
                   completed: (cleanx(row.Completed) || '').toLowerCase() === 'true'
                 };
                 // Assign to type by matching regex or fallback to last type
