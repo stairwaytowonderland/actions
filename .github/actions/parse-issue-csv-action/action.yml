@@ -56,14 +56,14 @@ runs:
             groups[type] = [];
           }
           try {
-            let rowStatus = process.env.STATUS_IF_MISSING;
+            let rowStatus = '';
             for (const row of parsed.data) {
               if (!row.Status || row.Status.trim() === '') {
-                rowStatus = process.env.STATUS_IF_MISSING;
+                rowStatus = process.env.STATUS_IF_MISSING.trim();
               } else {
                 rowStatus = cleanx(row.Status);
               }
-              if (rowStatus && rowStatus.trim() !== '') {
+              if (rowStatus && row.Title && row.Title.trim() !== '') {
                 const entry = {
                   priority: cleanx(row.Priority),
                   effort: cleanx(row.Effort),
