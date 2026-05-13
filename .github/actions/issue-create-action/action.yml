@@ -90,7 +90,7 @@ runs:
           let status = process.env.STATUS;
           const closed = status.toLowerCase() === 'closed';
           const open = status.toLowerCase() === 'open';
-          const new = status.toLowerCase() === 'new';
+          const isNew = status.toLowerCase() === 'new';
           try {
             if (!['open', 'closed', 'new'].includes(rowStatus.toLowerCase())) {
               if (!allowUnrecognizedStatus) {
@@ -368,7 +368,7 @@ runs:
             let rowStatus = row.status || '';
             const rowClosed = rowStatus.toLowerCase() === 'closed';
             const rowOpen = rowStatus.toLowerCase() === 'open';
-            const rowNew = rowStatus.toLowerCase() === 'new';
+            const rowIsNew = rowStatus.toLowerCase() === 'new';
 
             try {
               if (!['open', 'closed', 'new'].includes(rowStatus.toLowerCase())) {

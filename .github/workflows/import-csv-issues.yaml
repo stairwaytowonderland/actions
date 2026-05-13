@@ -298,11 +298,10 @@ jobs:
                 merged.push(...matrix[type].include);
               }
             }
-            // Always output a valid JSON array
-            core.setOutput('all', JSON.stringify(Array.isArray(merged) ? merged : []));
+            core.setOutput('all', JSON.stringify(merged));
 
   create-issue:
-    if: ${{ !inputs.batch && needs.merge-matrix.outputs.all != '[]' && needs.merge-matrix.outputs.all != '' }}
+    if: ${{ !inputs.batch }}
     needs: [merge-matrix, create-labels]
     runs-on: ubuntu-latest
     strategy:
