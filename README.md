@@ -5,7 +5,7 @@ A minimal starting point for a basic repository.
 ## Project structure
 
 > [!NOTE]
-> `tree -a -F -L 2 -I '.git' --gitignore --dirsfirst .`
+> `tree -a -F -L 2 -I '.git|.vscode' --gitignore --dirsfirst .`
 
 ```none
 ./
@@ -15,9 +15,6 @@ A minimal starting point for a basic repository.
 │   ├── workflows/
 │   ├── dependabot.yml
 │   └── PULL_REQUEST_TEMPLATE.md
-├── .vscode/
-│   ├── extensions.json
-│   └── settings.json
 ├── .editorconfig
 ├── .gitignore
 ├── .markdownlint.json
