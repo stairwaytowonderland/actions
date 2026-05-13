@@ -18,7 +18,7 @@ on:
 jobs:
   publish:
     name: Publish
-    uses: stairwaytowonderland/create-release/.github/workflows/publish.yaml@v1.4.0
+    uses: stairwaytowonderland/create-release/.github/workflows/publish.yaml@v1.8.0
     with:
       tag: ${{ github.event.inputs.tag }}
       notes-b64: ${{ github.event.inputs.notes-b64 }}

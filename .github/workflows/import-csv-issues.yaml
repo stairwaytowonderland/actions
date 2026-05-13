@@ -8,10 +8,10 @@ on:
   workflow_dispatch:
     inputs:
       secret-token-name:
-        description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT_CREATE_ISSUE)'
+        description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT)'
         required: true
         type: string
-        default: 'GH_PAT_CREATE_ISSUE'
+        default: 'GITHUB_TOKEN'
 
       dry-run:
         description: 'Dry run'
@@ -50,12 +50,6 @@ on:
         required: true
 
     inputs:
-      secret-token-name:
-        description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT_CREATE_ISSUE)'
-        required: false
-        type: string
-        default: 'GH_PAT_CREATE_ISSUE'
-
       dry-run:
         description: 'Dry run'
         required: true
@@ -87,7 +81,7 @@ on:
         default: 'TODO.csv'
 
 env:
-  TOKEN: ${{ secrets[github.event.inputs.secret-token-name] }}
+  TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   check-token:
@@ -97,7 +91,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          else
+          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -178,7 +172,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          else
+          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -205,7 +199,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          else
+          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
@@ -257,7 +251,7 @@ jobs:
         run: |
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          else
+          elif [ -n "${{ github.event.inputs.secret-token-name }}" ]; then
             echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
