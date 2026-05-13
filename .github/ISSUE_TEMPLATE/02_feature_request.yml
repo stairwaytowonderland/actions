@@ -1,6 +1,6 @@
 name: ✨ Feature Request
 description: Suggest a new feature or improvement
-title: '[FEAT] <short summary>'
+title: '[FEATURE] <short summary>'
 labels: [enhancement]
 type: feature
 body:
