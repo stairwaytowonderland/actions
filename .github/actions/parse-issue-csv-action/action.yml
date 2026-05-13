@@ -58,37 +58,39 @@ runs:
           try {
             let rowStatus = '';
             for (const row of parsed.data) {
-              if (!row.Status || row.Status.trim() === '') {
-                rowStatus = process.env.STATUS_IF_MISSING.trim();
-              } else {
-                rowStatus = cleanx(row.Status);
-              }
-              if (rowStatus && row.Title && row.Title.trim() !== '') {
-                const entry = {
-                  priority: cleanx(row.Priority),
-                  effort: cleanx(row.Effort),
-                  title: cleanx(row.Title),
-                  description: cleanx(row.Description),
-                  status: rowStatus.toLowerCase(),
-                  completed: (cleanx(row.Completed) || '').toLowerCase() === 'true'
-                };
-                // Assign to type by matching regex or fallback to last type
-                let matched = false;
-                for (const type of types) {
-                  let regex;
-                  if (type === 'bug') regex = /bugs?|fix|errors?|fail/i;
-                  else if (type === 'feature') regex = /feat:|features?|implement|support/i;
-                  else if (type === 'documentation') regex = /docs:?|documentation/i;
-                  else regex = null;
-                  if (regex && regex.test(entry.title)) {
-                    groups[type].push(entry);
-                    matched = true;
-                    break;
-                  }
+              if (row.Title && row.Title.trim() !== '') {
+                if (!row.Status || row.Status.trim() === '') {
+                  rowStatus = process.env.STATUS_IF_MISSING.trim();
+                } else {
+                  rowStatus = cleanx(row.Status);
                 }
-                if (!matched) {
-                  // Fallback: assign to last type in list
-                  groups[types[types.length - 1]].push(entry);
+                if (rowStatus) {
+                  const entry = {
+                    priority: cleanx(row.Priority),
+                    effort: cleanx(row.Effort),
+                    title: cleanx(row.Title),
+                    description: cleanx(row.Description),
+                    status: rowStatus.toLowerCase(),
+                    completed: (cleanx(row.Completed) || '').toLowerCase() === 'true'
+                  };
+                  // Assign to type by matching regex or fallback to last type
+                  let matched = false;
+                  for (const type of types) {
+                    let regex;
+                    if (type === 'bug') regex = /bugs?|fix|errors?|fail/i;
+                    else if (type === 'feature') regex = /feat:|features?|implement|support/i;
+                    else if (type === 'documentation') regex = /docs:?|documentation/i;
+                    else regex = null;
+                    if (regex && regex.test(entry.title)) {
+                      groups[type].push(entry);
+                      matched = true;
+                      break;
+                    }
+                  }
+                  if (!matched) {
+                    // Fallback: assign to last type in list
+                    groups[types[types.length - 1]].push(entry);
+                  }
                 }
               }
             }
