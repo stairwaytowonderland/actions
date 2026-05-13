@@ -23,7 +23,7 @@ inputs:
     description: 'JSON array of issue rows for batch creation'
     default: '[]'
   title:
-    required: true
+    required: false
     description: 'Issue title'
   priority:
     required: false
