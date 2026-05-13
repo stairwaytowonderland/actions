@@ -285,10 +285,13 @@ jobs:
       - name: Merge all issue arrays
         id: merge
         uses: actions/github-script@v9
+        env:
+          MATRIX: ${{ needs.parse-csv.outputs.matrix }}
+          TYPES: ${{ needs.parse-csv.outputs.types }}
         with:
           script: |
-            const matrix = JSON.parse('${{ needs.parse-csv.outputs.matrix }}');
-            const types = JSON.parse('${{ needs.parse-csv.outputs.types }}');
+            const matrix = JSON.parse(process.env.MATRIX);
+            const types = JSON.parse(process.env.TYPES);
             const merged = [];
             for (const type of types) {
               if (matrix[type] && Array.isArray(matrix[type].include)) {
