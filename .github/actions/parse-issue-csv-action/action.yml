@@ -1,28 +1,31 @@
-name: "Parse Issue CSV"
-description: "Reusable action to parse a CSV file of issues and output a grouped
-  matrix by type."
+name: 'Parse Issue CSV'
+description: 'Reusable action to parse a CSV file of issues and output a grouped
+  matrix by type.'
 
 inputs:
+  status-if-missing:
+    required: true
+    description: 'Default status to assign if missing (default: new)'
+    default: 'new'
   csv-path:
     required: true
-    description: "Path to the CSV file (relative to repo root)"
+    description: 'Path to the CSV file (relative to repo root)'
   types:
     required: true
-    description: "Comma-separated list of types to detect (default: bug, feature,
-      documentation, task)"
+    description: 'JSON array of types in order of processing (default: ["bug","feature","documentation","task"])'
     default: |
       ["bug","feature","documentation","task"]
 
 outputs:
   matrix:
     value: ${{ steps.parse.outputs.matrix }}
-    description: "Grouped matrix object by type (bug, feature, documentation, task)"
+    description: 'Grouped matrix object by type (bug, feature, documentation, task)'
   types:
     value: ${{ steps.parse.outputs.types }}
-    description: "Array of types in the order they were processed"
+    description: 'Array of types in the order they were processed'
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Parse CSV and build matrix
       id: parse
@@ -30,6 +33,7 @@ runs:
       env:
         CSV_PATH: ${{ inputs.csv-path }}
         TYPES: ${{ join(fromJson(inputs.types), ',') }}
+        STATUS_IF_MISSING: ${{ inputs.status-if-missing }}
       with:
         script: |
           const Papa = require('papaparse');
@@ -59,7 +63,7 @@ runs:
                   effort: cleanx(row.Effort),
                   title: cleanx(row.Title),
                   description: cleanx(row.Description),
-                  status: (cleanx(row.Status) || '').toLowerCase(),
+                  status: (cleanx(row.Status) || process.env.STATUS_IF_MISSING).toLowerCase(),
                   completed: (cleanx(row.Completed) || '').toLowerCase() === 'true'
                 };
                 // Assign to type by matching regex or fallback to last type

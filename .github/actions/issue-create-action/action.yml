@@ -87,7 +87,7 @@ runs:
           const allowClosedDuplicates = process.env.ALLOW_CLOSED_DUPLICATES === 'true';
           const allowUnrecognizedStatus = process.env.ALLOW_UNRECOGNIZED_STATUS === 'true';
           const failOnUnrecognizedStatus = process.env.FAIL_ON_UNRECOGNIZED_STATUS === 'true';
-          let status = process.env.STATUS;
+          let status = process.env.STATUS || '';
           const closed = status.toLowerCase() === 'closed';
           const open = status.toLowerCase() === 'open';
           const isNew = status.toLowerCase() === 'new';
