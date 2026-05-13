@@ -92,12 +92,12 @@ runs:
           const open = status.toLowerCase() === 'open';
           const isNew = status.toLowerCase() === 'new';
           try {
-            if (!['open', 'closed', 'new'].includes(rowStatus.toLowerCase())) {
+            if (!['open', 'closed', 'new'].includes(status.toLowerCase())) {
               if (!allowUnrecognizedStatus) {
-                throw new Error(`Unrecognized status "${rowStatus}" and allow-unrecognized-status is false, aborting. Please provide a valid status (open, closed, new) or set allow-unrecognized-status to true.`);
+                throw new Error(`Unrecognized status "${status}" and allow-unrecognized-status is false, aborting. Please provide a valid status (open, closed, new) or set allow-unrecognized-status to true.`);
               }
-              console.warn(`Unrecognized status "${rowStatus}", but allow-unrecognized-status is true, defaulting to "new"`);
-              rowStatus = 'new';
+              console.warn(`Unrecognized status "${status}", but allow-unrecognized-status is true, defaulting to "new"`);
+              status = 'new';
             }
           } catch (e) {
             console.error(e.message);
@@ -105,7 +105,7 @@ runs:
               core.setFailed(`Failing due to unrecognized status and fail-on-unrecognized-status is true.`);
             }
             // Exit early if status is unrecognized
-            console.warn(`Skipping row with title "${rowTitle}" due to unrecognized status.`);
+            console.warn(`Skipping row with title "${title}" due to unrecognized status.`);
             return;
           }
           // Map CSV values to normalized label names
