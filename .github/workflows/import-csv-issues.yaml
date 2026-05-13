@@ -236,7 +236,7 @@ jobs:
           github-token: ${{ env.TOKEN }}
 
   create-issue-batch:
-    if: ${{ inputs.batch == 'true' }}
+    if: ${{ inputs.batch }}
     needs: [parse-csv, create-labels]
     runs-on: ubuntu-latest
     strategy:
@@ -276,7 +276,7 @@ jobs:
           github-token: ${{ env.TOKEN }}
 
   merge-matrix:
-    if: ${{ inputs.batch != 'true' }}
+    if: ${{ !inputs.batch }}
     needs: parse-csv
     runs-on: ubuntu-latest
     outputs:
@@ -301,7 +301,7 @@ jobs:
             core.setOutput('all', JSON.stringify(merged));
 
   create-issue:
-    if: ${{ inputs.batch != 'true' }}
+    if: ${{ !inputs.batch }}
     needs: [merge-matrix, create-labels]
     runs-on: ubuntu-latest
     strategy:
