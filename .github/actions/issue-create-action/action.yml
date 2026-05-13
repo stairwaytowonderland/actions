@@ -9,8 +9,7 @@ inputs:
     default: 'true'
   allow-closed-duplicates:
     required: false
-    description: 'Allow creating duplicate issues for closed issues (default: false)'
-    default: 'false'
+    description: 'Allow creating duplicate issues for closed issues'
   allow-unrecognized-status:
     required: false
     description: "Allow unrecognized status values (default: true, will default to
@@ -18,14 +17,13 @@ inputs:
     default: 'true'
   fail-on-unrecognized-status:
     required: false
-    description: 'Fail the action if an unrecognized status value is encountered
-      (default: false)'
+    description: 'Fail the action if an unrecognized status value is encountered'
   batch-json:
     required: false
     description: 'JSON array of issue rows for batch creation'
     default: '[]'
   title:
-    required: false
+    required: true
     description: 'Issue title'
   priority:
     required: false
@@ -118,38 +116,61 @@ runs:
           if (mappedPriority) labels.push(`priority:${mappedPriority}`);
           const mappedEffort = effortMap[(effort || '').toLowerCase()];
           if (mappedEffort) labels.push(`effort:${mappedEffort}`);
+          let issueType = 'Task';
+          let typeEmoji = ':memo:';
           let template = 'task';
           let label = 'task';
+          let titlePrefix = '[TASK]';
           if (/bugs?|fix|errors?|fail/i.test(title)) {
             template = 'bug_report';
             label = 'bug';
+            titlePrefix = '[BUG]';
+            typeEmoji = ':lady_beetle:';
+            issueType = 'Bug';
           } else if (/feat:|features?|implement|support/i.test(title)) {
             template = 'feature_request';
             label = 'enhancement';
+            titlePrefix = '[FEATURE]';
+            typeEmoji = ':sparkles:';
+            issueType = 'Feature';
           } else if (/docs?:|documentation/i.test(title)) {
             template = 'documentation';
             label = 'documentation';
+            titlePrefix = '[DOCUMENTATION]';
+            typeEmoji = ':books:';
+            issueType = 'Documentation';
           }
           labels.push(label);
+          const fullTitle = title.startsWith(titlePrefix.trim()) ? title : `${titlePrefix.trim()} ${title}`;
           let issueUrl = null;
           let exists = false;
           let existsClosed = false;
           // Check for existing open issues with the same title
           const { data: existingIssues } = await github.rest.search.issuesAndPullRequests({
-            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${title}"`
+            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${fullTitle}"`
           });
           const { data: existingClosedIssues } = await github.rest.search.issuesAndPullRequests({
-            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:closed in:title "${title}"`
+            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:closed in:title "${fullTitle}"`
           });
           exists = existingIssues.total_count > 0 || open;
           existsClosed = existingClosedIssues.total_count > 0 || closed;
           if (exists) {
-            issueUrl = existingIssues.items[0].html_url;
-            console.log(`An Open Issue with title "${title}" already exists: ${issueUrl}`);
+            if (existingIssues.items && existingIssues.items.length > 0) {
+              issueUrl = existingIssues.items[0].html_url;
+              console.log(`An Open Issue with title "${fullTitle}" already exists: ${issueUrl}`);
+            } else {
+              issueUrl = '';
+              console.log(`An Open Issue with title "${fullTitle}" already exists (status only, no match object).`);
+            }
           }
           if (existsClosed) {
-            issueUrl = existingClosedIssues.items[0].html_url;
-            console.log(`A Closed Issue with title "${title}" already exists: ${issueUrl}`);
+            if (existingClosedIssues.items && existingClosedIssues.items.length > 0) {
+              issueUrl = existingClosedIssues.items[0].html_url;
+              console.log(`A Closed Issue with title "${fullTitle}" already exists: ${issueUrl}`);
+            } else {
+              issueUrl = '';
+              console.log(`A Closed Issue with title "${fullTitle}" already exists (status only, no match object).`);
+            }
           }
           // Only create if doesn't exist, or exists (open) and createIfExists, or exists (closed) and createIfClosed
           let isDuplicate = false;
@@ -166,7 +187,7 @@ runs:
               const issue = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                title,
+                title: fullTitle,
                 body: `Imported from CSV.\n\n**Priority:** ${priority}\n**Effort:** ${effort}\n\n${description}`,
                 labels
               });
@@ -188,27 +209,7 @@ runs:
             }
           }
           // Append to job summary as a Markdown table (always)
-          const titleField = `[${title}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(title)})`;
-          // Add emoji for type
-          let issueType = template.replace('_', ' ');
-          let typeEmoji = '';
-          switch (template) {
-            case 'bug_report':
-              typeEmoji = ':lady_beetle:';
-              issueType = 'Bug';
-              break;
-            case 'feature_request':
-              typeEmoji = ':sparkles:';
-              issueType = 'Enhancement';
-              break;
-            case 'documentation':
-              typeEmoji = ':books:';
-              issueType = 'Documentation';
-              break;
-            default:
-              typeEmoji = ':memo:';
-              issueType = 'Task';
-          }
+          const titleField = `[${fullTitle}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(fullTitle)})`;
           const completedField = completed ? ':white_check_mark:&nbsp;*Yes*' : ':x:&nbsp;*No*';
           const issueTypeField = `${typeEmoji}&nbsp;${issueType}`;
           const descriptionField = `${(description || '').trim() ? description : '—'}`;
@@ -254,7 +255,7 @@ runs:
             statusKey === 'open' ? ':green_circle:&nbsp;*Open*' :
             statusKey === 'closed' ? ':red_circle:&nbsp;*Closed*' :
             ':star:&nbsp;*New*';
-          const tableHeader  = '| Status | Title | Type | Completed | Priority | Effort | Description |';
+          const tableHeader  = '| :vertical_traffic_light:&nbsp;Status | Title | Type | Completed | Priority | Effort | Description |';
           const tableDivider = '|--------|------|-------|-----------|----------|--------|-------------|';
           const tableRow = `| ${statusField} | ${titleField} | ${issueTypeField} | ${completedField} | ${priorityField} | ${effortField} | ${descriptionField} |`;
           // Only add header if this is the first issue (by checking if summary already contains the header)
@@ -311,7 +312,7 @@ runs:
           const priorityMap = { higher: 'high', high: 'high', medium: 'medium', lower: 'low', low: 'low' };
           const effortMap = { larger: 'high', large: 'high', medium: 'medium', smaller: 'low', small: 'low', low: 'low', high: 'high' };
 
-          const tableHeader  = '| Status | Title | Type | Completed | Priority | Effort | Description |';
+          const tableHeader  = '| :vertical_traffic_light:&nbsp;Status | Title | Type | Completed | Priority | Effort | Description |';
           const tableDivider = '|--------|------|-------|-----------|----------|--------|-------------|';
 
           let prevSummary = '';
@@ -393,34 +394,57 @@ runs:
             const mappedEffort = effortMap[(rowEffort || '').toLowerCase()];
             if (mappedEffort) labels.push(`effort:${mappedEffort}`);
 
+            let issueType = 'Task';
+            let typeEmoji = ':memo:';
             let template = 'task';
             let label = 'task';
+            let titlePrefix = '[TASK]';
             if (/bugs?|fix|errors?|fail/i.test(rowTitle)) {
               template = 'bug_report';
               label = 'bug';
+              titlePrefix = '[BUG]';
+              typeEmoji = ':lady_beetle:';
+              issueType = 'Bug';
             } else if (/feat:|features?|implement|support/i.test(rowTitle)) {
               template = 'feature_request';
-              label = 'feature';
+              label = 'enhancement';
+              titlePrefix = '[FEATURE]';
+              typeEmoji = ':sparkles:';
+              issueType = 'Feature';
             } else if (/docs?:|documentation/i.test(rowTitle)) {
               template = 'documentation';
               label = 'documentation';
+              titlePrefix = '[DOCUMENTATION]';
+              typeEmoji = ':books:';
+              issueType = 'Documentation';
             }
             labels.push(label);
+            const fullTitle = rowTitle.startsWith(titlePrefix.trim()) ? rowTitle : `${titlePrefix.trim()} ${rowTitle}`;
 
             // Find existing open/closed issues with the same title
-            const openMatch = allOpenIssues.find(i => i.title === rowTitle);
-            const closedMatch = allClosedIssues.find(i => i.title === rowTitle);
+            const openMatch = allOpenIssues.find(i => i.title === fullTitle);
+            const closedMatch = allClosedIssues.find(i => i.title === fullTitle);
             const exists = !!openMatch || rowOpen;
             const existsClosed = !!closedMatch || rowClosed;
             let isDuplicate = false;
             let issueUrl = '';
             if (exists) {
-              issueUrl = openMatch.html_url;
-              console.log(`An Open Issue with title "${rowTitle}" already exists: ${issueUrl}`);
+              if (openMatch) {
+                issueUrl = openMatch.html_url;
+                console.log(`An Open Issue with title "${fullTitle}" already exists: ${issueUrl}`);
+              } else {
+                issueUrl = '';
+                console.log(`An Open Issue with title "${fullTitle}" already exists (status only, no match object).`);
+              }
             }
             if (existsClosed) {
-              issueUrl = closedMatch.html_url;
-              console.log(`A Closed Issue with title "${rowTitle}" already exists: ${issueUrl}`);
+              if (closedMatch) {
+                issueUrl = closedMatch.html_url;
+                console.log(`A Closed Issue with title "${fullTitle}" already exists: ${issueUrl}`);
+              } else {
+                issueUrl = '';
+                console.log(`A Closed Issue with title "${fullTitle}" already exists (status only, no match object).`);
+              }
             }
             // Only create if doesn't exist, or exists (open) and allowDuplicates, or exists (closed) and allowClosedDuplicates
             if (!dryRun) {
@@ -436,7 +460,7 @@ runs:
                 const issue = await github.rest.issues.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  title: rowTitle,
+                  title: fullTitle,
                   body: `Imported from CSV.\n\n**Priority:** ${rowPriority}\n**Effort:** ${rowEffort}\n\n${rowDescription}`,
                   labels
                 });
@@ -464,26 +488,6 @@ runs:
             }
 
             const titleField = `[${rowTitle}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(rowTitle)})`;
-            // Add emoji for type
-            let issueType = template.replace('_', ' ');
-            let typeEmoji = '';
-            switch (template) {
-              case 'bug_report':
-                typeEmoji = ':lady_beetle:';
-                issueType = 'Bug';
-                break;
-              case 'feature_request':
-                typeEmoji = ':sparkles:';
-                issueType = 'Enhancement';
-                break;
-              case 'documentation':
-                typeEmoji = ':books:';
-                issueType = 'Documentation';
-                break;
-              default:
-                typeEmoji = ':memo:';
-                issueType = 'Task';
-            }
             const issueTypeField = `${typeEmoji}&nbsp;${issueType}`;
             const descriptionField = `${(rowDescription || '').trim() ? rowDescription : '—'}`;
             const completedField = rowCompleted ? ':white_check_mark:&nbsp;*Yes*' : ':x:&nbsp;*No*';
