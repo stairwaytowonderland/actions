@@ -9,43 +9,43 @@ on:
     inputs:
       secret-token-name:
         description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT)'
-        required: true
+        required: false
         type: string
         default: 'GITHUB_TOKEN'
 
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: true
+        required: false
         type: string
         default: 'main'
 
       node-version:
         description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
-        required: true
+        required: false
         type: string
         default: '24'
 
       dry-run:
         description: 'Dry run'
-        required: true
+        required: false
         type: boolean
         default: true
 
       batch:
         description: 'Create issues in batches (by type)'
-        required: true
+        required: false
         type: boolean
         default: true
 
       allow-duplicates:
         description: 'Allow creating duplicate issues'
-        required: true
+        required: false
         type: boolean
         default: false
 
       allow-closed-duplicates:
         description: 'Allow creating duplicate issues for closed issues'
-        required: true
+        required: false
         type: boolean
         default: false
 
@@ -59,42 +59,42 @@ on:
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with permissions to create issues'
-        required: true
+        required: false
 
     inputs:
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: true
+        required: false
         type: string
         default: 'main'
 
       node-version:
         description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
-        required: true
+        required: false
         type: string
         default: '24'
 
       dry-run:
         description: 'Dry run'
-        required: true
+        required: false
         type: boolean
         default: true
 
       batch:
         description: 'Create issues in batches (by type)'
-        required: true
+        required: false
         type: boolean
         default: true
 
       allow-duplicates:
         description: 'Allow creating duplicate issues'
-        required: true
+        required: false
         type: boolean
         default: false
 
       allow-closed-duplicates:
         description: 'Allow creating duplicate issues for closed issues'
-        required: true
+        required: false
         type: boolean
         default: false
 
