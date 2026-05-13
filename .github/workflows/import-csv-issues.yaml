@@ -31,6 +31,12 @@ on:
         type: boolean
         default: true
 
+      max-parallel:
+        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
+        required: false
+        type: number
+        default: 5
+
       batch:
         description: 'Create issues in batches (by type)'
         required: false
@@ -79,6 +85,12 @@ on:
         required: false
         type: boolean
         default: true
+
+      max-parallel:
+        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
+        required: false
+        type: number
+        default: 5
 
       batch:
         description: 'Create issues in batches (by type)'
@@ -305,7 +317,7 @@ jobs:
     needs: [merge-matrix, create-labels]
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 5
+      max-parallel: ${{ inputs.max-parallel }}
       matrix:
         issue: ${{ fromJson(needs.merge-matrix.outputs.all) }}
     steps:
