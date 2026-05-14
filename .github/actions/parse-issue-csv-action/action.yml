@@ -3,18 +3,16 @@ description: 'Reusable action to parse a CSV file of issues and output a grouped
   matrix by type.'
 
 inputs:
-  status-if-missing:
-    required: true
-    description: 'Default status to assign if missing (default: new)'
-    default: 'new'
   csv-path:
     required: true
     description: 'Path to the CSV file (relative to repo root)'
   types:
-    required: true
     description: 'JSON array of types in order of processing (default: ["bug","feature","documentation","task"])'
     default: |
       ["bug","feature","documentation","task"]
+  status-if-missing:
+    description: 'Default status to assign if missing (default: new)'
+    default: 'new'
 
 outputs:
   matrix:

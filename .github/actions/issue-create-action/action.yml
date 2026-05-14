@@ -4,48 +4,36 @@ description: 'Reusable action to create a GitHub issue from a CSV row and append
 
 inputs:
   allow-duplicates:
-    required: false
     description: 'Allow creating duplicate issues (default: true)'
     default: 'true'
   allow-closed-duplicates:
-    required: false
     description: 'Allow creating duplicate issues for closed issues'
   allow-unrecognized-status:
-    required: false
     description: "Allow unrecognized status values (default: true, will default to
       'new' status)"
     default: 'true'
   fail-on-unrecognized-status:
-    required: false
     description: 'Fail the action if an unrecognized status value is encountered'
   batch-json:
-    required: false
     description: 'JSON array of issue rows for batch creation'
     default: '[]'
   title:
-    required: false
     description: 'Issue title'
   priority:
-    required: false
     description: 'Priority value'
   effort:
-    required: false
     description: 'Effort value'
   description:
-    required: false
     description: 'Issue description'
   status:
-    required: false
     description: 'Issue status'
   completed:
-    required: false
     description: 'Completed flag'
   dry-run:
-    required: true
     description: 'Dry run'
   github-token:
-    required: true
     description: 'GitHub token for authentication'
+    default: ${{ github.token }}
 
 outputs:
   issue-url:

@@ -1,10 +1,9 @@
-name: "Create Needed Labels"
-description: "Reusable action to ensure all needed labels exist in the repository."
+name: 'Create Needed Labels'
+description: 'Reusable action to ensure all needed labels exist in the repository.'
 
 inputs:
   priority-labels:
-    description: "JSON array of priority label objects (name, color, description)"
-    required: false
+    description: 'JSON array of priority label objects (name, color, description)'
     default: |
       [
         { "name": "priority:high", "color": "d73a4a", "description": "High priority" },
@@ -12,8 +11,7 @@ inputs:
         { "name": "priority:low", "color": "a2eeef", "description": "Low priority" }
       ]
   effort-labels:
-    description: "JSON array of effort label objects (name, color, description)"
-    required: false
+    description: 'JSON array of effort label objects (name, color, description)'
     default: |
       [
         { "name": "effort:high", "color": "b60205", "description": "High effort" },
@@ -21,8 +19,7 @@ inputs:
         { "name": "effort:low", "color": "0e8a16", "description": "Low effort" }
       ]
   default-labels:
-    description: "JSON array of default label objects (name, color, description)"
-    required: false
+    description: 'JSON array of default label objects (name, color, description)'
     default: |
       [
         { "name": "bug", "color": "e99695", "description": "Something is not working" },
@@ -31,32 +28,29 @@ inputs:
         { "name": "documentation", "color": "0075ca", "description": "Improvements or additions to documentation" }
       ]
   priority-map:
-    description: "JSON object mapping priority values to normalized label names"
-    required: false
+    description: 'JSON object mapping priority values to normalized label names'
     default: |
       { "higher": "high", "high": "high", "medium": "medium", "lower": "low", "low": "low" }
   effort-map:
-    description: "JSON object mapping effort values to normalized label names"
-    required: false
+    description: 'JSON object mapping effort values to normalized label names'
     default: |
       { "high": "high", "larger": "high", "large": "high", "medium": "medium", "low": "low", "smaller": "low", "small": "low" }
   matrix:
-    description: "JSON matrix of issues to process (from parse-csv output)"
+    description: 'JSON matrix of issues to process (from parse-csv output)'
     required: true
   dry-run:
-    description: "Dry run"
-    required: true
+    description: 'Dry run'
   github-token:
-    description: "GitHub token for authentication"
-    required: true
+    description: 'GitHub token for authentication'
+    default: ${{ github.token }}
 
 outputs:
   created-labels:
-    description: "JSON array of needed label names that were created or already exist"
+    description: 'JSON array of needed label names that were created or already exist'
     value: ${{ steps.ensure.outputs.created-labels }}
 
 runs:
-  using: "composite"
+  using: 'composite'
   steps:
     - name: Ensure only needed labels exist
       uses: actions/github-script@v9
