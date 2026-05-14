@@ -1,3 +1,14 @@
+## [1.36.0](https://github.com/stairwaytowonderland/actions/compare/v1.35.0...v1.36.0) (2026-05-14)
+
+### ✨ Features
+
+* updaging action defaults ([625ced6](https://github.com/stairwaytowonderland/actions/commit/625ced6304119901fe3598534e1a57edbc14aa63))
+* update packages ([78ef9c7](https://github.com/stairwaytowonderland/actions/commit/78ef9c72214f24611321f2251c157fad6cc0a47b))
+
+### 📚 Documentation
+
+* update README ([4255a90](https://github.com/stairwaytowonderland/actions/commit/4255a9039cc88b6f9f13070d411b8e9e6af3090b))
+
 ## [1.35.0](https://github.com/stairwaytowonderland/actions/compare/v1.34.0...v1.35.0) (2026-05-13)
 
 ### ✨ Features
