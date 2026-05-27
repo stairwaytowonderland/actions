@@ -1,24 +1,58 @@
 name: Publish a Release
 
 on:
-  # Fires when a tag matching v* is pushed with personal credentials.
-  push:
-    tags:
-      - 'v*'
-
-  workflow_dispatch:
+  workflow_call:
     inputs:
       tag:
         description: 'Tag to release (e.g. v1.2.3)'
+        type: string
         required: true
       notes-b64:
         description: 'Base64-encoded release notes (Markdown)'
+        type: string
+        required: false
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with repo scope for creating releases.'
         required: false
 
 jobs:
   publish:
-    name: Publish
-    uses: stairwaytowonderland/create-release/.github/workflows/publish.yaml@v1.11.0
-    with:
-      tag: ${{ github.event.inputs.tag }}
-      notes-b64: ${{ github.event.inputs.notes-b64 }}
+    name: Publish GitHub Release
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    outputs:
+      release-url: ${{ steps.publish.outputs.release-url }}
+      release-tag: ${{ steps.publish.outputs.release-tag }}
+      release-sha: ${{ steps.publish.outputs.release-sha }}
+      release-notes-b64: ${{ steps.publish.outputs.release-notes-b64 }}
+      release-published: ${{ steps.publish.outputs.release-published }}
+
+    steps:
+      # Resolve the tag from whichever trigger fired:
+      #   push: tags                        → github.ref_name  (e.g. v1.2.3)
+      #   workflow_dispatch / workflow_call → inputs.tag
+      - name: Resolve tag
+        id: vars
+        run: echo "tag=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+
+      # Checkout at the input tag so setuptools-scm sees it and stamps the
+      # correct version into the wheel metadata.
+      - name: Checkout release tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.vars.outputs.tag }}
+          token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Publish release
+        id: publish
+        uses: stairwaytowonderland/node-semantic-release@v1
+        with:
+          publish: true
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
+          notes-b64: ${{ inputs.notes-b64 }}
+          tag: ${{ steps.vars.outputs.tag }}

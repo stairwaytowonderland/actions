@@ -10,9 +10,23 @@ Shared actions and workflows for use by the organization.
 ```none
 ./
 ├── .github/
-│   ├── actions/
 │   ├── ISSUE_TEMPLATE/
+│   ├── actions/
+│   │   ├── conventional-commit-action/
+│   │   ├── issue-create-action/
+│   │   ├── labels-create-action/
+│   │   ├── merge-commit-action/
+│   │   ├── parse-issue-csv-action/
+│   │   ├── terraform-apply/
+│   │   └── terraform-plan/
 │   ├── workflows/
+│   │   ├── ci.yaml
+│   │   ├── conventional-commit.yaml
+│   │   ├── import-csv-issues.yaml
+│   │   ├── pre-commit.yaml
+│   │   ├── publish.yaml
+│   │   ├── release.yaml
+│   │   └── terraform-deploy.yml
 │   ├── dependabot.yml
 │   └── PULL_REQUEST_TEMPLATE.md
 ├── .editorconfig
@@ -83,30 +97,65 @@ Creates a GitHub issue from a CSV row and appends to the job summary.
 
 **Inputs:**
 
-| Name                          | Description                                                                      |
-| ----------------------------- | -------------------------------------------------------------------------------- |
-| `allow-duplicates`            | Allow creating duplicate issues (default: `true`)                                |
-| `allow-closed-duplicates`     | Allow creating duplicate issues for closed issues                                |
-| `allow-unrecognized-status`   | Allow unrecognized status values (default: `true`, will default to `new` status) |
-| `fail-on-unrecognized-status` | Fail the action if an unrecognized status value is encountered                   |
-| `batch-json`                  | JSON array of issue rows for batch creation (default: `[]`)                      |
-| `title`                       | Issue title (conflicts with `batch-json`)                                        |
-| `priority`                    | Priority value (conflicts with `batch-json`)                                     |
-| `effort`                      | Effort value (conflicts with `batch-json`)                                       |
-| `description`                 | Issue description (conflicts with `batch-json`)                                  |
-| `status`                      | Issue status (conflicts with `batch-json`)                                       |
-| `completed`                   | Completed flag (conflicts with `batch-json`)                                     |
-| `dry-run`                     | Dry run                                                                          |
-| `github-token`                | GitHub token for authentication                                                  |
+| Name                          | Description                                                           |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `allow-duplicates`            | Allow creating duplicate issues (default: `true`)                     |
+| `allow-closed-duplicates`     | Allow creating duplicate issues for closed issues                     |
+| `allow-unrecognized-status`   | Allow unrecognized status values (default: `true`, fallback to `new`) |
+| `fail-on-unrecognized-status` | Fail action if an unrecognized status value is encountered            |
+| `batch-json`                  | JSON array of issue rows for batch creation (default: `[]`)           |
+| `title`                       | Issue title (conflicts with `batch-json`)                             |
+| `priority`                    | Priority value (conflicts with `batch-json`)                          |
+| `effort`                      | Effort value (conflicts with `batch-json`)                            |
+| `description`                 | Issue description (conflicts with `batch-json`)                       |
+| `status`                      | Issue status (conflicts with `batch-json`)                            |
+| `completed`                   | Completed flag (conflicts with `batch-json`)                          |
+| `dry-run`                     | Dry run                                                               |
+| `github-token`                | GitHub token for authentication                                       |
 
 **Outputs:**
 
-| Name         | Description                                                      |
-| ------------ | ---------------------------------------------------------------- |
-| `issue-url`  | URL of the created issue (empty if dry run)                      |
-| `issue-urls` | JSON array of created issue URLs (batch only) (empty if dry run) |
+| Name         | Description                                                     |
+| ------------ | --------------------------------------------------------------- |
+| `issue-url`  | URL of the created issue (empty if dry run)                     |
+| `issue-urls` | JSON array of created issue URLs (batch only, empty if dry run) |
 
-### 4. `terraform-plan`
+### 4. `conventional-commit-action`
+
+**Description:**
+Validates commit messages against the Conventional Commits specification.
+
+**Inputs:**
+
+| Name                           | Description                                                        |
+| ------------------------------ | ------------------------------------------------------------------ |
+| `base-ref-from-default-branch` | Use repository default branch as base ref (default: `true`)        |
+| `base-ref`                     | Base reference to compare against (default: `origin/main`)         |
+| `fail-on-error`                | Fail action if invalid commit messages are found (default: `true`) |
+| `types`                        | Comma-separated allowed commit types                               |
+| `scopes`                       | Comma-separated allowed scopes (optional)                          |
+| `fetch-depth`                  | Git fetch depth used to compute comparison range (default: `100`)  |
+
+**Outputs:**
+
+| Name              | Description                                        |
+| ----------------- | -------------------------------------------------- |
+| `valid`           | Whether all commits are valid conventional commits |
+| `invalid-commits` | Multiline list of invalid commit messages          |
+| `commit-count`    | Total number of commits checked                    |
+
+### 5. `merge-commit-action`
+
+**Description:**
+Checks whether the current commit is a merge commit.
+
+**Outputs:**
+
+| Name       | Description                                              |
+| ---------- | -------------------------------------------------------- |
+| `is_merge` | `true` if commit has multiple parents, otherwise `false` |
+
+### 6. `terraform-plan`
 
 **Description:**
 Reusable composite action for Terraform plan.
@@ -120,7 +169,7 @@ Reusable composite action for Terraform plan.
 | `extra-init-args`   | Extra arguments for Terraform init (default: `""`) |
 | `extra-plan-args`   | Extra arguments for Terraform plan (default: `""`) |
 
-### 5. `terraform-apply`
+### 7. `terraform-apply`
 
 **Description:**
 Reusable composite action for Terraform apply.
@@ -134,10 +183,47 @@ Reusable composite action for Terraform apply.
 | `extra-init-args`   | Extra arguments for Terraform init (default: `""`)  |
 | `extra-apply-args`  | Extra arguments for Terraform apply (default: `""`) |
 
-## Reusable Workflows
+## Workflows
 
-All workflows in this section are implemented as [reusable workflows](https://docs.github.com/en/actions/using-workflows/reusing-workflows)
-using `workflow_call`. They are designed to be invoked from other workflows or repositories.
+### `ci`
+
+**Description:**
+Main orchestration workflow for release and publish operations of this repo.
+
+**Triggers:**
+
+| Event               | Details                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `push`              | Runs on `main` (excluding `CHANGELOG.md`, `package.json`, `package-lock.json`) and tags matching `v*` |
+| `workflow_dispatch` | Manual run with `fail-on-no-release` and `publish` flags                                              |
+
+**Behavior:**
+
+- Runs `release.yaml` on `main` pushes unless publish mode is requested.
+- Runs `publish.yaml` for `v*` tags or manual runs with `publish: true`.
+- Updates major version tags via `nowactions/update-majorver@v1` after publish.
+
+## Reusable Workflows (`workflow_call`)
+
+### `conventional-commit`
+
+**Description:**
+Reusable workflow to validate commit messages in pull requests or caller-defined refs.
+
+**Inputs:**
+
+| Name         | Description                                                         |
+| ------------ | ------------------------------------------------------------------- |
+| `ref`        | Git ref to check (default: `refs/heads/main`)                       |
+| `action-ref` | Ref of this shared actions repository to checkout (default: `main`) |
+
+**Outputs:**
+
+| Name                         | Description                                  |
+| ---------------------------- | -------------------------------------------- |
+| `conventional-commits-valid` | `true` when all checked commits are valid    |
+| `commit-count`               | Number of commits validated                  |
+| `is-merge`                   | Whether the checked commit is a merge commit |
 
 ### `import-csv-issues`
 
@@ -163,22 +249,23 @@ secrets:
 
 **Inputs:**
 
-| Name                      | Description                                                          |
-| ------------------------- | -------------------------------------------------------------------- |
-| `ref`                     | Git ref of the shared actions repo to use (default: `main`)          |
-| `node-version`            | Node.js version to use for parsing CSV (default: `24`)               |
-| `dry-run`                 | Dry run (default: `true`)                                            |
-| `max-parallel`            | Maximum number of parallel issue creations (default: `5`)            |
-| `batch`                   | Create issues in batches (default: `true`)                           |
-| `allow-duplicates`        | Allow creating duplicate issues (default: `false`)                   |
-| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues (default: `false`) |
-| `csv-path` (required)     | Path (relative) to the CSV file                                      |
+| Name                      | Description                                                            |
+| ------------------------- | ---------------------------------------------------------------------- |
+| `secret-token-name`       | Secret name used in `workflow_dispatch` mode (default: `GITHUB_TOKEN`) |
+| `ref`                     | Git ref of the shared actions repo to use (default: `main`)            |
+| `node-version`            | Node.js version to use for parsing CSV (default: `24`)                 |
+| `dry-run`                 | Dry run (default: `true`)                                              |
+| `max-parallel`            | Maximum number of parallel issue creations (default: `5`)              |
+| `batch`                   | Create issues in batches (default: `true`)                             |
+| `allow-duplicates`        | Allow creating duplicate issues (default: `false`)                     |
+| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues (default: `false`)   |
+| `csv-path` (required)     | Path (relative) to the CSV file                                        |
 
 **Secrets:**
 
-| Name           | Description                                                    |
-| -------------- | -------------------------------------------------------------- |
-| `github-token` | GitHub Personal Access Token with permissions to create issues |
+| Name           | Description                                                                     |
+| -------------- | ------------------------------------------------------------------------------- |
+| `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
 
 ### `pre-commit`
 
@@ -198,6 +285,85 @@ with:
 | Name     | Description                                                             |
 | -------- | ----------------------------------------------------------------------- |
 | `config` | Path to the pre-commit config file (default: `.pre-commit-config.yaml`) |
+
+### `release`
+
+**Description:**
+Runs semantic-release and exposes release metadata for downstream workflows.
+
+**Usage Example:**
+
+```yaml
+uses: stairwaytowonderland/actions/.github/workflows/release.yaml@main
+with:
+ fail-on-no-release: true
+ ref: refs/heads/main
+secrets:
+ github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
+```
+
+**Inputs:**
+
+| Name                 | Description                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| `dispatch-workflow`  | Optional workflow file to dispatch after successful release       |
+| `fail-on-no-release` | Fail workflow when no new release is published (default: `false`) |
+| `ref`                | Git ref or SHA to release (defaults to current ref)               |
+
+**Outputs:**
+
+| Name                       | Description                         |
+| -------------------------- | ----------------------------------- |
+| `new-release-published`    | Whether a new release was published |
+| `new-release-version`      | New semantic version                |
+| `new-release-git-tag`      | Git tag created for the release     |
+| `new-release-notes`        | Release notes (markdown)            |
+| `new-release-notes-base64` | Base64 encoded release notes        |
+
+**Secrets:**
+
+| Name           | Description                                      |
+| -------------- | ------------------------------------------------ |
+| `github-token` | Optional token for release creation and dispatch |
+
+### `publish`
+
+**Description:**
+Publishes a GitHub release for a provided tag and optional precomputed notes.
+
+**Usage Example:**
+
+```yaml
+uses: stairwaytowonderland/actions/.github/workflows/publish.yaml@main
+with:
+ tag: v1.2.3
+ notes-b64: ${{ needs.release.outputs.new-release-notes-base64 }}
+secrets:
+ github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
+```
+
+**Inputs:**
+
+| Name        | Description                                    |
+| ----------- | ---------------------------------------------- |
+| `tag`       | Tag to publish (required, e.g. `v1.2.3`)       |
+| `notes-b64` | Optional base64-encoded markdown release notes |
+
+**Outputs:**
+
+| Name                | Description                            |
+| ------------------- | -------------------------------------- |
+| `release-url`       | Published release URL                  |
+| `release-tag`       | Release tag used                       |
+| `release-sha`       | Commit SHA associated with release     |
+| `release-notes-b64` | Release notes in base64                |
+| `release-published` | Whether publish action created release |
+
+**Secrets:**
+
+| Name           | Description                                    |
+| -------------- | ---------------------------------------------- |
+| `github-token` | Optional token to checkout and publish release |
 
 ### `terraform-deploy`
 

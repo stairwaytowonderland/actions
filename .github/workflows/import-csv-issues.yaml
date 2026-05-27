@@ -128,7 +128,7 @@ jobs:
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
           elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
       - name: Check token scopes
@@ -154,7 +154,7 @@ jobs:
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
           elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
       - name: Checkout repo
@@ -224,7 +224,7 @@ jobs:
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
           elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
       - name: Checkout repo
@@ -261,7 +261,7 @@ jobs:
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
           elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
       - name: Checkout repo
@@ -326,7 +326,7 @@ jobs:
           if [ -n "${{ secrets.github-token }}" ]; then
             echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
           elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[github.event.inputs.secret-token-name] }}" >> $GITHUB_ENV
+            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
           fi
 
       - name: Checkout repo

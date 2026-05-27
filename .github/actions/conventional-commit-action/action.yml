@@ -1,0 +1,190 @@
+name: 'Conventional Commits Checker'
+description: 'Validates that commits follow the Conventional Commits specification'
+
+# Ref: https://haya14busa.github.io/github-action-brandings/
+branding:
+  icon: 'terminal'
+  color: 'gray-dark'
+
+inputs:
+  base-ref-from-default-branch:
+    description: 'Whether to use the repository default branch as the base ref'
+    required: false
+    default: 'true'
+  base-ref:
+    description: 'Base reference to compare commits against (e.g., main, master)'
+    required: false
+    default: 'origin/main'
+  fail-on-error:
+    description: 'Whether to fail the action if non-conventional commits are found'
+    required: false
+    default: 'true'
+  types:
+    description: 'Comma-separated list of allowed commit types'
+    required: false
+    default: 'feat,fix,docs,style,refactor,perf,test,build,ci,chore,revert'
+  scopes:
+    description: 'Comma-separated list of allowed scopes (leave empty to allow any; example: "api,ui,core,docs")'
+    required: false
+  fetch-depth:
+    description: 'Git fetch depth'
+    required: false
+    default: '100'
+
+outputs:
+  valid:
+    description: 'Whether all commits are valid conventional commits'
+    value: ${{ steps.check.outputs.valid }}
+  invalid-commits:
+    description: 'List of invalid commit messages'
+    value: ${{ steps.check.outputs.invalid_commits }}
+  commit-count:
+    description: 'Total number of commits checked'
+    value: ${{ steps.check.outputs.commit_count }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check conventional commits
+      id: check
+      shell: bash
+      env:
+        BASE_REF_FROM_DEFAULT_BRANCH: ${{ inputs.base-ref-from-default-branch }}
+        BASE_REF: ${{ inputs.base-ref }}
+        FAIL_ON_ERROR: ${{ inputs.fail-on-error }}
+        TYPES: ${{ inputs.types }}
+        SCOPES: ${{ inputs.scopes }}
+        FETCH_DEPTH: ${{ inputs.fetch-depth }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        IS_PR: ${{ github.event_name == 'pull_request' }}
+      run: |
+        set -e
+
+        # Configuration
+        if [ "$BASE_REF_FROM_DEFAULT_BRANCH" = "true" ]; then
+          BASE_REF="origin/${DEFAULT_BRANCH}"
+        else
+          BASE_REF="${BASE_REF}"
+        fi
+        FAIL_ON_ERROR="${FAIL_ON_ERROR}"
+        ALLOWED_TYPES="${TYPES}"
+        ALLOWED_SCOPES="${SCOPES}"
+
+        echo "::group::Configuration"
+        echo "Base ref: $BASE_REF"
+        echo "Fail on error: $FAIL_ON_ERROR"
+        echo "Allowed types: $ALLOWED_TYPES"
+        echo "Allowed scopes: ${ALLOWED_SCOPES:-any}"
+        echo "::endgroup::"
+
+        # Fetch base ref for comparison
+        echo "::group::Fetching base reference"
+        git fetch origin "${BASE_REF#origin/}" --depth="$FETCH_DEPTH"
+        echo "::endgroup::"
+
+        # Get commit range
+        if [ "$IS_PR" = "true" ]; then
+          BASE_SHA="$GITHUB_EVENT_PULL_REQUEST_BASE_SHA"
+          HEAD_SHA="$GITHUB_EVENT_PULL_REQUEST_HEAD_SHA"
+          COMMIT_RANGE="${BASE_SHA}..${HEAD_SHA}"
+        else
+          # For push events, compare with base ref
+          BASE_SHA="$GITHUB_EVENT_BEFORE"
+          HEAD_SHA="$GITHUB_EVENT_AFTER"
+          COMMIT_RANGE="${BASE_SHA:-$BASE_REF}..${HEAD_SHA:-HEAD}"
+        fi
+
+        echo "::group::Commit range"
+        echo "Checking commits in range: $COMMIT_RANGE"
+        echo "::endgroup::"
+
+        # Get commits
+        mapfile -t COMMITS < <(git log --format="%H" "$COMMIT_RANGE")
+
+        echo "::group::Commit count"
+        commit_count="${#COMMITS[@]}"
+        echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
+        echo "Commit count: $commit_count"
+        echo "::endgroup::"
+
+        if [ $commit_count -eq 0 ]; then
+          echo "::notice::No commits to validate"
+          echo "valid=true" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "::group::Validating ${#COMMITS[@]} commit(s)"
+
+        # Validation regex for conventional commits
+        # Format: type(scope)!: subject
+        # or:     type!: subject
+        # or:     type(scope): subject
+        # or:     type: subject
+        TYPES_PATTERN=$(echo "$ALLOWED_TYPES" | tr ',' '|')
+
+        if [ -n "$ALLOWED_SCOPES" ]; then
+          SCOPES_PATTERN="($(echo "$ALLOWED_SCOPES" | tr ',' '|'))"
+          REGEX="^($TYPES_PATTERN)(\($SCOPES_PATTERN\))?!?: .{1,}"
+        else
+          REGEX="^($TYPES_PATTERN)(\([a-z0-9_-]+\))?!?: .{1,}"
+        fi
+
+        INVALID_COMMITS=()
+        ALL_VALID=true
+
+        for commit in "${COMMITS[@]}"; do
+          COMMIT_MSG=$(git log -1 --format=%s "$commit")
+          COMMIT_SHORT=$(git log -1 --format=%h "$commit")
+
+          echo "Checking: $COMMIT_SHORT - $COMMIT_MSG"
+
+          if [[ ! "$COMMIT_MSG" =~ $REGEX ]]; then
+            echo "  ❌ Invalid: Does not follow Conventional Commits format"
+            INVALID_COMMITS+=("$COMMIT_SHORT: $COMMIT_MSG")
+            ALL_VALID=false
+          else
+            echo "  ✅ Valid"
+          fi
+        done
+
+        echo "::endgroup::"
+
+        # Output results
+        if [ "$ALL_VALID" = true ]; then
+          echo "::notice::✅ All commits follow Conventional Commits specification"
+          echo "valid=true" >> $GITHUB_OUTPUT
+        else
+          echo "::group::❌ Invalid commits found"
+          printf '%s\n' "${INVALID_COMMITS[@]}"
+          echo "::endgroup::"
+
+          # Set multiline output
+          echo "invalid_commits<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "${INVALID_COMMITS[@]}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "valid=false" >> $GITHUB_OUTPUT
+
+          # Create error annotations
+          for invalid in "${INVALID_COMMITS[@]}"; do
+            echo "::error::Invalid commit: $invalid"
+          done
+
+          echo "> [!CAUTION]" >> $GITHUB_STEP_SUMMARY
+          echo "> ### Commits must follow Conventional Commits specification:" >> $GITHUB_STEP_SUMMARY
+          echo "> **Format**: *<type\>[optional scope][!]: <description\>*" >> $GITHUB_STEP_SUMMARY
+          echo "> " >> $GITHUB_STEP_SUMMARY
+          echo "> - Example: feat(api): add user authentication" >> $GITHUB_STEP_SUMMARY
+          echo "> - Example: fix!: correct critical security issue" >> $GITHUB_STEP_SUMMARY
+          echo "> " >> $GITHUB_STEP_SUMMARY
+          echo "> **Allowed types**: $ALLOWED_TYPES" >> $GITHUB_STEP_SUMMARY
+          if [ -n "$ALLOWED_SCOPES" ]; then
+            echo "> **Allowed scopes**: $ALLOWED_SCOPES" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "> **Allowed scopes**: any" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "$FAIL_ON_ERROR" = "true" ]; then
+            exit 1
+          fi
+        fi

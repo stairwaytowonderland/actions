@@ -1,0 +1,32 @@
+name: Is Merge Commit
+description: Check if the current event is a merge commit
+
+# Ref: https://haya14busa.github.io/github-action-brandings/
+branding:
+  icon: 'terminal'
+  color: 'gray-dark'
+
+outputs:
+  is_merge:
+    description: 'Whether the current commit is a merge commit (true/false)'
+    value: ${{ steps.check-merge.outputs.is_merge }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check if merge commit
+      id: check-merge
+      shell: bash
+      run: |
+        set -e
+
+        # Check if the pushed commit has multiple parents (true merge)
+        PARENT_COUNT=$(git rev-list --parents -n 1 HEAD | wc -w)
+        # A merge commit has 3+ words (commit hash + 2+ parent hashes)
+        if [ "$PARENT_COUNT" -gt 2 ]; then
+          echo "is_merge=true" >> $GITHUB_OUTPUT
+          echo "This is a merge commit (has $((PARENT_COUNT - 1)) parents)"
+        else
+          echo "is_merge=false" >> $GITHUB_OUTPUT
+          echo "This is a regular commit"
+        fi
