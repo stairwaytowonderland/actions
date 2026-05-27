@@ -1,6 +1,6 @@
 {
 	"name": "stairwaytowonderland-actions",
-	"version": "1.36.0",
+	"version": "1.37.0",
 	"description": "Shared GitHub Actions and Workflows for the 'stairwaytowonderland' organization",
 	"scripts": {
 		"build": "echo 'Nothing to build'"

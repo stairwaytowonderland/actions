@@ -1,3 +1,11 @@
+## [1.37.0](https://github.com/stairwaytowonderland/actions/compare/v1.36.0...v1.37.0) (2026-05-27)
+
+### ✨ Features
+
+* general updates ([0706c05](https://github.com/stairwaytowonderland/actions/commit/0706c05e5a5683ecdc29a858e3df46db4bc94238))
+* update package-lock ([ce49e3b](https://github.com/stairwaytowonderland/actions/commit/ce49e3b3f72440b6a291ad9d500162e00558b3f7))
+* update package-lock ([b952bd5](https://github.com/stairwaytowonderland/actions/commit/b952bd5033f043309d0ed6da95e00fdb6183723a))
+
 ## [1.36.0](https://github.com/stairwaytowonderland/actions/compare/v1.35.0...v1.36.0) (2026-05-14)
 
 ### ✨ Features
