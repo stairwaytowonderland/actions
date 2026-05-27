@@ -1,3 +1,9 @@
+## [1.38.0](https://github.com/stairwaytowonderland/actions/compare/v1.37.0...v1.38.0) (2026-05-27)
+
+### ✨ Features
+
+* testing removeal of npm packages ([a97b016](https://github.com/stairwaytowonderland/actions/commit/a97b0163c4b312c430442752d4bef04b74e2810d))
+
 ## [1.37.0](https://github.com/stairwaytowonderland/actions/compare/v1.36.0...v1.37.0) (2026-05-27)
 
 ### ✨ Features
