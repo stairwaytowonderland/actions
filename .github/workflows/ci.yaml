@@ -65,7 +65,7 @@ jobs:
         id: dispatch-workflow
         run: echo "dispatch-workflow=$DISPATCH_WORKFLOW" >> $GITHUB_OUTPUT
         env:
-          DISPATCH_WORKFLOW: ${{ secrets.GH_PAT_CREATE_RELEASE == secrets.GITHUB_TOKEN && 'publish.yaml' }}
+          DISPATCH_WORKFLOW: ${{ secrets.GH_PAT_CREATE_RELEASE == secrets.GITHUB_TOKEN && 'publish.yaml' || '' }}
 
   release:
     name: Release
