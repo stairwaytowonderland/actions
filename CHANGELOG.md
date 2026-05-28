@@ -1,3 +1,9 @@
+## [1.41.0](https://github.com/stairwaytowonderland/actions/compare/v1.40.0...v1.41.0) (2026-05-28)
+
+### ✨ Features
+
+* adding .releaserc ([81324bc](https://github.com/stairwaytowonderland/actions/commit/81324bc3aa3861cc009339c9d899ee55be70993c))
+
 ## [1.38.0](https://github.com/stairwaytowonderland/actions/compare/v1.37.0...v1.38.0) (2026-05-27)
 
 ### ✨ Features
