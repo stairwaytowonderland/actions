@@ -1,3 +1,10 @@
+## [1.42.0](https://github.com/stairwaytowonderland/actions/compare/v1.41.0...v1.42.0) (2026-05-28)
+
+### ✨ Features
+
+* update package.json ([2df9979](https://github.com/stairwaytowonderland/actions/commit/2df99798f3a455c4514b3515bb05753db53e0138))
+* updates ([d31424b](https://github.com/stairwaytowonderland/actions/commit/d31424b3cf513b289b5a913ff48e520d1c639a6d))
+
 ## [1.41.0](https://github.com/stairwaytowonderland/actions/compare/v1.40.0...v1.41.0) (2026-05-28)
 
 ### ✨ Features
