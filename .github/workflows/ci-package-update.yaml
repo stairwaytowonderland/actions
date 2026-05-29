@@ -61,13 +61,8 @@ jobs:
           SHOULD_RUN=false
           if [ -z "$PATHS" ]; then
             echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-            if [ "$FAIL_ON_NO_UPDATE" = 'true' ]; then
-              echo "::error::No paths specified to check for updates, and 'fail-on-no-update' is enabled. Failing workflow."
-              exit 1
-            else
-              echo "::warning::No paths specified, skipping path check."
-              exit 0
-            fi
+            echo "::warning::No paths specified, skipping path check."
+            exit 0
           fi
           echo "::group::Checking commits for changes to specified paths"
           CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
@@ -80,10 +75,17 @@ jobs:
               echo "::notice::Found change to path: $path"
               SHOULD_RUN=true
               break
-            else
-              echo "::notice::No changes found for path: $path"
             fi
           done
+          if [ "$SHOULD_RUN" != 'true' ]; then
+            if [ "$FAIL_ON_NO_UPDATE" = 'true' ]; then
+              echo "::error::No changes found for specified paths, and 'fail-on-no-update' is enabled. Failing workflow."
+              echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+              exit 1
+            else
+              echo "::warning::No changes found for specified paths."
+            fi
+          fi
           echo "::endgroup::"
           echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         env:
