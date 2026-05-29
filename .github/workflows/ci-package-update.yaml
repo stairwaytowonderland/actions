@@ -7,6 +7,32 @@ on:
       - 'package.json'
       - 'package-lock.json'
 
+  workflow_call:
+    inputs:
+      paths:
+        description: 'A newline delimited list of file paths to check for changes (e.g. package.json and package-lock.json).'
+        type: string
+        required: false
+        default: |
+          package.json
+          package-lock.json
+      ignore-authors:
+        description: 'A newline delimited list of commit authors to ignore when checking for changes (e.g. semantic-release-bot and github-actions[bot]).'
+        type: string
+        required: false
+        default: |
+          github-actions[bot]
+          semantic-release-bot
+      fail-on-no-update:
+        description: 'Fail the workflow if no relevant updates are detected (e.g. no changes to specified paths or all changes are by ignored authors).'
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with repo scope for checking commits.'
+        required: false
+
 concurrency:
   group: '${{ github.repository_id }}-${{ github.ref_name }}'
   cancel-in-progress: false
@@ -15,8 +41,88 @@ concurrency:
 # 'Fine-grained token' repo permissions: Contents
 
 jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      trigger-update: ${{ steps.has-paths.outputs.trigger-update == 'true' && steps.has-authors.outputs.trigger-update == 'true' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: ${{ inputs.paths }}
+          token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_RELEASE || secrets.GITHUB_TOKEN) }}
+
+      - name: Determine if workflow should run based on changed paths
+        id: has-paths
+        run: |
+          SHOULD_RUN=false
+          if [ -z "$PATHS" ]; then
+            echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+            if [ "$FAIL_ON_NO_UPDATE" = 'true' ]; then
+              echo "::error::No paths specified to check for updates, and 'fail-on-no-update' is enabled. Failing workflow."
+              exit 1
+            else
+              echo "::warning::No paths specified, skipping path check."
+              exit 0
+            fi
+          fi
+          echo "::group::Checking commits for changes to specified paths"
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          echo "Changed files: $CHANGED_FILES"
+          echo "Paths to check:"
+          echo "$PATHS"
+          for path in $PATHS; do
+            echo "Checking path: $path"
+            if echo "$CHANGED_FILES" | grep -qE "^$path$"; then
+              echo "::notice::Found change to path: $path"
+              SHOULD_RUN=true
+              break
+            else
+              echo "::notice::No changes found for path: $path"
+            fi
+          done
+          echo "::endgroup::"
+          echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+        env:
+          PATHS: ${{ inputs.paths || 'package.json package-lock.json' }}
+          FAIL_ON_NO_UPDATE: ${{ inputs.fail-on-no-update }}
+
+      - name: Determine if workflow should run based on commit authors
+        id: has-authors
+        run: |
+          SHOULD_RUN=false
+          if [ -z "$IGNORE_AUTHORS" ]; then
+            echo "::notice::No authors specified to ignore, skipping author check."
+            echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "::group::Checking commits for ignored authors"
+          AUTHORS=$(git log -1 --pretty=format:'%an')
+          echo "Commit authors: $AUTHORS"
+          echo "Authors to ignore:"
+          echo "$IGNORE_AUTHORS"
+          for author in $IGNORE_AUTHORS; do
+            echo "Checking author: $author"
+            if echo "$AUTHORS" | grep -qE "^$author$"; then
+              echo "::notice::Latest commit authored by ignored author: $author"
+              SHOULD_RUN=false
+              break
+            else
+              echo "::notice::Latest commit not authored by ignored author: $author"
+              SHOULD_RUN=true
+            fi
+          done
+          echo "::endgroup::"
+          echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+        env:
+          IGNORE_AUTHORS: ${{ inputs.ignore-authors || 'github-actions[bot] semantic-release-bot' }}
+
   package-update:
     name: Update CI packages
+    needs: [setup]
+    if: needs.setup.outputs.trigger-update == 'true'
     runs-on: ubuntu-latest
 
     steps:
