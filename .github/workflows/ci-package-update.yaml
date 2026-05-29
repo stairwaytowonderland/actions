@@ -54,7 +54,7 @@ jobs:
         id: check-event
         run: |
           echo "is-push=${IS_PUSH}" >> $GITHUB_OUTPUT
-          echo "::notice::GitHub event name: ${GITHUB_EVENT_NAME}"
+          echo "::notice::GitHub event name (github.event_name): '${GITHUB_EVENT_NAME}'"
         env:
           IS_PUSH: ${{ github.event_name == 'push' }}
 
