@@ -110,10 +110,11 @@ jobs:
               echo "::notice::Latest commit authored by ignored author: $author"
               SHOULD_RUN=false
               break
-            else
-              echo "::notice::Latest commit not authored by ignored author: $author"
             fi
           done
+          if [ "$SHOULD_RUN" = 'true' ]; then
+            echo "::notice::No ignored authors found in latest commit."
+          fi
           echo "::endgroup::"
           echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         env:
