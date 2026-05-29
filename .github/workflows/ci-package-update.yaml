@@ -1,4 +1,4 @@
-name: Update CI packages
+name: CI Package Update
 
 on:
   push:
@@ -93,7 +93,7 @@ jobs:
       - name: Determine if workflow should run based on commit authors
         id: has-authors
         run: |
-          SHOULD_RUN=false
+          SHOULD_RUN=true
           if [ -z "$IGNORE_AUTHORS" ]; then
             echo "::notice::No authors specified to ignore, skipping author check."
             echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
@@ -112,7 +112,6 @@ jobs:
               break
             else
               echo "::notice::Latest commit not authored by ignored author: $author"
-              SHOULD_RUN=true
             fi
           done
           echo "::endgroup::"
