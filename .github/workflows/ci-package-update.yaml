@@ -50,9 +50,17 @@ jobs:
           fetch-depth: 2
           token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_RELEASE || secrets.GITHUB_TOKEN) }}
 
+      - name: Check if push event
+        id: check-event
+        run: |
+          echo "is-push=${IS_PUSH}" >> $GITHUB_OUTPUT
+          echo "::notice::GitHub event name: ${GITHUB_EVENT_NAME}"
+        env:
+          IS_PUSH: ${{ github.event_name == 'push' }}
+
       - name: Get changed files
         id: changed-files
-        if: github.event_name != 'push'
+        if: steps.check-event.outputs.is-push != 'true'
         run: |
           echo "CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)"
           if [ -n "$CHANGED_FILES" ]; then
@@ -67,7 +75,7 @@ jobs:
 
       - name: Get specified paths
         id: specified-paths
-        if: github.event_name != 'push'
+        if: steps.check-event.outputs.is-push != 'true'
         run: |
           echo "PATHS=${{ inputs.paths }}"
           if [ -n "${{ inputs.paths }}" ]; then
@@ -81,7 +89,7 @@ jobs:
 
       - name: Determine if workflow should run based on changed paths
         id: has-paths
-        if: github.event_name != 'push' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
+        if: steps.check-event.outputs.is-push != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
         run: |
           SHOULD_RUN=false
           echo "::group::Checking commits for changes to specified paths"
@@ -107,7 +115,7 @@ jobs:
 
       - name: Determine if workflow should run based on commit authors
         id: has-authors
-        if: github.event_name != 'push'
+        if: steps.check-event.outputs.is-push != 'true'
         run: |
           SHOULD_RUN=true
           if [ -z "$IGNORE_AUTHORS" ]; then
