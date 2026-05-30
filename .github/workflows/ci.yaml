@@ -71,7 +71,7 @@ jobs:
     name: Release
     needs: [setup]
     if: ${{ needs.setup.outputs.release == 'true' }}
-    uses: stairwaytowonderland/create-release/.github/workflows/release.yaml@v1
+    uses: ./.github/workflows/release.yaml
     with:
       dispatch-workflow: ${{ needs.setup.outputs.dispatch-workflow }}
       fail-on-no-release: ${{ inputs.fail-on-no-release || false }}
@@ -82,7 +82,7 @@ jobs:
     name: Publish
     needs: [setup]
     if: ${{ needs.setup.outputs.publish == 'true' }}
-    uses: stairwaytowonderland/create-release/.github/workflows/publish.yaml@v1
+    uses: ./.github/workflows/publish.yaml
     with:
       tag: ${{ github.ref_name }}
     secrets:

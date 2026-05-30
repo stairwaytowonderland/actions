@@ -5,12 +5,11 @@ Shared actions and workflows for use by the organization.
 ## Project structure
 
 > [!NOTE]
-> `tree -a -F -L 2 -I '.git|.vscode' --gitignore --dirsfirst .`
+> `tree -a -F -L 3 -I '.git|.vscode' --gitignore --dirsfirst .`
 
 ```none
 ./
 ├── .github/
-│   ├── ISSUE_TEMPLATE/
 │   ├── actions/
 │   │   ├── conventional-commit-action/
 │   │   ├── issue-create-action/
@@ -19,7 +18,14 @@ Shared actions and workflows for use by the organization.
 │   │   ├── parse-issue-csv-action/
 │   │   ├── terraform-apply/
 │   │   └── terraform-plan/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── 01_bug_report.yml
+│   │   ├── 02_feature_request.yml
+│   │   ├── 03_documentation.yml
+│   │   ├── 04_task.yml
+│   │   └── config.yml
 │   ├── workflows/
+│   │   ├── ci-package-update.yaml
 │   │   ├── ci.yaml
 │   │   ├── conventional-commit.yaml
 │   │   ├── import-csv-issues.yaml
@@ -53,16 +59,16 @@ Ensures all needed labels exist in the repository.
 
 **Inputs:**
 
-| Name                | Description                                                     |
-| ------------------- | --------------------------------------------------------------- |
-| `priority-labels`   | JSON array of priority label objects (name, color, description) |
-| `effort-labels`     | JSON array of effort label objects (name, color, description)   |
-| `default-labels`    | JSON array of default label objects (name, color, description)  |
-| `priority-map`      | JSON object mapping priority values to normalized label names   |
-| `effort-map`        | JSON object mapping effort values to normalized label names     |
-| `matrix` (required) | JSON matrix of issues to process (from parse-csv output)        |
-| `dry-run`           | Dry run (no changes made)                                       |
-| `github-token`      | GitHub token for authentication                                 |
+| Name              | Description                                                     | Required | Type   | Default |
+| ----------------- | --------------------------------------------------------------- | -------- | ------ | ------- |
+| `priority-labels` | JSON array of priority label objects (name, color, description) | No       | array  |         |
+| `effort-labels`   | JSON array of effort label objects (name, color, description)   | No       | array  |         |
+| `default-labels`  | JSON array of default label objects (name, color, description)  | No       | array  |         |
+| `priority-map`    | JSON object mapping priority values to normalized label names   | No       | object |         |
+| `effort-map`      | JSON object mapping effort values to normalized label names     | No       | object |         |
+| `matrix`          | JSON matrix of issues to process (from parse-csv output)        | Yes      | array  |         |
+| `dry-run`         | Dry run (no changes made)                                       | No       | bool   |         |
+| `github-token`    | GitHub token for authentication                                 | No       | string |         |
 
 **Outputs:**
 
@@ -77,11 +83,11 @@ Parses a CSV file of issues and outputs a grouped matrix by type.
 
 **Inputs:**
 
-| Name                  | Description                                                                                      |
-| --------------------- | ------------------------------------------------------------------------------------------------ |
-| `csv-path` (required) | Path to the CSV file (relative to repo root)                                                     |
-| `types`               | JSON array of types in order of processing (default: `["bug","feature","documentation","task"]`) |
-| `status-if-missing`   | Default status to assign if missing (default: `new`)                                             |
+| Name                | Description                                  | Required | Type   | Default                                    |
+| ------------------- | -------------------------------------------- | -------- | ------ | ------------------------------------------ |
+| `csv-path`          | Path to the CSV file (relative to repo root) | Yes      | string |                                            |
+| `types`             | JSON array of types in order of processing   | No       | array  | `["bug","feature","documentation","task"]` |
+| `status-if-missing` | Default status to assign if missing          | No       | string | `new`                                      |
 
 **Outputs:**
 
@@ -97,21 +103,21 @@ Creates a GitHub issue from a CSV row and appends to the job summary.
 
 **Inputs:**
 
-| Name                          | Description                                                           |
-| ----------------------------- | --------------------------------------------------------------------- |
-| `allow-duplicates`            | Allow creating duplicate issues (default: `true`)                     |
-| `allow-closed-duplicates`     | Allow creating duplicate issues for closed issues                     |
-| `allow-unrecognized-status`   | Allow unrecognized status values (default: `true`, fallback to `new`) |
-| `fail-on-unrecognized-status` | Fail action if an unrecognized status value is encountered            |
-| `batch-json`                  | JSON array of issue rows for batch creation (default: `[]`)           |
-| `title`                       | Issue title (conflicts with `batch-json`)                             |
-| `priority`                    | Priority value (conflicts with `batch-json`)                          |
-| `effort`                      | Effort value (conflicts with `batch-json`)                            |
-| `description`                 | Issue description (conflicts with `batch-json`)                       |
-| `status`                      | Issue status (conflicts with `batch-json`)                            |
-| `completed`                   | Completed flag (conflicts with `batch-json`)                          |
-| `dry-run`                     | Dry run                                                               |
-| `github-token`                | GitHub token for authentication                                       |
+| Name                          | Description                                                | Required | Type    | Default |
+| ----------------------------- | ---------------------------------------------------------- | -------- | ------- | ------- |
+| `allow-duplicates`            | Allow creating duplicate issues                            | No       | boolean | `true`  |
+| `allow-closed-duplicates`     | Allow creating duplicate issues for closed issues          | No       | boolean |         |
+| `allow-unrecognized-status`   | Allow unrecognized status values (fallback to `new`)       | No       | boolean | `true`  |
+| `fail-on-unrecognized-status` | Fail action if an unrecognized status value is encountered | No       | boolean |         |
+| `batch-json`                  | JSON array of issue rows for batch creation                | No       | array   | `[]`    |
+| `title`                       | Issue title (conflicts with `batch-json`)                  | No       | string  |         |
+| `priority`                    | Priority value (conflicts with `batch-json`)               | No       | string  |         |
+| `effort`                      | Effort value (conflicts with `batch-json`)                 | No       | string  |         |
+| `description`                 | Issue description (conflicts with `batch-json`)            | No       | string  |         |
+| `status`                      | Issue status (conflicts with `batch-json`)                 | No       | string  |         |
+| `completed`                   | Completed flag (conflicts with `batch-json`)               | No       | boolean |         |
+| `dry-run`                     | Dry run                                                    | No       | boolean |         |
+| `github-token`                | GitHub token for authentication                            | No       | string  |         |
 
 **Outputs:**
 
@@ -127,14 +133,14 @@ Validates commit messages against the Conventional Commits specification.
 
 **Inputs:**
 
-| Name                           | Description                                                        |
-| ------------------------------ | ------------------------------------------------------------------ |
-| `base-ref-from-default-branch` | Use repository default branch as base ref (default: `true`)        |
-| `base-ref`                     | Base reference to compare against (default: `origin/main`)         |
-| `fail-on-error`                | Fail action if invalid commit messages are found (default: `true`) |
-| `types`                        | Comma-separated allowed commit types                               |
-| `scopes`                       | Comma-separated allowed scopes (optional)                          |
-| `fetch-depth`                  | Git fetch depth used to compute comparison range (default: `100`)  |
+| Name                           | Description                                      | Required | Type    | Default       |
+| ------------------------------ | ------------------------------------------------ | -------- | ------- | ------------- |
+| `base-ref-from-default-branch` | Use repository default branch as base ref        | No       | boolean | `true`        |
+| `base-ref`                     | Base reference to compare against                | No       | string  | `origin/main` |
+| `fail-on-error`                | Fail action if invalid commit messages are found | No       | boolean | `true`        |
+| `types`                        | Comma-separated allowed commit types             | No       | string  |               |
+| `scopes`                       | Comma-separated allowed scopes (optional)        | No       | string  |               |
+| `fetch-depth`                  | Git fetch depth used to compute comparison range | No       | number  | `100`         |
 
 **Outputs:**
 
@@ -162,12 +168,12 @@ Reusable composite action for Terraform plan.
 
 **Inputs:**
 
-| Name                | Description                                        |
-| ------------------- | -------------------------------------------------- |
-| `working-directory` | Directory to run Terraform in                      |
-| `custom-directory`  | Custom directory to run Terraform in               |
-| `extra-init-args`   | Extra arguments for Terraform init (default: `""`) |
-| `extra-plan-args`   | Extra arguments for Terraform plan (default: `""`) |
+| Name                | Description                          | Required | Type   | Default |
+| ------------------- | ------------------------------------ | -------- | ------ | ------- |
+| `working-directory` | Directory to run Terraform in        | No       | string |         |
+| `custom-directory`  | Custom directory to run Terraform in | No       | string |         |
+| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | ""      |
+| `extra-plan-args`   | Extra arguments for Terraform plan   | No       | string | ""      |
 
 ### 7. `terraform-apply`
 
@@ -176,12 +182,12 @@ Reusable composite action for Terraform apply.
 
 **Inputs:**
 
-| Name                | Description                                         |
-| ------------------- | --------------------------------------------------- |
-| `working-directory` | Directory to run Terraform in                       |
-| `custom-directory`  | Custom directory to run Terraform in                |
-| `extra-init-args`   | Extra arguments for Terraform init (default: `""`)  |
-| `extra-apply-args`  | Extra arguments for Terraform apply (default: `""`) |
+| Name                | Description                          | Required | Type   | Default |
+| ------------------- | ------------------------------------ | -------- | ------ | ------- |
+| `working-directory` | Directory to run Terraform in        | No       | string |         |
+| `custom-directory`  | Custom directory to run Terraform in | No       | string |         |
+| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | ""      |
+| `extra-apply-args`  | Extra arguments for Terraform apply  | No       | string | ""      |
 
 ## Workflows
 
@@ -249,17 +255,18 @@ secrets:
 
 **Inputs:**
 
-| Name                      | Description                                                            |
-| ------------------------- | ---------------------------------------------------------------------- |
-| `secret-token-name`       | Secret name used in `workflow_dispatch` mode (default: `GITHUB_TOKEN`) |
-| `ref`                     | Git ref of the shared actions repo to use (default: `main`)            |
-| `node-version`            | Node.js version to use for parsing CSV (default: `24`)                 |
-| `dry-run`                 | Dry run (default: `true`)                                              |
-| `max-parallel`            | Maximum number of parallel issue creations (default: `5`)              |
-| `batch`                   | Create issues in batches (default: `true`)                             |
-| `allow-duplicates`        | Allow creating duplicate issues (default: `false`)                     |
-| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues (default: `false`)   |
-| `csv-path` (required)     | Path (relative) to the CSV file                                        |
+| Name                      | Description                                                                     | Required | Type    | Default        |
+| ------------------------- | ------------------------------------------------------------------------------- | -------- | ------- | -------------- |
+| `secret-token-name`       | Name of the repository secret containing the GitHub token (e.g. `GH_PAT`)       | No       | string  | `GITHUB_TOKEN` |
+| `ref`                     | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`         |
+| `action-ref`              | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`         |
+| `node-version`            | Node.js version to use for parsing CSV (e.g. `18`, `20`, `24`)                  | No       | string  | `24`           |
+| `dry-run`                 | Dry run (no issues created)                                                     | No       | boolean | `true`         |
+| `max-parallel`            | Maximum number of parallel issue creations (only applies when `batch` is false) | No       | number  | `5`            |
+| `batch`                   | Create issues in batches (by type)                                              | No       | boolean | `true`         |
+| `allow-duplicates`        | Allow creating duplicate issues                                                 | No       | boolean | `false`        |
+| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues                               | No       | boolean | `false`        |
+| `csv-path`                | Path (relative) to the CSV file                                                 | Yes      | string  | `TODO.csv`     |
 
 **Secrets:**
 
