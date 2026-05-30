@@ -1,3 +1,9 @@
+## [1.54.0](https://github.com/stairwaytowonderland/actions/compare/v1.53.0...v1.54.0) (2026-05-30)
+
+### ✨ Features
+
+* updating import-csv-issues workflow ([95891fe](https://github.com/stairwaytowonderland/actions/commit/95891fee0bd22c6609a2812e9f56d3d2ecfb5efa))
+
 ## [1.53.0](https://github.com/stairwaytowonderland/actions/compare/v1.52.0...v1.53.0) (2026-05-30)
 
 ### ✨ Features
