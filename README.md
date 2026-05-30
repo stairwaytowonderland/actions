@@ -273,6 +273,7 @@ with:
  allow-duplicates: false
  allow-closed-duplicates: false
  ref: main
+ action-ref: main
  node-version: 24
  max-parallel: 5
 secrets:

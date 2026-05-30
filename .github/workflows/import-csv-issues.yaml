@@ -7,12 +7,6 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      secret-token-name:
-        description: 'Name of the repository secret containing the GitHub Personal Access Token with permissions to create issues (e.g. GH_PAT)'
-        required: false
-        type: string
-        default: 'GITHUB_TOKEN'
-
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         required: false
@@ -128,32 +122,27 @@ on:
         type: string
         default: 'TODO.csv'
 
-env:
-  TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 jobs:
   check-token:
     runs-on: ubuntu-latest
     steps:
-      - name: Set TOKEN env var
-        run: |
-          if [ -n "${{ secrets.github-token }}" ]; then
-            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
-          fi
-
       - name: Check token scopes
         run: |
-          curl -sI -H "Authorization: token ${{ env.TOKEN }}" https://api.github.com | grep -i 'X-OAuth-Scopes'
+          curl -sI -H "Authorization: token ${TOKEN}" https://api.github.com | grep -i 'X-OAuth-Scopes'
+        env:
+          TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Check token identity
         run: |
-          curl -s -H "Authorization: token ${{ env.TOKEN }}" https://api.github.com/user
+          curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/user
+        env:
+          TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Check token limit
         run: |
-          curl -s -H "Authorization: token ${{ env.TOKEN }}" https://api.github.com/rate_limit
+          curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/rate_limit
+        env:
+          TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   parse-csv:
     runs-on: ubuntu-latest
@@ -161,14 +150,6 @@ jobs:
       matrix: ${{ steps.parse.outputs.matrix }}
       types: ${{ steps.parse.outputs.types }}
     steps:
-      - name: Set TOKEN env var
-        run: |
-          if [ -n "${{ secrets.github-token }}" ]; then
-            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
-          fi
-
       - name: Checkout repo
         uses: actions/checkout@v6
 
@@ -180,7 +161,7 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.action-ref }}
-          token: ${{ env.TOKEN }}
+          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -231,14 +212,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: parse-csv
     steps:
-      - name: Set TOKEN env var
-        run: |
-          if [ -n "${{ secrets.github-token }}" ]; then
-            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
-          fi
-
       - name: Checkout repo
         uses: actions/checkout@v6
 
@@ -250,14 +223,14 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.ref }}
-          token: ${{ env.TOKEN }}
+          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Ensure only needed labels exist
         uses: ./.actions/.github/actions/labels-create-action
         with:
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ env.TOKEN }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   create-issue-batch:
     if: ${{ inputs.batch }}
@@ -268,14 +241,6 @@ jobs:
       matrix:
         type: ${{ fromJson(needs.parse-csv.outputs.types) }}
     steps:
-      - name: Set TOKEN env var
-        run: |
-          if [ -n "${{ secrets.github-token }}" ]; then
-            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
-          fi
-
       - name: Checkout repo
         uses: actions/checkout@v6
 
@@ -287,7 +252,7 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.ref }}
-          token: ${{ env.TOKEN }}
+          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
@@ -297,7 +262,7 @@ jobs:
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
           dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ env.TOKEN }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   merge-matrix:
     if: ${{ !inputs.batch }}
@@ -333,14 +298,6 @@ jobs:
       matrix:
         issue: ${{ fromJson(needs.merge-matrix.outputs.all) }}
     steps:
-      - name: Set TOKEN env var
-        run: |
-          if [ -n "${{ secrets.github-token }}" ]; then
-            echo "TOKEN=${{ secrets.github-token }}" >> $GITHUB_ENV
-          elif [ -n "${{ inputs.secret-token-name }}" ]; then
-            echo "TOKEN=${{ secrets[inputs.secret-token-name] }}" >> $GITHUB_ENV
-          fi
-
       - name: Checkout repo
         uses: actions/checkout@v6
 
@@ -352,7 +309,7 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.ref }}
-          token: ${{ env.TOKEN }}
+          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Create issue
         uses: ./.actions/.github/actions/issue-create-action
@@ -366,4 +323,4 @@ jobs:
           dry-run: ${{ inputs.dry-run }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
-          github-token: ${{ env.TOKEN }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
