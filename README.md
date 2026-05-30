@@ -191,6 +191,32 @@ Reusable composite action for Terraform apply.
 
 ## Workflows
 
+### `ci-package-update`
+
+**Description:**
+Checks for changes to package.json and package-lock.json and triggers the publish workflow if needed. Can be called
+directly or as a reusable workflow.
+
+**Triggers:**
+
+| Event           | Details                                                                       |
+| --------------- | ----------------------------------------------------------------------------- |
+| `push`          | Runs on `main` branch when `package.json` or `package-lock.json` changes      |
+| `workflow_call` | Can be called from other workflows with custom file paths and ignored authors |
+
+**Inputs:**
+
+| Name             | Description                                                                                            | Required | Type   | Default                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------ | ------------------------------------------- |
+| `paths`          | Newline-delimited list of file paths to check for changes (e.g. package.json and package-lock.json)    | No       | string | `package.json\npackage-lock.json`           |
+| `ignore-authors` | Newline-delimited list of commit authors to ignore (e.g. semantic-release-bot and github-actions[bot]) | No       | string | `github-actions[bot]\nsemantic-release-bot` |
+
+**Secrets:**
+
+| Name           | Description                                         |
+| -------------- | --------------------------------------------------- |
+| `github-token` | Optional token with repo scope for checking commits |
+
 ### `ci`
 
 **Description:**
@@ -218,10 +244,10 @@ Reusable workflow to validate commit messages in pull requests or caller-defined
 
 **Inputs:**
 
-| Name         | Description                                                         |
-| ------------ | ------------------------------------------------------------------- |
-| `ref`        | Git ref to check (default: `refs/heads/main`)                       |
-| `action-ref` | Ref of this shared actions repository to checkout (default: `main`) |
+| Name         | Description                                       | Required | Type   | Default           |
+| ------------ | ------------------------------------------------- | -------- | ------ | ----------------- |
+| `ref`        | Git ref to check                                  | No       | string | `refs/heads/main` |
+| `action-ref` | Ref of this shared actions repository to checkout | No       | string | `main`            |
 
 **Outputs:**
 
@@ -289,9 +315,9 @@ with:
 
 **Inputs:**
 
-| Name     | Description                                                             |
-| -------- | ----------------------------------------------------------------------- |
-| `config` | Path to the pre-commit config file (default: `.pre-commit-config.yaml`) |
+| Name     | Description                        | Required | Type   | Default                   |
+| -------- | ---------------------------------- | -------- | ------ | ------------------------- |
+| `config` | Path to the pre-commit config file | No       | string | `.pre-commit-config.yaml` |
 
 ### `release`
 
@@ -311,11 +337,11 @@ secrets:
 
 **Inputs:**
 
-| Name                 | Description                                                       |
-| -------------------- | ----------------------------------------------------------------- |
-| `dispatch-workflow`  | Optional workflow file to dispatch after successful release       |
-| `fail-on-no-release` | Fail workflow when no new release is published (default: `false`) |
-| `ref`                | Git ref or SHA to release (defaults to current ref)               |
+| Name                 | Description                                                 | Required | Type    | Default       |
+| -------------------- | ----------------------------------------------------------- | -------- | ------- | ------------- |
+| `dispatch-workflow`  | Optional workflow file to dispatch after successful release | No       | string  |               |
+| `fail-on-no-release` | Fail workflow when no new release is published              | No       | boolean | `false`       |
+| `ref`                | Git ref or SHA to release (defaults to current ref)         | No       | string  | (current ref) |
 
 **Outputs:**
 
@@ -351,10 +377,10 @@ secrets:
 
 **Inputs:**
 
-| Name        | Description                                    |
-| ----------- | ---------------------------------------------- |
-| `tag`       | Tag to publish (required, e.g. `v1.2.3`)       |
-| `notes-b64` | Optional base64-encoded markdown release notes |
+| Name        | Description                                    | Required | Type   | Default |
+| ----------- | ---------------------------------------------- | -------- | ------ | ------- |
+| `tag`       | Tag to publish                                 | Yes      | string |         |
+| `notes-b64` | Optional base64-encoded markdown release notes | No       | string |         |
 
 **Outputs:**
 
@@ -400,20 +426,20 @@ secrets:
 
 **Inputs:**
 
-| Name                | Description                                      |
-| ------------------- | ------------------------------------------------ |
-| `working-directory` | Directory to run Terraform in                    |
-| `custom-directory`  | Custom directory to run Terraform in             |
-| `terraform-version` | Terraform version to use (**required**)          |
-| `environment`       | Environment name (**required**)                  |
-| `aws-region`        | AWS region (**required**)                        |
-| `oidc-role-name`    | AWS OIDC role name (**required**)                |
-| `application-name`  | Application name (**required**)                  |
-| `purpose`           | Purpose for the deployment (**required**)        |
-| `plan`              | Run plan step (boolean, **required**)            |
-| `apply`             | Run apply step (boolean, **required**)           |
-| `destroy`           | Run destroy step (boolean, **required**)         |
-| `approvers`         | Comma-separated list of approvers (**required**) |
+| Name                | Description                          | Required | Type    | Default |
+| ------------------- | ------------------------------------ | -------- | ------- | ------- |
+| `working-directory` | Directory to run Terraform in        | No       | string  |         |
+| `custom-directory`  | Custom directory to run Terraform in | No       | string  |         |
+| `terraform-version` | Terraform version to use             | Yes      | string  |         |
+| `environment`       | Environment name                     | Yes      | string  |         |
+| `aws-region`        | AWS region                           | Yes      | string  |         |
+| `oidc-role-name`    | AWS OIDC role name                   | Yes      | string  |         |
+| `application-name`  | Application name                     | Yes      | string  |         |
+| `purpose`           | Purpose for the deployment           | Yes      | string  |         |
+| `plan`              | Run plan step                        | Yes      | boolean |         |
+| `apply`             | Run apply step                       | Yes      | boolean |         |
+| `destroy`           | Run destroy step                     | Yes      | boolean |         |
+| `approvers`         | Comma-separated list of approvers    | Yes      | string  |         |
 
 **Secrets:**
 
