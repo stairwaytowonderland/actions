@@ -18,12 +18,6 @@ Shared actions and workflows for use by the organization.
 │   │   ├── parse-issue-csv-action/
 │   │   ├── terraform-apply/
 │   │   └── terraform-plan/
-│   ├── ISSUE_TEMPLATE/
-│   │   ├── 01_bug_report.yml
-│   │   ├── 02_feature_request.yml
-│   │   ├── 03_documentation.yml
-│   │   ├── 04_task.yml
-│   │   └── config.yml
 │   ├── workflows/
 │   │   ├── ci-package-update.yaml
 │   │   ├── ci.yaml
@@ -33,8 +27,7 @@ Shared actions and workflows for use by the organization.
 │   │   ├── publish.yaml
 │   │   ├── release.yaml
 │   │   └── terraform-deploy.yml
-│   ├── dependabot.yml
-│   └── PULL_REQUEST_TEMPLATE.md
+│   └── dependabot.yml
 ├── .editorconfig
 ├── .gitignore
 ├── .markdownlint.json
