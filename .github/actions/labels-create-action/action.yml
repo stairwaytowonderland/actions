@@ -22,10 +22,8 @@ inputs:
     description: 'JSON array of other (misc) label objects (name, color, description)'
     default: |
       [
-        { "name": "bug", "color": "e99695", "description": "Something is not working" },
-        { "name": "enhancement", "color": "d4c5f9", "description": "New feature or request" },
-        { "name": "task", "color": "0052cc", "description": "General task" },
-        { "name": "documentation", "color": "0075ca", "description": "Improvements or additions to documentation" }
+        { "name": "security", "color": "6302ab", "description": "Something is a security risk" },
+        { "name": "task", "color": "0fd40a", "description": "General task" },
       ]
   priority-map:
     description: 'JSON object mapping priority values to normalized label names'
