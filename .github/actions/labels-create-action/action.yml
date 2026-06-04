@@ -198,8 +198,8 @@ runs:
               const color = l.color;
               const labelColor = `#${color}`;
               // Always render as a link if the label exists, even in dry run
-              const labelLink = `[${l.name}](${labelBaseUrl}${encodeURIComponent(l.name)})`;
-              return `- ${labelLink} — ${labelColor}`;
+              const labelLink = `<${labelBaseUrl}${encodeURIComponent(l.name)}>`;
+              return `- ${labelLink}`;
             }),
           ].join('\n');
           await core.summary.addRaw(summary + '\n').write();
