@@ -1,6 +1,6 @@
 {
 	"name": "stairwaytowonderland-actions",
-	"version": "1.61.0",
+	"version": "1.62.0",
 	"description": "Shared GitHub Actions and Workflows for the 'stairwaytowonderland' organization.",
 	"type": "module",
 	"engines": {

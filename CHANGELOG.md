@@ -1,3 +1,9 @@
+## [1.62.0](https://github.com/stairwaytowonderland/actions/compare/v1.61.0...v1.62.0) (2026-06-04)
+
+### ✨ Features
+
+* implement impact parsing ([d7cc942](https://github.com/stairwaytowonderland/actions/commit/d7cc9422d6e2a7222dcec2d3e88ea612974b29e7))
+
 ## [1.61.0](https://github.com/stairwaytowonderland/actions/compare/v1.60.0...v1.61.0) (2026-06-04)
 
 ### ✨ Features
