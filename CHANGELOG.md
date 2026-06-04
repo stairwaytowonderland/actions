@@ -1,3 +1,9 @@
+## [1.62.1](https://github.com/stairwaytowonderland/actions/compare/v1.62.0...v1.62.1) (2026-06-04)
+
+### 🐛 Bug Fixes
+
+* remove extra brace ([10ced46](https://github.com/stairwaytowonderland/actions/commit/10ced462f47d41fa6b01fe1a067ffd8feeb8995e))
+
 ## [1.62.0](https://github.com/stairwaytowonderland/actions/compare/v1.61.0...v1.62.0) (2026-06-04)
 
 ### ✨ Features
