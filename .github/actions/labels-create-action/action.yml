@@ -43,6 +43,9 @@ inputs:
   github-token:
     description: 'GitHub token for authentication'
     default: ${{ github.token }}
+  update-existing:
+    description: 'Whether to update existing labels with the same name to match the provided color and description (instead of leaving them unchanged).'
+    required: false
 
 outputs:
   created-labels:
@@ -61,7 +64,8 @@ runs:
         PRIORITY_MAP: ${{ inputs.priority-map }}
         EFFORT_MAP: ${{ inputs.effort-map }}
         MATRIX: ${{ inputs.matrix }}
-        DRY_RUN: ${{ inputs.dry-run }}
+        DRY_RUN: ${{ inputs.dry-run == 'true' }}
+        UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -94,6 +98,7 @@ runs:
             else needed.add('task');
           }
           const dryRun = process.env.DRY_RUN === 'true';
+          const updateExisting = process.env.UPDATE_EXISTING === 'true';
           if (!dryRun) {
             for (const label of allLabels) {
               // If matrix is omitted/empty, apply all configured labels.
@@ -104,13 +109,15 @@ runs:
                   repo: context.repo.repo,
                   name: label.name
                 });
-                await github.rest.issues.updateLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  name: label.name,
-                  color: label.color,
-                  description: label.description
-                });
+                if (updateExisting) {
+                  await github.rest.issues.updateLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    name: label.name,
+                    color: label.color,
+                    description: label.description
+                  });
+                }
               } catch (e) {
                 await github.rest.issues.createLabel({
                   owner: context.repo.owner,
