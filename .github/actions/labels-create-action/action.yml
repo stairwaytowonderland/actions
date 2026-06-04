@@ -198,7 +198,7 @@ runs:
               const color = l.color;
               const labelColor = `#${color}`;
               // Always render as a link if the label exists, even in dry run
-              const labelLink = `<${labelBaseUrl}${encodeURIComponent(l.name)}>`;
+              const labelLink = `${labelBaseUrl}${encodeURIComponent(l.name)}`;
               return `- ${labelLink}`;
             }),
           ].join('\n');
