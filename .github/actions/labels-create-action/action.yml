@@ -2,6 +2,10 @@ name: 'Create Needed Labels'
 description: 'Reusable action to ensure all needed labels exist in the repository.'
 
 inputs:
+  types:
+    description: 'JSON array of types in order of processing (default: ["bug","feature","documentation","task"])'
+    default: |
+      ["bug","feature","documentation","task"]
   effort-labels:
     description: 'JSON array of effort label objects (name, color, description)'
     default: |
@@ -78,6 +82,7 @@ runs:
         MATRIX: ${{ inputs.matrix }}
         DRY_RUN: ${{ inputs.dry-run == 'true' }}
         UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
+        TYPES: ${{ inputs.types }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -95,9 +100,20 @@ runs:
           const needed = new Set();
           // Aggregate all rows from all groups (bug, feature, documentation, task)
           const allRows = [];
-          for (const group of ['bug', 'feature', 'documentation', 'task']) {
-            if (matrix[group] && Array.isArray(matrix[group].include)) {
-              allRows.push(...matrix[group].include);
+          const types = JSON.parse(process.env.TYPES || '[]').map(t => t.trim());
+          const hasTypes = types && types.length > 0;
+          if (!hasTypes) {
+            // If no types specified, consider all groups in the matrix
+            for (const group in matrix) {
+              if (matrix[group] && Array.isArray(matrix[group].include)) {
+                allRows.push(...matrix[group].include);
+              }
+            }
+          } else {
+            for (const group of types) {
+              if (matrix[group] && Array.isArray(matrix[group].include)) {
+                allRows.push(...matrix[group].include);
+              }
             }
           }
           const hasMatrixRows = allRows.length > 0;
