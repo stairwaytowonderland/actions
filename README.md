@@ -52,16 +52,19 @@ Ensures all needed labels exist in the repository.
 
 **Inputs:**
 
-| Name              | Description                                                     | Required | Type   | Default |
-| ----------------- | --------------------------------------------------------------- | -------- | ------ | ------- |
-| `priority-labels` | JSON array of priority label objects (name, color, description) | No       | array  |         |
-| `effort-labels`   | JSON array of effort label objects (name, color, description)   | No       | array  |         |
-| `default-labels`  | JSON array of default label objects (name, color, description)  | No       | array  |         |
-| `priority-map`    | JSON object mapping priority values to normalized label names   | No       | object |         |
-| `effort-map`      | JSON object mapping effort values to normalized label names     | No       | object |         |
-| `matrix`          | JSON matrix of issues to process (from parse-csv output)        | Yes      | array  |         |
-| `dry-run`         | Dry run (no changes made)                                       | No       | bool   |         |
-| `github-token`    | GitHub token for authentication                                 | No       | string |         |
+| Name              | Description                                                                | Required | Default                                                                                                                                                                                                                                                                                                                               |
+| ----------------- | -------------------------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `effort-labels`   | JSON string array of effort label objects (name, color, description)       | No       | `[{ "name": "effort:high", "color": "FA2251", "description": "High effort" }, { "name": "effort:medium", "color": "BFD4F2", "description": "Medium effort" }, { "name": "effort:low", "color": "ADFCC0", "description": "Low effort" }`                                                                                               |
+| `impact-labels`   | JSON string array of impact label objects (name, color, description)       | No       | `[{ "name": "impact:high", "color": "E5ABC7", "description": "High impact" }, { "name": "impact:low", "color": "C2E0C6", "description": "Low impact" }]`                                                                                                                                                                              |
+| `priority-labels` | JSON string array of priority label objects (name, color, description)     | No       | `[{ "name": "priority:high", "color": "FF2BBF", "description": "High priority" }, { "name": "priority:low", "color": "BAF165", "description": "Low priority" }]`                                                                                                                                                                      |
+| `other-labels`    | JSON string array of other (misc) label objects (name, color, description) | No       | `[{ "name": "poc", "color": "0FD40A", "description": "Proof of concept" }, { "name": "task", "color": "0052CC", "description": "General task" }, { "name": "security", "color": "FBCA04", "description": "Something is a security risk" }, { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" }]` |
+| `effort-map`      | JSON string object mapping effort values to normalized label names         | No       | `{ "high": "high", "larger": "high", "large": "high", "medium": "medium", "low": "low", "smaller": "low", "small": "low" }`                                                                                                                                                                                                           |
+| `impact-map`      | JSON string object mapping impact values to normalized label names         | No       | `{ "higher": "high", "high": "high", "lower": "low", "low": "low" }`                                                                                                                                                                                                                                                                  |
+| `priority-map`    | JSON string object mapping priority values to normalized label names       | No       | `{ "higher": "high", "high": "high", "lower": "low", "low": "low" }`                                                                                                                                                                                                                                                                  |
+| `matrix`          | JSON string matrix of issues to process (from parse-csv output)            | No       | `''`                                                                                                                                                                                                                                                                                                                                  |
+| `dry-run`         | Dry run (no changes made)                                                  | No       | `''`                                                                                                                                                                                                                                                                                                                                  |
+| `update-existing` | Update existing labels                                                     | No       | `''`                                                                                                                                                                                                                                                                                                                                  |
+| `github-token`    | GitHub token for authentication                                            | No       | `${{ github.token }}`                                                                                                                                                                                                                                                                                                                 |
 
 **Outputs:**
 
@@ -76,11 +79,11 @@ Parses a CSV file of issues and outputs a grouped matrix by type.
 
 **Inputs:**
 
-| Name                | Description                                  | Required | Type   | Default                                    |
-| ------------------- | -------------------------------------------- | -------- | ------ | ------------------------------------------ |
-| `csv-path`          | Path to the CSV file (relative to repo root) | Yes      | string |                                            |
-| `types`             | JSON array of types in order of processing   | No       | array  | `["bug","feature","documentation","task"]` |
-| `status-if-missing` | Default status to assign if missing          | No       | string | `new`                                      |
+| Name                | Description                                  | Required | Default                                    |
+| ------------------- | -------------------------------------------- | -------- | ------------------------------------------ |
+| `csv-path`          | Path to the CSV file (relative to repo root) | Yes      | `''`                                       |
+| `types`             | JSON array of types in order of processing   | No       | `["bug","feature","documentation","task"]` |
+| `status-if-missing` | Default status to assign if missing          | No       | `new`                                      |
 
 **Outputs:**
 
@@ -96,21 +99,21 @@ Creates a GitHub issue from a CSV row and appends to the job summary.
 
 **Inputs:**
 
-| Name                          | Description                                                | Required | Type    | Default |
-| ----------------------------- | ---------------------------------------------------------- | -------- | ------- | ------- |
-| `allow-duplicates`            | Allow creating duplicate issues                            | No       | boolean | `true`  |
-| `allow-closed-duplicates`     | Allow creating duplicate issues for closed issues          | No       | boolean |         |
-| `allow-unrecognized-status`   | Allow unrecognized status values (fallback to `new`)       | No       | boolean | `true`  |
-| `fail-on-unrecognized-status` | Fail action if an unrecognized status value is encountered | No       | boolean |         |
-| `batch-json`                  | JSON array of issue rows for batch creation                | No       | array   | `[]`    |
-| `title`                       | Issue title (conflicts with `batch-json`)                  | No       | string  |         |
-| `priority`                    | Priority value (conflicts with `batch-json`)               | No       | string  |         |
-| `effort`                      | Effort value (conflicts with `batch-json`)                 | No       | string  |         |
-| `description`                 | Issue description (conflicts with `batch-json`)            | No       | string  |         |
-| `status`                      | Issue status (conflicts with `batch-json`)                 | No       | string  |         |
-| `completed`                   | Completed flag (conflicts with `batch-json`)               | No       | boolean |         |
-| `dry-run`                     | Dry run                                                    | No       | boolean |         |
-| `github-token`                | GitHub token for authentication                            | No       | string  |         |
+| Name                          | Description                                                | Required | Default               |
+| ----------------------------- | ---------------------------------------------------------- | -------- | --------------------- |
+| `allow-duplicates`            | Allow creating duplicate issues                            | No       | `true`                |
+| `allow-closed-duplicates`     | Allow creating duplicate issues for closed issues          | No       | `''`                  |
+| `allow-unrecognized-status`   | Allow unrecognized status values (fallback to `new`)       | No       | `true`                |
+| `fail-on-unrecognized-status` | Fail action if an unrecognized status value is encountered | No       | `''`                  |
+| `batch-json`                  | JSON array of issue rows for batch creation                | No       | `[]`                  |
+| `title`                       | Issue title (conflicts with `batch-json`)                  | No       | `''`                  |
+| `priority`                    | Priority value (conflicts with `batch-json`)               | No       | `''`                  |
+| `effort`                      | Effort value (conflicts with `batch-json`)                 | No       | `''`                  |
+| `description`                 | Issue description (conflicts with `batch-json`)            | No       | `''`                  |
+| `status`                      | Issue status (conflicts with `batch-json`)                 | No       | `''`                  |
+| `completed`                   | Completed flag (conflicts with `batch-json`)               | No       | `''`                  |
+| `dry-run`                     | Dry run                                                    | No       | `''`                  |
+| `github-token`                | GitHub token for authentication                            | No       | `${{ github.token }}` |
 
 **Outputs:**
 
@@ -131,8 +134,8 @@ Validates commit messages against the Conventional Commits specification.
 | `base-ref-from-default-branch` | Use repository default branch as base ref        | No       | boolean | `true`        |
 | `base-ref`                     | Base reference to compare against                | No       | string  | `origin/main` |
 | `fail-on-error`                | Fail action if invalid commit messages are found | No       | boolean | `true`        |
-| `types`                        | Comma-separated allowed commit types             | No       | string  |               |
-| `scopes`                       | Comma-separated allowed scopes (optional)        | No       | string  |               |
+| `types`                        | Comma-separated allowed commit types             | No       | string  | `''`          |
+| `scopes`                       | Comma-separated allowed scopes (optional)        | No       | string  | `''`          |
 | `fetch-depth`                  | Git fetch depth used to compute comparison range | No       | number  | `100`         |
 
 **Outputs:**
@@ -163,10 +166,10 @@ Reusable composite action for Terraform plan.
 
 | Name                | Description                          | Required | Type   | Default |
 | ------------------- | ------------------------------------ | -------- | ------ | ------- |
-| `working-directory` | Directory to run Terraform in        | No       | string |         |
-| `custom-directory`  | Custom directory to run Terraform in | No       | string |         |
-| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | ""      |
-| `extra-plan-args`   | Extra arguments for Terraform plan   | No       | string | ""      |
+| `working-directory` | Directory to run Terraform in        | No       | string | `''`    |
+| `custom-directory`  | Custom directory to run Terraform in | No       | string | `''`    |
+| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | `''`    |
+| `extra-plan-args`   | Extra arguments for Terraform plan   | No       | string | `''`    |
 
 ### 7. `terraform-apply`
 
@@ -177,10 +180,10 @@ Reusable composite action for Terraform apply.
 
 | Name                | Description                          | Required | Type   | Default |
 | ------------------- | ------------------------------------ | -------- | ------ | ------- |
-| `working-directory` | Directory to run Terraform in        | No       | string |         |
-| `custom-directory`  | Custom directory to run Terraform in | No       | string |         |
-| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | ""      |
-| `extra-apply-args`  | Extra arguments for Terraform apply  | No       | string | ""      |
+| `working-directory` | Directory to run Terraform in        | No       | string | `''`    |
+| `custom-directory`  | Custom directory to run Terraform in | No       | string | `''`    |
+| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | `''`    |
+| `extra-apply-args`  | Extra arguments for Terraform apply  | No       | string | `''`    |
 
 ## Workflows
 
@@ -199,10 +202,10 @@ directly or as a reusable workflow.
 
 **Inputs:**
 
-| Name             | Description                                                                                            | Required | Type   | Default                                     |
-| ---------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------ | ------------------------------------------- |
-| `paths`          | Newline-delimited list of file paths to check for changes (e.g. package.json and package-lock.json)    | No       | string | `package.json\npackage-lock.json`           |
-| `ignore-authors` | Newline-delimited list of commit authors to ignore (e.g. semantic-release-bot and github-actions[bot]) | No       | string | `github-actions[bot]\nsemantic-release-bot` |
+| Name             | Description                                                                                            | Required | Type   | Default                                       |
+| ---------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------ | --------------------------------------------- |
+| `paths`          | Newline-delimited list of file paths to check for changes (e.g. package.json and package-lock.json)    | No       | string | `package.json<br>package-lock.json`           |
+| `ignore-authors` | Newline-delimited list of commit authors to ignore (e.g. semantic-release-bot and github-actions[bot]) | No       | string | `github-actions[bot]<br>semantic-release-bot` |
 
 **Secrets:**
 

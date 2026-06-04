@@ -10,19 +10,19 @@ inputs:
         { "name": "effort:medium", "color": "BFD4F2", "description": "Medium effort" },
         { "name": "effort:low", "color": "ADFCC0", "description": "Low effort" }
       ]
-  priority-labels:
-    description: 'JSON array of priority label objects (name, color, description)'
-    default: |
-      [
-        { "name": "priority:high", "color": "FF2BBF", "description": "High priority" },
-        { "name": "priority:low", "color": "BAF165", "description": "Low priority" }
-      ]
   impact-labels:
     description: 'JSON array of impact label objects (name, color, description)'
     default: |
       [
         { "name": "impact:high", "color": "E5ABC7", "description": "High impact" },
         { "name": "impact:low", "color": "C2E0C6", "description": "Low impact" }
+      ]
+  priority-labels:
+    description: 'JSON array of priority label objects (name, color, description)'
+    default: |
+      [
+        { "name": "priority:high", "color": "FF2BBF", "description": "High priority" },
+        { "name": "priority:low", "color": "BAF165", "description": "Low priority" }
       ]
   other-labels:
     description: 'JSON array of other (misc) label objects (name, color, description)'
@@ -37,12 +37,12 @@ inputs:
     description: 'JSON object mapping effort values to normalized label names'
     default: |
       { "high": "high", "larger": "high", "large": "high", "medium": "medium", "low": "low", "smaller": "low", "small": "low" }
-  priority-map:
-    description: 'JSON object mapping priority values to normalized label names'
-    default: |
-      { "higher": "high", "high": "high", "lower": "low", "low": "low" }
   impact-map:
     description: 'JSON object mapping impact values to normalized label names'
+    default: |
+      { "higher": "high", "high": "high", "lower": "low", "low": "low" }
+  priority-map:
+    description: 'JSON object mapping priority values to normalized label names'
     default: |
       { "higher": "high", "high": "high", "lower": "low", "low": "low" }
   matrix:
