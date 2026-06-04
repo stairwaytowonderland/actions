@@ -2,36 +2,48 @@ name: 'Create Needed Labels'
 description: 'Reusable action to ensure all needed labels exist in the repository.'
 
 inputs:
+  effort-labels:
+    description: 'JSON array of effort label objects (name, color, description)'
+    default: |
+      [
+        { "name": "effort:high", "color": "FA2251", "description": "High effort" },
+        { "name": "effort:medium", "color": "BFD4F2", "description": "Medium effort" },
+        { "name": "effort:low", "color": "ADFCC0", "description": "Low effort" }
+      ]
   priority-labels:
     description: 'JSON array of priority label objects (name, color, description)'
     default: |
       [
         { "name": "priority:high", "color": "FF2BBF", "description": "High priority" },
-        { "name": "priority:low", "color": "baf165", "description": "Low priority" }
+        { "name": "priority:low", "color": "BAF165", "description": "Low priority" }
       ]
-  effort-labels:
-    description: 'JSON array of effort label objects (name, color, description)'
+  impact-labels:
+    description: 'JSON array of impact label objects (name, color, description)'
     default: |
       [
-        { "name": "effort:high", "color": "fa2251", "description": "High effort" },
-        { "name": "effort:medium", "color": "bfd4f2", "description": "Medium effort" },
-        { "name": "effort:low", "color": "adfcc0", "description": "Low effort" }
+        { "name": "impact:high", "color": "E5ABC7", "description": "High impact" },
+        { "name": "impact:low", "color": "C2E0C6", "description": "Low impact" }
       ]
   other-labels:
     description: 'JSON array of other (misc) label objects (name, color, description)'
     default: |
       [
-        { "name": "security", "color": "6302ab", "description": "Something is a security risk" },
-        { "name": "task", "color": "0fd40a", "description": "General task" }
+        { "name": "security", "color": "FF2BBF", "description": "Something is a security risk" },
+        { "name": "task", "color": "0FD40A", "description": "General task" },
+        { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" }}
       ]
-  priority-map:
-    description: 'JSON object mapping priority values to normalized label names'
-    default: |
-      { "higher": "high", "high": "high", "medium": "medium", "lower": "low", "low": "low" }
   effort-map:
     description: 'JSON object mapping effort values to normalized label names'
     default: |
       { "high": "high", "larger": "high", "large": "high", "medium": "medium", "low": "low", "smaller": "low", "small": "low" }
+  priority-map:
+    description: 'JSON object mapping priority values to normalized label names'
+    default: |
+      { "higher": "high", "high": "high", "lower": "low", "low": "low" }
+  impact-map:
+    description: 'JSON object mapping impact values to normalized label names'
+    default: |
+      { "higher": "high", "high": "high", "lower": "low", "low": "low" }
   matrix:
     description: 'JSON matrix of issues to process (from parse-csv output)'
     required: false
@@ -57,8 +69,10 @@ runs:
       env:
         PRIORITY_LABELS: ${{ inputs.priority-labels }}
         EFFORT_LABELS: ${{ inputs.effort-labels }}
+        IMPACT_LABELS: ${{ inputs.impact-labels }}
         OTHER_LABELS: ${{ inputs.other-labels }}
         PRIORITY_MAP: ${{ inputs.priority-map }}
+        IMPACT_MAP: ${{ inputs.impact-map }}
         EFFORT_MAP: ${{ inputs.effort-map }}
         MATRIX: ${{ inputs.matrix }}
         DRY_RUN: ${{ inputs.dry-run == 'true' }}
@@ -68,10 +82,12 @@ runs:
         script: |
           const priorityLabels = JSON.parse(process.env.PRIORITY_LABELS);
           const effortLabels = JSON.parse(process.env.EFFORT_LABELS);
+          const impactLabels = JSON.parse(process.env.IMPACT_LABELS);
           const otherLabels = JSON.parse(process.env.OTHER_LABELS);
-          const allLabels = [...priorityLabels, ...effortLabels, ...otherLabels];
+          const allLabels = [...priorityLabels, ...effortLabels, ...impactLabels, ...otherLabels];
           const priorityMap = JSON.parse(process.env.PRIORITY_MAP);
           const effortMap = JSON.parse(process.env.EFFORT_MAP);
+          const impactMap = JSON.parse(process.env.IMPACT_MAP);
           let raw = process.env.MATRIX || '{}';
           if (raw.startsWith('"')) raw = JSON.parse(raw);
           const matrix = JSON.parse(raw);
@@ -89,6 +105,8 @@ runs:
             if (priority) needed.add(`priority:${priority}`);
             const effort = effortMap[(row.effort || '').toLowerCase()];
             if (effort) needed.add(`effort:${effort}`);
+            const impact = impactMap[(row.impact || '').toLowerCase()];
+            if (impact) needed.add(`impact:${impact}`);
             if (/bugs?|fix|errors?|fail/i.test(row.title)) needed.add('bug');
             else if (/feat:|features?|implement|support/i.test(row.title)) needed.add('feature');
             else if (/docs?:|documentation/i.test(row.title)) needed.add('documentation');
