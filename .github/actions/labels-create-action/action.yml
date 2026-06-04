@@ -82,6 +82,7 @@ runs:
               allRows.push(...matrix[group].include);
             }
           }
+          const hasMatrixRows = allRows.length > 0;
           for (const row of allRows) {
             const priority = priorityMap[(row.priority || '').toLowerCase()];
             if (priority) needed.add(`priority:${priority}`);
@@ -95,7 +96,8 @@ runs:
           const dryRun = process.env.DRY_RUN === 'true';
           if (!dryRun) {
             for (const label of allLabels) {
-              if (!needed.has(label.name)) continue;
+              // If matrix is omitted/empty, apply all configured labels.
+              if (hasMatrixRows && !needed.has(label.name)) continue;
               try {
                 await github.rest.issues.getLabel({
                   owner: context.repo.owner,
@@ -120,7 +122,9 @@ runs:
               }
             }
           }
-          const neededLabels = allLabels.filter(l => needed.has(l.name));
+          const neededLabels = hasMatrixRows
+            ? allLabels.filter(l => needed.has(l.name))
+            : allLabels;
           const labelBaseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/issues?q=label%3A`;
 
           // Check which labels already exist

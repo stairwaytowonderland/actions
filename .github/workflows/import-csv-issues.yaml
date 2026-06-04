@@ -11,13 +11,7 @@ on:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         required: false
         type: string
-        default: 'main'
-
-      action-ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
-        type: string
-        default: 'main'
+        default: 'v1'
 
       node-version:
         description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
@@ -72,13 +66,7 @@ on:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         required: false
         type: string
-        default: 'main'
-
-      action-ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
-        type: string
-        default: 'main'
+        default: 'v1'
 
       node-version:
         description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
@@ -160,7 +148,7 @@ jobs:
           path: ./.actions
           sparse-checkout: |
             .github
-          ref: ${{ inputs.action-ref }}
+          ref: ${{ inputs.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6

@@ -7,15 +7,10 @@ on:
   workflow_call:
     inputs:
       ref:
-        description: 'The git ref to check commits against (e.g., refs/heads/main).'
-        type: string
-        required: false
-        default: 'refs/heads/main'
-      action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         required: false
         type: string
-        default: 'main'
+        default: 'v1'
 
 jobs:
   validate-commits:
@@ -32,7 +27,6 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          ref: ${{ inputs.ref }}
 
       - name: Checkout shared actions repo
         uses: actions/checkout@v6
@@ -41,8 +35,7 @@ jobs:
           path: ./.actions
           sparse-checkout: |
             .github
-          ref: ${{ inputs.action-ref }}
-          token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
+          ref: ${{ inputs.ref }}
 
       - name: Check if merge commit
         id: check-merge
