@@ -2,6 +2,13 @@
 
 ### ✨ Features
 
+* update existing label url ([12d3e6d](https://github.com/stairwaytowonderland/actions/commit/12d3e6d763225c5e8fe634a4e41c3a9cca826e61))
+* update existing label url ([3c63f72](https://github.com/stairwaytowonderland/actions/commit/3c63f72861329a7b37bb284d158820024109a783))
+
+## [1.70.0](https://github.com/stairwaytowonderland/actions/compare/v1.69.0...v1.70.0) (2026-06-04)
+
+### ✨ Features
+
 * update existing label url ([3c63f72](https://github.com/stairwaytowonderland/actions/commit/3c63f72861329a7b37bb284d158820024109a783))
 
 ## [1.69.0](https://github.com/stairwaytowonderland/actions/compare/v1.68.0...v1.69.0) (2026-06-04)
