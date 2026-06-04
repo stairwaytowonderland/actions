@@ -164,7 +164,7 @@ runs:
           const neededLabels = hasMatrixRows
             ? allLabels.filter(l => needed.has(l.name))
             : allLabels;
-          const labelBaseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/labels/`;
+          const labelBaseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/labels/?q=+`;
 
           // Check which labels already exist
           let existingLabels = [];
