@@ -1,3 +1,9 @@
+## [1.76.0](https://github.com/stairwaytowonderland/actions/compare/v1.75.0...v1.76.0) (2026-06-04)
+
+### ✨ Features
+
+* update existing label url ([4c11c3f](https://github.com/stairwaytowonderland/actions/commit/4c11c3fc46ff22f02e4c0073f35c1083cc0b02a1))
+
 ## [1.75.0](https://github.com/stairwaytowonderland/actions/compare/v1.74.0...v1.75.0) (2026-06-04)
 
 ### ✨ Features
