@@ -23,7 +23,7 @@ inputs:
     default: |
       [
         { "name": "security", "color": "6302ab", "description": "Something is a security risk" },
-        { "name": "task", "color": "0fd40a", "description": "General task" },
+        { "name": "task", "color": "0fd40a", "description": "General task" }
       ]
   priority-map:
     description: 'JSON object mapping priority values to normalized label names'
