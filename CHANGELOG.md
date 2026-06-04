@@ -1,3 +1,9 @@
+## [1.59.0](https://github.com/stairwaytowonderland/actions/compare/v1.58.0...v1.59.0) (2026-06-04)
+
+### ✨ Features
+
+* add other-labels color ([b812d73](https://github.com/stairwaytowonderland/actions/commit/b812d731fd1670582e50f8deab319c8e50f7a7af))
+
 ## [1.58.0](https://github.com/stairwaytowonderland/actions/compare/v1.57.0...v1.58.0) (2026-06-04)
 
 ### ✨ Features
