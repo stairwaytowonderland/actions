@@ -123,26 +123,26 @@ on:
         default: 'TODO.csv'
 
 jobs:
-  check-token:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check token scopes
-        run: |
-          curl -sI -H "Authorization: token ${TOKEN}" https://api.github.com | grep -i 'X-OAuth-Scopes'
-        env:
-          TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+  # check-token:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check token scopes
+  #       run: |
+  #         curl -sI -H "Authorization: token ${TOKEN}" https://api.github.com | grep -i 'X-OAuth-Scopes'
+  #       env:
+  #         TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
-      - name: Check token identity
-        run: |
-          curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/user
-        env:
-          TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+  #     - name: Check token identity
+  #       run: |
+  #         curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/user
+  #       env:
+  #         TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
-      - name: Check token limit
-        run: |
-          curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/rate_limit
-        env:
-          TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+  #     - name: Check token limit
+  #       run: |
+  #         curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/rate_limit
+  #       env:
+  #         TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   parse-csv:
     runs-on: ubuntu-latest
@@ -161,7 +161,6 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.action-ref }}
-          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -223,7 +222,6 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Ensure only needed labels exist
         uses: ./.actions/.github/actions/labels-create-action
@@ -252,7 +250,6 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
@@ -309,7 +306,6 @@ jobs:
           sparse-checkout: |
             .github
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Create issue
         uses: ./.actions/.github/actions/issue-create-action

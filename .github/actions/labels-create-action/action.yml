@@ -18,8 +18,8 @@ inputs:
         { "name": "effort:medium", "color": "fbca04", "description": "Medium effort" },
         { "name": "effort:low", "color": "0e8a16", "description": "Low effort" }
       ]
-  default-labels:
-    description: 'JSON array of default label objects (name, color, description)'
+  other-labels:
+    description: 'JSON array of other (misc) label objects (name, color, description)'
     default: |
       [
         { "name": "bug", "color": "e99695", "description": "Something is not working" },
@@ -37,7 +37,7 @@ inputs:
       { "high": "high", "larger": "high", "large": "high", "medium": "medium", "low": "low", "smaller": "low", "small": "low" }
   matrix:
     description: 'JSON matrix of issues to process (from parse-csv output)'
-    required: true
+    required: false
   dry-run:
     description: 'Dry run'
   github-token:
@@ -57,7 +57,7 @@ runs:
       env:
         PRIORITY_LABELS: ${{ inputs.priority-labels }}
         EFFORT_LABELS: ${{ inputs.effort-labels }}
-        DEFAULT_LABELS: ${{ inputs.default-labels }}
+        OTHER_LABELS: ${{ inputs.other-labels }}
         PRIORITY_MAP: ${{ inputs.priority-map }}
         EFFORT_MAP: ${{ inputs.effort-map }}
         MATRIX: ${{ inputs.matrix }}
@@ -67,8 +67,8 @@ runs:
         script: |
           const priorityLabels = JSON.parse(process.env.PRIORITY_LABELS);
           const effortLabels = JSON.parse(process.env.EFFORT_LABELS);
-          const defaultLabels = JSON.parse(process.env.DEFAULT_LABELS);
-          const allLabels = [...priorityLabels, ...effortLabels, ...defaultLabels];
+          const otherLabels = JSON.parse(process.env.OTHER_LABELS);
+          const allLabels = [...priorityLabels, ...effortLabels, ...otherLabels];
           const priorityMap = JSON.parse(process.env.PRIORITY_MAP);
           const effortMap = JSON.parse(process.env.EFFORT_MAP);
           let raw = process.env.MATRIX || '{}';
