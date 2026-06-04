@@ -1,3 +1,9 @@
+## [1.63.0](https://github.com/stairwaytowonderland/actions/compare/v1.62.1...v1.63.0) (2026-06-04)
+
+### ✨ Features
+
+* update color ([c6457d4](https://github.com/stairwaytowonderland/actions/commit/c6457d4d8721a78ac13c6da61b8fa2960c19525d))
+
 ## [1.62.1](https://github.com/stairwaytowonderland/actions/compare/v1.62.0...v1.62.1) (2026-06-04)
 
 ### 🐛 Bug Fixes
