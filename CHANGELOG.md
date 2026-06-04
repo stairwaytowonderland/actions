@@ -1,3 +1,9 @@
+## [1.68.0](https://github.com/stairwaytowonderland/actions/compare/v1.67.0...v1.68.0) (2026-06-04)
+
+### ✨ Features
+
+* labels create dynamic types ([4832250](https://github.com/stairwaytowonderland/actions/commit/483225065d32ab0fa77831050026b96468d231ab))
+
 ## [1.67.0](https://github.com/stairwaytowonderland/actions/compare/v1.66.0...v1.67.0) (2026-06-04)
 
 ### ✨ Features
