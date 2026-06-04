@@ -1,3 +1,9 @@
+## [1.56.0](https://github.com/stairwaytowonderland/actions/compare/v1.55.0...v1.56.0) (2026-06-04)
+
+### ✨ Features
+
+* update labels creation matrix requirement ([b555b51](https://github.com/stairwaytowonderland/actions/commit/b555b5176e4ea2f250507f3e52cad77279b7c223))
+
 ## [1.55.0](https://github.com/stairwaytowonderland/actions/compare/v1.54.0...v1.55.0) (2026-06-04)
 
 ### ✨ Features
