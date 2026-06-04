@@ -30,6 +30,7 @@ inputs:
       [
         { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
         { "name": "task", "color": "0052CC", "description": "General task" },
+        { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
         { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" }
       ]
   effort-map:
