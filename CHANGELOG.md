@@ -1,3 +1,9 @@
+## [1.57.0](https://github.com/stairwaytowonderland/actions/compare/v1.56.0...v1.57.0) (2026-06-04)
+
+### ✨ Features
+
+* action reference updates ([abea01c](https://github.com/stairwaytowonderland/actions/commit/abea01cdec5826163f358517d14f41a85655a366))
+
 ## [1.56.0](https://github.com/stairwaytowonderland/actions/compare/v1.55.0...v1.56.0) (2026-06-04)
 
 ### ✨ Features
