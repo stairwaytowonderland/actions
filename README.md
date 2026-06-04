@@ -202,10 +202,10 @@ directly or as a reusable workflow.
 
 **Inputs:**
 
-| Name             | Description                                                                                            | Required | Type   | Default                                       |
-| ---------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------ | --------------------------------------------- |
-| `paths`          | Newline-delimited list of file paths to check for changes (e.g. package.json and package-lock.json)    | No       | string | `package.json<br>package-lock.json`           |
-| `ignore-authors` | Newline-delimited list of commit authors to ignore (e.g. semantic-release-bot and github-actions[bot]) | No       | string | `github-actions[bot]<br>semantic-release-bot` |
+| Name             | Description                                                                                            | Required | Type   | Default                                         |
+| ---------------- | ------------------------------------------------------------------------------------------------------ | -------- | ------ | ----------------------------------------------- |
+| `paths`          | Newline-delimited list of file paths to check for changes (e.g. package.json and package-lock.json)    | No       | string | `package.json`<br>`package-lock.json`           |
+| `ignore-authors` | Newline-delimited list of commit authors to ignore (e.g. semantic-release-bot and github-actions[bot]) | No       | string | `github-actions[bot]`<br>`semantic-release-bot` |
 
 **Secrets:**
 
