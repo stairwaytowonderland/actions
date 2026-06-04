@@ -30,7 +30,7 @@ inputs:
       [
         { "name": "security", "color": "FF2BBF", "description": "Something is a security risk" },
         { "name": "task", "color": "0FD40A", "description": "General task" },
-        { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" }}
+        { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" }
       ]
   effort-map:
     description: 'JSON object mapping effort values to normalized label names'
