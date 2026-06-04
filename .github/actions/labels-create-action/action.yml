@@ -197,8 +197,8 @@ runs:
             ...alreadyExisting.map(l => {
               const color = l.color;
               const labelColor = `#${color}`;
-              // Always render as a link if the label exists, even in dry run
-              const labelLink = `${labelBaseUrl}${encodeURIComponent(l.name)}`;
+              // Render label name as a colored badge without
+              const labelLink = `<kbd style="background-color: ${labelColor};">${l.name}</kbd>`;
               return `- ${labelLink}`;
             }),
           ].join('\n');
