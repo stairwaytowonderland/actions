@@ -190,8 +190,8 @@ runs:
               const labelColor = `#${color}`;
               const labelLink = dryRun
                 ? l.name
-                : `<${labelBaseUrl}${encodeURIComponent(l.name)}>`;
-              return `- ${labelLink}`;
+                : `[${l.name}](${labelBaseUrl}${encodeURIComponent(l.name)})`;
+              return `- ${labelLink} — ${labelColor}`;
             }),
             '\n**Existing labels:**',
             ...alreadyExisting.map(l => {
