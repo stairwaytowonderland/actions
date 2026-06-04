@@ -1,3 +1,13 @@
+## [1.55.0](https://github.com/stairwaytowonderland/actions/compare/v1.54.0...v1.55.0) (2026-06-04)
+
+### ✨ Features
+
+* update labels creation ([506a6a6](https://github.com/stairwaytowonderland/actions/commit/506a6a60ae5dd0437b3651dcc7aab4fcdd326a89))
+
+### 📚 Documentation
+
+* updating CONTRIBUTING.md ([309652b](https://github.com/stairwaytowonderland/actions/commit/309652b07f6aeeb67549250255969c5803906c99))
+
 ## [1.54.0](https://github.com/stairwaytowonderland/actions/compare/v1.53.0...v1.54.0) (2026-05-30)
 
 ### ✨ Features
