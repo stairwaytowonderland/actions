@@ -18,14 +18,6 @@ on:
         description: 'GitHub Personal Access Token with repo scope for checking commits.'
         required: false
 
-  workflow_dispatch:
-    inputs:
-      ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
-        type: string
-        default: 'v1'
-
 jobs:
   validate-commits:
     name: Check commit messages
