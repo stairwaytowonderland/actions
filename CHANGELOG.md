@@ -1,3 +1,9 @@
+## [1.86.0](https://github.com/stairwaytowonderland/actions/compare/v1.85.0...v1.86.0) (2026-06-05)
+
+### ✨ Features
+
+* adding create-labels workflow ([77225c4](https://github.com/stairwaytowonderland/actions/commit/77225c47e4bd95dfb18c9bada375658f3be756c5))
+
 ## [1.85.0](https://github.com/stairwaytowonderland/actions/compare/v1.84.0...v1.85.0) (2026-06-05)
 
 ### ✨ Features
