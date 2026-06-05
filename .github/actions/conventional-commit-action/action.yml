@@ -51,6 +51,10 @@ runs:
       env:
         BASE_REF_FROM_DEFAULT_BRANCH: ${{ inputs.base-ref-from-default-branch }}
         BASE_REF: ${{ inputs.base-ref }}
+        GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+        GITHUB_EVENT_AFTER: ${{ github.event.after }}
+        GITHUB_EVENT_PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         FAIL_ON_ERROR: ${{ inputs.fail-on-error }}
         TYPES: ${{ inputs.types }}
         SCOPES: ${{ inputs.scopes }}
