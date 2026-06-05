@@ -1,3 +1,9 @@
+## [1.88.0](https://github.com/stairwaytowonderland/actions/compare/v1.87.0...v1.88.0) (2026-06-05)
+
+### ✨ Features
+
+* update labels workflow ([005c4d1](https://github.com/stairwaytowonderland/actions/commit/005c4d15519d6d497cc9898967ca9582a715f19d))
+
 ## [1.87.0](https://github.com/stairwaytowonderland/actions/compare/v1.86.0...v1.87.0) (2026-06-05)
 
 ### ✨ Features
