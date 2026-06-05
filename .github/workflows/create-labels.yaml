@@ -57,7 +57,7 @@ jobs:
           sparse-checkout: |
             .github
 
-      - name: Ensure only needed labels exist
+      - name: Create labels
         uses: ./.actions/.github/actions/labels-create-action
         with:
           dry-run: ${{ inputs.dry-run }}
