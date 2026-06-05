@@ -63,8 +63,6 @@ runs:
         # Configuration
         if [ "$BASE_REF_FROM_DEFAULT_BRANCH" = "true" ]; then
           BASE_REF="origin/${DEFAULT_BRANCH}"
-        else
-          BASE_REF="${BASE_REF}"
         fi
         FAIL_ON_ERROR="${FAIL_ON_ERROR}"
         ALLOWED_TYPES="${TYPES}"
