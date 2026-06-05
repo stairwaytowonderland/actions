@@ -1,3 +1,9 @@
+## [1.78.0](https://github.com/stairwaytowonderland/actions/compare/v1.77.0...v1.78.0) (2026-06-05)
+
+### ✨ Features
+
+* update dependabot config; update workflows ([c876b56](https://github.com/stairwaytowonderland/actions/commit/c876b563726fd9b14fa51f0fa48173a1d46db4ec))
+
 ## [1.77.0](https://github.com/stairwaytowonderland/actions/compare/v1.76.0...v1.77.0) (2026-06-04)
 
 ### ✨ Features
