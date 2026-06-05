@@ -1,3 +1,9 @@
+## [1.81.0](https://github.com/stairwaytowonderland/actions/compare/v1.80.0...v1.81.0) (2026-06-05)
+
+### ✨ Features
+
+* update conventional commit action ([a5c1c75](https://github.com/stairwaytowonderland/actions/commit/a5c1c758ea6b0e35cee15d9e14b28e3506faeb4d))
+
 ## [1.80.0](https://github.com/stairwaytowonderland/actions/compare/v1.79.0...v1.80.0) (2026-06-05)
 
 ### ✨ Features
