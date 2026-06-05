@@ -1,3 +1,9 @@
+## [1.85.0](https://github.com/stairwaytowonderland/actions/compare/v1.84.0...v1.85.0) (2026-06-05)
+
+### ✨ Features
+
+* workflow updates ([13841b0](https://github.com/stairwaytowonderland/actions/commit/13841b086546c67f0f3e4f429c16480709521a63))
+
 ## [1.84.0](https://github.com/stairwaytowonderland/actions/compare/v1.83.0...v1.84.0) (2026-06-05)
 
 ### ✨ Features
