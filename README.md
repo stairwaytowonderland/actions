@@ -130,14 +130,14 @@ Validates commit messages against the Conventional Commits specification.
 
 **Inputs:**
 
-| Name                           | Description                                      | Required | Type    | Default       |
-| ------------------------------ | ------------------------------------------------ | -------- | ------- | ------------- |
-| `base-ref-from-default-branch` | Use repository default branch as base ref        | No       | boolean | `true`        |
-| `base-ref`                     | Base reference to compare against                | No       | string  | `origin/main` |
-| `fail-on-error`                | Fail action if invalid commit messages are found | No       | boolean | `true`        |
-| `types`                        | Comma-separated allowed commit types             | No       | string  | `''`          |
-| `scopes`                       | Comma-separated allowed scopes (optional)        | No       | string  | `''`          |
-| `fetch-depth`                  | Git fetch depth used to compute comparison range | No       | number  | `100`         |
+| Name                           | Description                                      | Required | Default       |
+| ------------------------------ | ------------------------------------------------ | -------- | ------------- |
+| `base-ref-from-default-branch` | Use repository default branch as base ref        | No       | `true`        |
+| `base-ref`                     | Base reference to compare against                | No       | `origin/main` |
+| `fail-on-error`                | Fail action if invalid commit messages are found | No       | `true`        |
+| `types`                        | Comma-separated allowed commit types             | No       | `''`          |
+| `scopes`                       | Comma-separated allowed scopes (optional)        | No       | `''`          |
+| `fetch-depth`                  | Git fetch depth used to compute comparison range | No       | `100`         |
 
 **Outputs:**
 
@@ -165,12 +165,12 @@ Reusable composite action for Terraform plan.
 
 **Inputs:**
 
-| Name                | Description                          | Required | Type   | Default |
-| ------------------- | ------------------------------------ | -------- | ------ | ------- |
-| `working-directory` | Directory to run Terraform in        | No       | string | `''`    |
-| `custom-directory`  | Custom directory to run Terraform in | No       | string | `''`    |
-| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | `''`    |
-| `extra-plan-args`   | Extra arguments for Terraform plan   | No       | string | `''`    |
+| Name                | Description                          | Required | Default |
+| ------------------- | ------------------------------------ | -------- | ------- |
+| `working-directory` | Directory to run Terraform in        | No       | `''`    |
+| `custom-directory`  | Custom directory to run Terraform in | No       | `''`    |
+| `extra-init-args`   | Extra arguments for Terraform init   | No       | `''`    |
+| `extra-plan-args`   | Extra arguments for Terraform plan   | No       | `''`    |
 
 ### 7. `terraform-apply`
 
@@ -179,12 +179,12 @@ Reusable composite action for Terraform apply.
 
 **Inputs:**
 
-| Name                | Description                          | Required | Type   | Default |
-| ------------------- | ------------------------------------ | -------- | ------ | ------- |
-| `working-directory` | Directory to run Terraform in        | No       | string | `''`    |
-| `custom-directory`  | Custom directory to run Terraform in | No       | string | `''`    |
-| `extra-init-args`   | Extra arguments for Terraform init   | No       | string | `''`    |
-| `extra-apply-args`  | Extra arguments for Terraform apply  | No       | string | `''`    |
+| Name                | Description                          | Required | Default |
+| ------------------- | ------------------------------------ | -------- | ------- |
+| `working-directory` | Directory to run Terraform in        | No       | `''`    |
+| `custom-directory`  | Custom directory to run Terraform in | No       | `''`    |
+| `extra-init-args`   | Extra arguments for Terraform init   | No       | `''`    |
+| `extra-apply-args`  | Extra arguments for Terraform apply  | No       | `''`    |
 
 ## Workflows
 
