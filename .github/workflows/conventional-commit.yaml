@@ -3,7 +3,9 @@ name: Conventional Commit Check
 # Ref: https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#filter-pattern-cheat-sheet
 on:
   pull_request:
+    branches: [main]
     types: [opened, synchronize, reopened]
+
   workflow_call:
     inputs:
       ref:
@@ -15,6 +17,14 @@ on:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for checking commits.'
         required: false
+
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        required: false
+        type: string
+        default: 'v1'
 
 jobs:
   validate-commits:
