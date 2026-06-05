@@ -22,6 +22,7 @@ Shared actions and workflows for use by the organization.
 │   │   ├── ci-package-update.yaml
 │   │   ├── ci.yaml
 │   │   ├── conventional-commit.yaml
+│   │   ├── create-labels.yaml
 │   │   ├── import-csv-issues.yaml
 │   │   ├── pre-commit.yaml
 │   │   ├── publish.yaml
@@ -263,6 +264,35 @@ secrets:
 | `commit-count`               | Number of commits validated                  |
 | `is-merge`                   | Whether the checked commit is a merge commit |
 
+### `create-labels`
+
+**Description:**
+Reusable workflow to validate commit messages in pull requests or caller-defined refs.
+
+**Usage Example:**
+
+```yaml
+uses: stairwaytowonderland/actions/.github/workflows/create-labels.yaml@main
+with:
+  ref: main
+secrets:
+  github-token: ${{ secrets.GH_PAT }}
+```
+
+**Inputs:**
+
+| Name              | Description                                                               | Required | Type    | Default |
+| ----------------- | ------------------------------------------------------------------------- | -------- | ------- | ------- |
+| `dry-run`         | Ref of this shared actions repository to checkout                         | No       | boolean | `false` |
+| `update-existing` | Whether to update existing labels (e.g. rename, change color/description) | No       | boolean | `false` |
+| `ref`             | Ref of this shared actions repository to checkout                         | No       | string  | `v1`    |
+
+**Secrets:**
+
+| Name           | Description                                                                     |
+| -------------- | ------------------------------------------------------------------------------- |
+| `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
+
 ### `import-csv-issues`
 
 **Description:**
@@ -288,18 +318,17 @@ secrets:
 
 **Inputs:**
 
-| Name                      | Description                                                                     | Required | Type    | Default        |
-| ------------------------- | ------------------------------------------------------------------------------- | -------- | ------- | -------------- |
-| `secret-token-name`       | Name of the repository secret containing the GitHub token (e.g. `GH_PAT`)       | No       | string  | `GITHUB_TOKEN` |
-| `ref`                     | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`         |
-| `action-ref`              | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`         |
-| `node-version`            | Node.js version to use for parsing CSV (e.g. `18`, `20`, `24`)                  | No       | string  | `24`           |
-| `dry-run`                 | Dry run (no issues created)                                                     | No       | boolean | `true`         |
-| `max-parallel`            | Maximum number of parallel issue creations (only applies when `batch` is false) | No       | number  | `5`            |
-| `batch`                   | Create issues in batches (by type)                                              | No       | boolean | `true`         |
-| `allow-duplicates`        | Allow creating duplicate issues                                                 | No       | boolean | `false`        |
-| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues                               | No       | boolean | `false`        |
-| `csv-path`                | Path (relative) to the CSV file                                                 | Yes      | string  | `TODO.csv`     |
+| Name                      | Description                                                                     | Required | Type    | Default    |
+| ------------------------- | ------------------------------------------------------------------------------- | -------- | ------- | ---------- |
+| `ref`                     | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`     |
+| `action-ref`              | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`     |
+| `node-version`            | Node.js version to use for parsing CSV (e.g. `18`, `20`, `24`)                  | No       | string  | `24`       |
+| `dry-run`                 | Dry run (no issues created)                                                     | No       | boolean | `true`     |
+| `max-parallel`            | Maximum number of parallel issue creations (only applies when `batch` is false) | No       | number  | `5`        |
+| `batch`                   | Create issues in batches (by type)                                              | No       | boolean | `true`     |
+| `allow-duplicates`        | Allow creating duplicate issues                                                 | No       | boolean | `false`    |
+| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues                               | No       | boolean | `false`    |
+| `csv-path`                | Path (relative) to the CSV file                                                 | Yes      | string  | `TODO.csv` |
 
 **Secrets:**
 
