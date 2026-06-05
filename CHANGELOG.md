@@ -1,3 +1,13 @@
+## [1.79.0](https://github.com/stairwaytowonderland/actions/compare/v1.78.0...v1.79.0) (2026-06-05)
+
+### ✨ Features
+
+* update conventional commit action ([a929b16](https://github.com/stairwaytowonderland/actions/commit/a929b163c28a9a49f78bd2658d4efd725464e103))
+
+### 📚 Documentation
+
+* update README ([f354853](https://github.com/stairwaytowonderland/actions/commit/f354853ce3da4fe0b04150db3d21a1a33184b1be))
+
 ## [1.78.0](https://github.com/stairwaytowonderland/actions/compare/v1.77.0...v1.78.0) (2026-06-05)
 
 ### ✨ Features
