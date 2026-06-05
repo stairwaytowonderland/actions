@@ -239,12 +239,21 @@ Main orchestration workflow for release and publish operations of this repo.
 **Description:**
 Reusable workflow to validate commit messages in pull requests or caller-defined refs.
 
+**Usage Example:**
+
+```yaml
+uses: stairwaytowonderland/actions/.github/workflows/conventional-commit.yaml@main
+with:
+  ref: main
+secrets:
+  github-token: ${{ secrets.GH_PAT }}
+```
+
 **Inputs:**
 
-| Name         | Description                                       | Required | Type   | Default           |
-| ------------ | ------------------------------------------------- | -------- | ------ | ----------------- |
-| `ref`        | Git ref to check                                  | No       | string | `refs/heads/main` |
-| `action-ref` | Ref of this shared actions repository to checkout | No       | string | `main`            |
+| Name  | Description                                       | Required | Type   | Default |
+| ----- | ------------------------------------------------- | -------- | ------ | ------- |
+| `ref` | Ref of this shared actions repository to checkout | No       | string | `main`  |
 
 **Outputs:**
 
@@ -264,17 +273,17 @@ Reusable workflow to import issues from a CSV file.
 ```yaml
 uses: stairwaytowonderland/actions/.github/workflows/import-csv-issues.yaml@main
 with:
- csv-path: path/to/issues.csv
- dry-run: false
- batch: true
- allow-duplicates: false
- allow-closed-duplicates: false
- ref: main
- action-ref: main
- node-version: 24
- max-parallel: 5
+  csv-path: path/to/issues.csv
+  dry-run: false
+  batch: true
+  allow-duplicates: false
+  allow-closed-duplicates: false
+  ref: main
+  action-ref: main
+  node-version: 24
+  max-parallel: 5
 secrets:
- github-token: ${{ secrets.GH_PAT }}
+  github-token: ${{ secrets.GH_PAT }}
 ```
 
 **Inputs:**
@@ -308,7 +317,7 @@ Reusable workflow to run pre-commit checks.
 ```yaml
 uses: stairwaytowonderland/actions/.github/workflows/pre-commit.yaml@main
 with:
- config: .pre-commit-config.yaml
+  config: .pre-commit-config.yaml
 ```
 
 **Inputs:**
@@ -327,10 +336,10 @@ Runs semantic-release and exposes release metadata for downstream workflows.
 ```yaml
 uses: stairwaytowonderland/actions/.github/workflows/release.yaml@main
 with:
- fail-on-no-release: true
- ref: refs/heads/main
+  fail-on-no-release: true
+  ref: refs/heads/main
 secrets:
- github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
+  github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 ```
 
 **Inputs:**
@@ -367,10 +376,10 @@ Publishes a GitHub release for a provided tag and optional precomputed notes.
 ```yaml
 uses: stairwaytowonderland/actions/.github/workflows/publish.yaml@main
 with:
- tag: v1.2.3
- notes-b64: ${{ needs.release.outputs.new-release-notes-base64 }}
+  tag: v1.2.3
+  notes-b64: ${{ needs.release.outputs.new-release-notes-base64 }}
 secrets:
- github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
+  github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 ```
 
 **Inputs:**
@@ -406,20 +415,20 @@ Reusable workflow to plan and apply Terraform deployments with AWS OIDC and manu
 ```yaml
 uses: stairwaytowonderland/actions/.github/workflows/terraform-deploy.yml@main
 with:
- working-directory: path/to/dir
- custom-directory: path/to/custom
- terraform-version: 1.6.6
- environment: dev
- aws-region: us-west-2
- oidc-role-name: my-oidc-role
- application-name: my-app
- purpose: main
- plan: true
- apply: false
- destroy: false
- approvers: user1,user2
+  working-directory: path/to/dir
+  custom-directory: path/to/custom
+  terraform-version: 1.6.6
+  environment: dev
+  aws-region: us-west-2
+  oidc-role-name: my-oidc-role
+  application-name: my-app
+  purpose: main
+  plan: true
+  apply: false
+  destroy: false
+  approvers: user1,user2
 secrets:
- aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+  aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
 ```
 
 **Inputs:**
