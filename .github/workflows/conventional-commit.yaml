@@ -48,7 +48,7 @@ jobs:
         uses: ./.actions/.github/actions/merge-commit-action
 
       - name: Check conventional commits
-        if: github.event_name == 'pull_request' || steps.check-merge.outputs.is_merge != 'true'
+        # if: github.event_name == 'pull_request' || steps.check-merge.outputs.is_merge != 'true'
         id: conventional-commits
         uses: ./.actions/.github/actions/conventional-commit-action
         # with:
