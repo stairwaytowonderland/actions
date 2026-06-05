@@ -37,6 +37,27 @@ jobs:
       is-merge: ${{ steps.check-merge.outputs.is_merge }}
 
     steps:
+      - name: Debug info
+        run: |
+          echo "GitHub event name: '${GITHUB_EVENT_NAME}'"
+          echo "GitHub ref: '${GITHUB_REF}'"
+          echo "GitHub sha: '${GITHUB_SHA}'"
+          echo "GitHub event before: '${GITHUB_EVENT_BEFORE}'"
+          echo "GitHub event after: '${GITHUB_EVENT_AFTER}'"
+          echo "GitHub event pull request base sha: '${GITHUB_EVENT_PULL_REQUEST_BASE_SHA}'"
+          echo "GitHub event pull request head sha: '${GITHUB_EVENT_PULL_REQUEST_HEAD_SHA}'"
+          echo "GitHub action repository: '${GITHUB_ACTION_REPO}'"
+          echo "GitHub action ref: '${GITHUB_ACTION_REF}'"
+          echo "GitHub action path: '${GITHUB_ACTION_PATH}'"
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_EVENT_AFTER: ${{ github.event.after }}
+          GITHUB_EVENT_PULL_REQUEST_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_EVENT_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_ACTION_REPO: ${{ github.action_repository }}
+          GITHUB_ACTION_REF: ${{ github.action_ref }}
+          GITHUB_ACTION_PATH: ${{ github.action_path }}
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
