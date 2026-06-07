@@ -1,3 +1,9 @@
+## [1.90.0](https://github.com/stairwaytowonderland/actions/compare/v1.89.0...v1.90.0) (2026-06-07)
+
+### ✨ Features
+
+* updating package and releaserc ([6c59436](https://github.com/stairwaytowonderland/actions/commit/6c59436f7e983ceb8a209335f2000eb12b71a351))
+
 ## [1.89.0](https://github.com/stairwaytowonderland/actions/compare/v1.88.0...v1.89.0) (2026-06-07)
 
 ### ✨ Features
