@@ -172,30 +172,26 @@ runs:
                 labels.push('duplicate');
                 isDuplicate = true;
               }
-              const { data: issue } = await github.request('POST /repos/{owner}/{repo}/issues', {
+              const issue = await github.rest.issues.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: fullTitle,
                 body: `Imported from CSV.\n\n**Priority:** ${priority}\n**Effort:** ${effort}\n\n${description}`,
                 labels: labels,
-                type: issueType,
-                headers: {
-                  accept: 'application/vnd.github+json',
-                  'X-GitHub-Api-Version': '2026-03-10'
-                }
+                type: issueType
               });
-              issueUrl = issue.html_url;
+              issueUrl = issue.data.html_url;
               if (completed) {
                 await github.rest.issues.update({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: issue.number,
+                  issue_number: issue.data.number,
                   state: 'closed'
                 });
                 await github.rest.issues.createComment({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
-                  issue_number: issue.number,
+                  issue_number: issue.data.number,
                   body: 'Automatically closed because this item was marked completed during import.'
                 });
               }
@@ -450,30 +446,26 @@ runs:
                   labels.push('duplicate');
                   isDuplicate = true;
                 }
-                const { data: issue } = await github.request('POST /repos/{owner}/{repo}/issues', {
+                const issue = await github.rest.issues.create({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   title: fullTitle,
                   body: `Imported from CSV.\n\n**Priority:** ${rowPriority}\n**Effort:** ${rowEffort}\n\n${rowDescription}`,
                   labels: labels,
-                  type: issueType,
-                  headers: {
-                    accept: 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2026-03-10'
-                  }
+                  type: issueType
                 });
-                issueUrl = issue.html_url;
+                issueUrl = issue.data.html_url;
                 if (rowCompleted) {
                   await github.rest.issues.update({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    issue_number: issue.number,
+                    issue_number: issue.data.number,
                     state: 'closed'
                   });
                   await github.rest.issues.createComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    issue_number: issue.number,
+                    issue_number: issue.data.number,
                     body: 'Automatically closed because this item was marked completed during import.'
                   });
                 }
