@@ -42,7 +42,7 @@ jobs:
         run: |
           echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
         env:
-          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
+          IS_DISPATCH_WORKFLOW: ${{ secrets.GH_PAT_CREATE_RELEASE != secrets.GITHUB_TOKEN && inputs.dispatch-workflow != '' }}
 
       - name: Checkout
         uses: actions/checkout@v6
