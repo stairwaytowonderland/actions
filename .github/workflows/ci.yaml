@@ -72,21 +72,19 @@ jobs:
     needs: [setup]
     if: ${{ needs.setup.outputs.release == 'true' }}
     uses: ./.github/workflows/release.yaml
+    secrets: inherit
     with:
       dispatch-workflow: ${{ needs.setup.outputs.dispatch-workflow }}
       fail-on-no-release: ${{ inputs.fail-on-no-release || false }}
-    secrets:
-      github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 
   publish:
     name: Publish
     needs: [setup]
     if: ${{ needs.setup.outputs.publish == 'true' }}
     uses: ./.github/workflows/publish.yaml
+    secrets: inherit
     with:
       tag: ${{ github.ref_name }}
-    secrets:
-      github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 
   update-majorver:
     name: Update Major Version Tag
