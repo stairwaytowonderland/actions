@@ -58,7 +58,7 @@ jobs:
         id: release
         uses: stairwaytowonderland/node-semantic-release@v1
         with:
-          github-token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_RELEASE || secrets.GITHUB_TOKEN) }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_RELEASE }}
 
       - name: Release failed
         if: steps.release.outputs.new-release-published != 'true' && inputs.fail-on-no-release

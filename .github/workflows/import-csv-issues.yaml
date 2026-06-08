@@ -311,4 +311,4 @@ jobs:
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
           priority-field-id: 535200
           effort-field-id: 535203
-          github-token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_ISSUE || secrets.GITHUB_TOKEN) }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
