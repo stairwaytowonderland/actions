@@ -48,6 +48,7 @@ jobs:
         with:
           sparse-checkout: ${{ inputs.paths }}
           fetch-depth: 2
+          persist-credentials: false
           token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_RELEASE || secrets.GITHUB_TOKEN) }}
 
       - name: Check if push event
