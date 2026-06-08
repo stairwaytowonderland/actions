@@ -56,6 +56,11 @@ on:
         default: 'TODO.csv'
 
   workflow_call:
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with permissions to create issues'
+        required: false
+
     inputs:
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
@@ -211,7 +216,7 @@ jobs:
         with:
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   create-issue-batch:
     if: ${{ inputs.batch }}
@@ -244,7 +249,7 @@ jobs:
           priority-field-id: 535200
           effort-field-id: 535203
           dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   merge-matrix:
     if: ${{ !inputs.batch }}
@@ -306,4 +311,4 @@ jobs:
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
           priority-field-id: 535200
           effort-field-id: 535203
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
