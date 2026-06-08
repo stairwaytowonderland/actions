@@ -246,8 +246,8 @@ jobs:
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
-          priority-field-id: ${{ secrets.GH_ISSUE_PRIORITY_FIELD_ID }}
-          effort-field-id: ${{ secrets.GH_ISSUE_EFFORT_FIELD_ID }}
+          priority-field-id: 535200
+          effort-field-id: 535203
           dry-run: ${{ inputs.dry-run }}
           github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
@@ -309,6 +309,6 @@ jobs:
           dry-run: ${{ inputs.dry-run }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
-          priority-field-id: ${{ secrets.GH_ISSUE_PRIORITY_FIELD_ID }}
-          effort-field-id: ${{ secrets.GH_ISSUE_EFFORT_FIELD_ID }}
+          priority-field-id: 535200
+          effort-field-id: 535203
           github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
