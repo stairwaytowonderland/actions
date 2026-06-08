@@ -38,7 +38,7 @@ runs:
           const fs = require('fs');
           const path = process.env["CSV_PATH"];
           const csv = fs.readFileSync(path, 'utf8');
-          const parsed = Papa.parse(csv, { header: true, skipEmptyLines: 'greedy' });
+          const parsed = Papa.parse(csv, { header: true, skipEmptyLines: true });
           // Enhanced clean function to escape special characters
           const clean = (v) => {
             let s = (v ?? '').toString().replace(/\r?\n/g, ' ').trim();
