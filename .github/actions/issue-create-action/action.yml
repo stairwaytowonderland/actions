@@ -296,34 +296,6 @@ runs:
             ? JSON.parse(rowsJson)
             : [{ title, priority, effort, description, status }];
 
-          // Debug: log what we received
-          console.log('=== BATCH ACTION DEBUG ===');
-          console.log('rowsJson type:', typeof rowsJson);
-          console.log('rowsJson length:', (rowsJson || '').length);
-          if (rowsJson) {
-            console.log('rowsJson first 100 chars:', rowsJson.substring(0, 100));
-          }
-          console.log('rows array length BEFORE filter:', rows.length);
-          rows.forEach((r, i) => {
-            console.log(`  Row ${i}: title="${r.title || '(empty)'}" status="${r.status || '(empty)'}"`);
-          });
-
-          // Filter out rows with empty/blank titles to prevent phantom rows
-          const validRows = rows.filter(r => {
-            if (!r || typeof r !== 'object') return false;
-            const t = (r.title || '').toString().trim();
-            return t.length > 0;
-          });
-
-          console.log('rows array length AFTER filter:', validRows.length);
-          validRows.forEach((r, i) => {
-            console.log(`  Valid Row ${i}: title="${r.title}" status="${r.status || '(empty)'}"`);
-          });
-          console.log('=========================');
-
-          // Use filtered rows for processing
-          const rowsToProcess = validRows.length > 0 ? validRows : rows;
-
           // Map CSV values to normalized label names
           const priorityMap = { higher: 'high', high: 'high', medium: 'medium', lower: 'low', low: 'low' };
           const effortMap = { larger: 'high', large: 'high', medium: 'medium', smaller: 'low', small: 'low', low: 'low', high: 'high' };
@@ -375,7 +347,7 @@ runs:
             else page++;
           }
 
-          for (const row of rowsToProcess) {
+          for (const row of rows) {
             const rowTitle = row.title || '';
             const rowPriority = row.priority || '';
             const rowEffort = row.effort || '';
