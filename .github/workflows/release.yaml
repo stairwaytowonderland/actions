@@ -16,10 +16,10 @@ on:
         description: 'The git ref or sha to release (e.g. refs/heads/main). Defaults to the current ref.'
         type: string
         required: false
-    secrets:
-      github-token:
-        description: 'GitHub Personal Access Token with repo scope for creating releases.'
-        required: false
+    # secrets:
+    #   github-token:
+    #     description: 'GitHub Personal Access Token with repo scope for creating releases.'
+    #     required: false
 
 jobs:
   release:
@@ -52,14 +52,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ inputs.ref }}
 
       - name: Semantic release
         id: release
         uses: stairwaytowonderland/node-semantic-release@v1
         with:
-          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_RELEASE }}
+          github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 
       - name: Release failed
         if: steps.release.outputs.new-release-published != 'true' && inputs.fail-on-no-release
