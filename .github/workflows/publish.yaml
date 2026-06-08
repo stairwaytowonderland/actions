@@ -53,6 +53,6 @@ jobs:
         uses: stairwaytowonderland/node-semantic-release@v1
         with:
           publish: true
-          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_RELEASE }}
           notes-b64: ${{ inputs.notes-b64 }}
           tag: ${{ steps.vars.outputs.tag }}
