@@ -1,6 +1,6 @@
 # Shared Actions and Workflows
 
-Shared actions and workflows for use by the organization.
+Shared actions and workflows for use by this organization.
 
 ## Project structure
 
