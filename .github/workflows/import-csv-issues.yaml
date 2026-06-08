@@ -249,7 +249,7 @@ jobs:
           priority-field-id: 535200
           effort-field-id: 535203
           dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_ISSUE || secrets.GITHUB_TOKEN) }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
   merge-matrix:
     if: ${{ !inputs.batch }}
