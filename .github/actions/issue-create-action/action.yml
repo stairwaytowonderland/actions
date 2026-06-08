@@ -21,8 +21,12 @@ inputs:
     description: 'Issue title'
   priority:
     description: 'Priority value'
+  priority-field-id:
+    description: 'Field ID for organization Priority field'
   effort:
     description: 'Effort value'
+  effort-field-id:
+    description: 'Field ID for organization Effort field'
   description:
     description: 'Issue description'
   status:
@@ -53,7 +57,9 @@ runs:
       env:
         TITLE: ${{ inputs.title }}
         PRIORITY: ${{ inputs.priority }}
+        PRIORITY_FIELD_ID: ${{ inputs.priority-field-id }}
         EFFORT: ${{ inputs.effort }}
+        EFFORT_FIELD_ID: ${{ inputs.effort-field-id }}
         DESCRIPTION: ${{ inputs.description }}
         STATUS: ${{ inputs.status }}
         COMPLETED: ${{ inputs.completed }}
@@ -67,7 +73,9 @@ runs:
         script: |
           const title = process.env.TITLE;
           const priority = process.env.PRIORITY;
+          const priorityFieldId = process.env.PRIORITY_FIELD_ID;
           const effort = process.env.EFFORT;
+          const effortFieldId = process.env.EFFORT_FIELD_ID;
           const description = process.env.DESCRIPTION;
           const completed = process.env.COMPLETED === 'true';
           const dryRun = process.env.DRY_RUN === 'true';
@@ -178,7 +186,17 @@ runs:
                 title: fullTitle,
                 body: `Imported from CSV.\n\n**Priority:** ${priority}\n**Effort:** ${effort}\n\n${description}`,
                 labels: labels,
-                type: issueType
+                type: issueType,
+                issue_field_values: [
+                  {
+                    field_id: priorityFieldId,
+                    value: mappedPriority || priority
+                  },
+                  {
+                    field_id: effortFieldId,
+                    value: mappedEffort || effort
+                  }
+                ]
               });
               issueUrl = issue.data.html_url;
               if (completed) {
@@ -268,7 +286,9 @@ runs:
         ROWS_JSON: ${{ inputs.batch-json }}
         TITLE: ${{ inputs.title }}
         PRIORITY: ${{ inputs.priority }}
+        PRIORITY_FIELD_ID: ${{ inputs.priority-field-id }}
         EFFORT: ${{ inputs.effort }}
+        EFFORT_FIELD_ID: ${{ inputs.effort-field-id }}
         DESCRIPTION: ${{ inputs.description }}
         STATUS: ${{ inputs.status }}
         COMPLETED: ${{ inputs.completed }}
@@ -282,7 +302,9 @@ runs:
         script: |
           const title = process.env.TITLE;
           const priority = process.env.PRIORITY;
+          const priorityFieldId = process.env.PRIORITY_FIELD_ID;
           const effort = process.env.EFFORT;
+          const effortFieldId = process.env.EFFORT_FIELD_ID;
           const description = process.env.DESCRIPTION;
           const status = process.env.STATUS;
           const completed = process.env.COMPLETED === 'true';
@@ -452,7 +474,18 @@ runs:
                   title: fullTitle,
                   body: `Imported from CSV.\n\n**Priority:** ${rowPriority}\n**Effort:** ${rowEffort}\n\n${rowDescription}`,
                   labels: labels,
-                  type: issueType
+                  type: issueType,
+                  issue_field_values: [
+                    {
+
+                      field_id: priorityFieldId,
+                      value: rowPriority
+                    },
+                    {
+                      field_id: effortFieldId,
+                      value: rowEffort
+                    }
+                  ]
                 });
                 issueUrl = issue.data.html_url;
                 if (rowCompleted) {
