@@ -42,14 +42,15 @@ jobs:
         run: |
           echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
         env:
-          IS_DISPATCH_WORKFLOW: ${{ secrets.GH_PAT_CREATE_RELEASE != secrets.GITHUB_TOKEN && inputs.dispatch-workflow != '' }}
+          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
 
       - name: Checkout
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
+          # token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
           ref: ${{ inputs.ref }}
+          persist-credentials: false
 
       - name: Semantic release
         id: release
