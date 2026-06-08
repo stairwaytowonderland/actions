@@ -189,11 +189,11 @@ runs:
                 type: issueType,
                 issue_field_values: [
                   {
-                    field_id: priorityFieldId,
+                    field_id: +priorityFieldId,
                     value: mappedPriority || priority
                   },
                   {
-                    field_id: effortFieldId,
+                    field_id: +effortFieldId,
                     value: mappedEffort || effort
                   }
                 ]
@@ -478,11 +478,11 @@ runs:
                   issue_field_values: [
                     {
 
-                      field_id: priorityFieldId,
+                      field_id: +priorityFieldId,
                       value: rowPriority
                     },
                     {
-                      field_id: effortFieldId,
+                      field_id: +effortFieldId,
                       value: rowEffort
                     }
                   ]
