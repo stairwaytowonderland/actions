@@ -75,6 +75,11 @@ runs:
           const allowClosedDuplicates = process.env.ALLOW_CLOSED_DUPLICATES === 'true';
           const allowUnrecognizedStatus = process.env.ALLOW_UNRECOGNIZED_STATUS === 'true';
           const failOnUnrecognizedStatus = process.env.FAIL_ON_UNRECOGNIZED_STATUS === 'true';
+          const createIssueWithOptionalType = async ({ owner, repo, title, body, labels, issueType }) => {
+            const payload = { owner, repo, title, body, labels };
+            if (issueType) payload.type = issueType;
+            return await github.rest.issues.create(payload);
+          };
           let status = process.env.STATUS || '';
           const closed = status.toLowerCase() === 'closed';
           const open = status.toLowerCase() === 'open';
@@ -172,12 +177,13 @@ runs:
                 labels.push('duplicate');
                 isDuplicate = true;
               }
-              const issue = await github.rest.issues.create({
+              const issue = await createIssueWithOptionalType({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: fullTitle,
                 body: `Imported from CSV.\n\n**Priority:** ${priority}\n**Effort:** ${effort}\n\n${description}`,
-                labels
+                labels,
+                issueType
               });
               issueUrl = issue.data.html_url;
               if (completed) {
@@ -291,6 +297,11 @@ runs:
           const allowClosedDuplicates = process.env.ALLOW_CLOSED_DUPLICATES === 'true';
           const allowUnrecognizedStatus = process.env.ALLOW_UNRECOGNIZED_STATUS === 'true';
           const failOnUnrecognizedStatus = process.env.FAIL_ON_UNRECOGNIZED_STATUS === 'true';
+          const createIssueWithOptionalType = async ({ owner, repo, title, body, labels, issueType }) => {
+            const payload = { owner, repo, title, body, labels };
+            if (issueType) payload.type = issueType;
+            return await github.rest.issues.create(payload);
+          };
 
           const rows = rowsJson
             ? JSON.parse(rowsJson)
@@ -445,12 +456,13 @@ runs:
                   labels.push('duplicate');
                   isDuplicate = true;
                 }
-                const issue = await github.rest.issues.create({
+                const issue = await createIssueWithOptionalType({
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   title: fullTitle,
                   body: `Imported from CSV.\n\n**Priority:** ${rowPriority}\n**Effort:** ${rowEffort}\n\n${rowDescription}`,
-                  labels
+                  labels,
+                  issueType
                 });
                 issueUrl = issue.data.html_url;
                 if (rowCompleted) {
