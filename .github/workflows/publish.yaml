@@ -11,10 +11,6 @@ on:
         description: 'Base64-encoded release notes (Markdown)'
         type: string
         required: false
-    # secrets:
-    #   github-token:
-    #     description: 'GitHub Personal Access Token with repo scope for creating releases.'
-    #     required: false
 
 jobs:
   publish:

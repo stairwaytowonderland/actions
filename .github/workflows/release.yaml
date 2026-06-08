@@ -16,10 +16,6 @@ on:
         description: 'The git ref or sha to release (e.g. refs/heads/main). Defaults to the current ref.'
         type: string
         required: false
-    # secrets:
-    #   github-token:
-    #     description: 'GitHub Personal Access Token with repo scope for creating releases.'
-    #     required: false
 
 jobs:
   release:
@@ -46,7 +42,7 @@ jobs:
         run: |
           echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
         env:
-          IS_DISPATCH_WORKFLOW: ${{ secrets.github-token != secrets.GITHUB_TOKEN && inputs.dispatch-workflow != '' }}
+          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
 
       - name: Checkout
         uses: actions/checkout@v6
