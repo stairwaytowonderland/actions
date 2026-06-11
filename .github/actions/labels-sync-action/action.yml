@@ -11,6 +11,12 @@ inputs:
   update-existing:
     description: 'Whether to update existing labels with the same name to match the provided color and description (instead of leaving them unchanged).'
     required: false
+  repos-ignore:
+    description: 'Names or patterns (regex) of repositories to ignore (e.g. /^.github.*$/, /^personal-?.*$/).'
+    required: false
+    default: |
+      ^\.github.*$
+      ^personal-?.*$
 
 runs:
   using: 'composite'
@@ -84,8 +90,14 @@ runs:
             const activeRepos = repos.filter(repo => !repo.archived);
             core.info(`Found ${activeRepos.length} active repositories to process`);
 
+            // Filter out ignored repositories based on patterns
+            const ignorePatterns = ${{ inputs.repos-ignore }}.split('\n').map(pattern => new RegExp(pattern.trim()));
+            const filteredRepos = activeRepos.filter(repo => !ignorePatterns.some(pattern => pattern.test(repo.name)));
+            core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
+            core.info(`Repositories to be processed: ${filteredRepos.map(r => r.name).join(', ')}`);
+
             // 3. Loop through each repository and update labels
-            for (const repo of activeRepos) {
+            for (const repo of filteredRepos) {
 
               core.info(`Processing Repository: ${repo.name}`);
               // Get current labels for this specific repo
