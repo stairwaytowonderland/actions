@@ -1,6 +1,10 @@
 name: Labels Sync
 
 on:
+  schedule:
+    - cron: '0 0 * * 0' # every Sunday at midnight
+      timezone: 'America/Chicago'
+
   workflow_call:
     inputs:
       dry-run:

@@ -15,8 +15,9 @@ inputs:
     description: 'Names or patterns (regex) of repositories to ignore (e.g. /^.github.*$/, /^personal-?.*$/).'
     required: false
     default: |
-      ^\.github.*$
-      ^personal-?.*$
+      '^\.github.*$'
+      '^deprecated-?.*$'
+      '^personal-?.*$'
 
 runs:
   using: 'composite'
