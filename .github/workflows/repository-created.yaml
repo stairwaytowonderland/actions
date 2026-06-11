@@ -19,11 +19,6 @@ on:
         description: 'The ID of the user or app that created the repository'
         type: string
         required: true
-      event-key:
-        description: 'The key to use for accessing the repository information from the client payload (default: client_payload)'
-        type: string
-        required: true
-        default: 'client_payload'
 
 jobs:
   on-create:
