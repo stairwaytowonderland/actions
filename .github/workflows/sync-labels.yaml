@@ -1,0 +1,65 @@
+name: Sync Labels
+
+on:
+  workflow_call:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+        default: true
+      update-existing:
+        description: 'Whether to update existing labels (e.g. rename, change color/description).'
+        required: true
+        type: boolean
+        default: false
+      ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        required: false
+        type: string
+        default: 'v1'
+    secrets:
+      github-token:
+        description: 'GitHub token for authentication'
+        required: false
+
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Dry run'
+        required: true
+        type: boolean
+        default: true
+      update-existing:
+        description: 'Whether to update existing labels (e.g. rename, change color/description).'
+        required: true
+        type: boolean
+        default: false
+      ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        required: false
+        type: string
+        default: 'v1'
+
+jobs:
+  sync-labels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v6
+        with:
+          repository: stairwaytowonderland/actions
+          ref: ${{ inputs.ref }}
+          path: ./.actions
+          sparse-checkout: |
+            .github
+
+      - name: Sync labels
+        uses: ./.actions/.github/actions/labels-sync-action
+        with:
+          dry-run: ${{ inputs.dry-run }}
+          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
+          update-existing: ${{ inputs.update-existing }}

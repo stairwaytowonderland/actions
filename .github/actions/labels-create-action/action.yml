@@ -90,7 +90,12 @@ runs:
           const effortLabels = JSON.parse(process.env.EFFORT_LABELS);
           const impactLabels = JSON.parse(process.env.IMPACT_LABELS);
           const otherLabels = JSON.parse(process.env.OTHER_LABELS);
-          const allLabels = [...priorityLabels, ...effortLabels, ...impactLabels, ...otherLabels];
+          const targetLabels = [
+            ...priorityLabels,
+            ...effortLabels,
+            ...impactLabels,
+            ...otherLabels
+          ];
           const priorityMap = JSON.parse(process.env.PRIORITY_MAP);
           const effortMap = JSON.parse(process.env.EFFORT_MAP);
           const impactMap = JSON.parse(process.env.IMPACT_MAP);
@@ -132,7 +137,7 @@ runs:
           const dryRun = process.env.DRY_RUN === 'true';
           const updateExisting = process.env.UPDATE_EXISTING === 'true';
           if (!dryRun) {
-            for (const label of allLabels) {
+            for (const label of targetLabels) {
               // If matrix is omitted/empty, apply all configured labels.
               if (hasMatrixRows && !needed.has(label.name)) continue;
               try {
@@ -162,8 +167,8 @@ runs:
             }
           }
           const neededLabels = hasMatrixRows
-            ? allLabels.filter(l => needed.has(l.name))
-            : allLabels;
+            ? targetLabels.filter(l => needed.has(l.name))
+            : targetLabels;
           const labelBaseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/labels/?q=`;
 
           // Check which labels already exist

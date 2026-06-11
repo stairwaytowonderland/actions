@@ -1,0 +1,150 @@
+name: 'Sync Org Default Labels'
+description: 'Syncs a standardized set of labels across all active organization repositories'
+
+inputs:
+  github-token:
+    description: 'Privileged token with access to all organization repositories'
+    required: true
+  dry-run:
+    description: 'Dry run'
+    required: false
+  update-existing:
+    description: 'Whether to update existing labels with the same name to match the provided color and description (instead of leaving them unchanged).'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Run Label Sync Script
+      uses: actions/github-script@v9
+      env:
+        DRY_RUN: ${{ inputs.dry-run == 'true' }}
+        UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
+      with:
+        github-token: ${{ inputs.github-token }}
+
+        script: |
+          const dryRun = process.env.DRY_RUN === 'true';
+          const updateExisting = process.env.UPDATE_EXISTING === 'true';
+
+          // 1. Define your organization's custom default labels here
+          const defaultLabels = [
+            { name: "bug", color: "d73a4a", description: "Something isn't working" },
+            { name: "documentation", color: "0075ca", description: "Improvements or additions to documentation" },
+            { name: "duplicate", color: "cfd3d7", description: "This issue or pull request already exists" },
+            { name: "enhancement", color: "a2eeef", description: "New feature or request" },
+            { name: "good first issue", color: "7057ff", description: "Good for newcomers" },
+            { name: "help wanted", color: "008672", description: "Extra attention is needed" },
+            { name: "invalid", color: "e4e669", description: "This doesn't seem right" },
+            { name: "question", color: "d876e3", description: "Further information is requested" },
+            { name: "wontfix", color: "ffffff", description: "This will not be worked on" }
+          ];
+
+          const effortLabels = [
+            { name: "effort: low", color: "adfcc0", description: "Requires minimal effort" },
+            { name: "effort: medium", color: "bfd4f2", description: "Requires moderate effort" },
+            { name: "effort: high", color: "fa2251", description: "Requires significant effort" }
+          ];
+
+          const impactLabels = [
+            { name: "impact: low", color: "c2e0c6", description: "Low impact on users" },
+            { name: "impact: high", color: "e5abc7", description: "High impact on users" }
+          ];
+
+          const priorityLabels = [
+            { name: "priority: low", color: "baf165", description: "Low priority" },
+            { name: "priority: high", color: "ff2bbf", description: "High priority" }
+          ];
+
+          const otherLabels = [
+            { "name": "poc", "color": "0fd40a", "description": "Proof of concept" },
+            { "name": "task", "color": "0052cc", "description": "General task" },
+            { "name": "security", "color": "fbca04", "description": "Something is a security risk" },
+            { "name": "uncategorized", "color": "6302ab", "description": "Needs to be categorized" }
+          ];
+
+          const targetLabels = [
+            ...effortLabels,
+            ...impactLabels,
+            ...priorityLabels,
+            ...otherLabels
+          ];
+
+          const org = "${{ github.repository_owner }}";
+
+          try {
+            // 2. Fetch all non-archived repositories in the organization
+            core.info(`Fetching repositories for organization: ${org}`);
+            const repos = await github.paginate(github.rest.repos.listForOrg, {
+              org: org,
+              type: 'all',
+              per_page: 100
+            });
+
+            const activeRepos = repos.filter(repo => !repo.archived);
+            core.info(`Found ${activeRepos.length} active repositories to process`);
+
+            // 3. Loop through each repository and update labels
+            for (const repo of activeRepos) {
+
+              core.info(`Processing Repository: ${repo.name}`);
+              // Get current labels for this specific repo
+              const existingLabels = await github.paginate(github.rest.issues.listLabelsForRepo, {
+                owner: org,
+                repo: repo.name,
+                per_page: 100
+              });
+
+              const existingLabelNames = existingLabels.map (l => l.name.toLowerCase());
+
+              for (const target of targetLabels) {
+                const labelExists = existingLabelNames.includes(target.name.toLowerCase());
+
+                if (labelExists) {
+                  if (!updateExisting) {
+                    core.warning(`Label "${target.name}" already exists in ${repo.name}, skipping (update existing is false)`);
+                    continue;
+                  }
+
+                  // Update the label if it already exists to align colors/descr
+                  core.info(`Updating existing label: "${target.name}" in ${repo.name}`);
+
+                  if (!dryRun) {
+                    await github.rest.issues.updateLabel({
+                      owner: org,
+                      repo: repo.name,
+                      name: target.name,
+                      color: target.color,
+                      description: target.description
+                    });
+                  }
+                } else {
+                  // Create the label if it does not exist
+                  core.info(`Creating new label: "${target.name}" in ${repo.name}`);
+
+                  if (!dryRun) {
+                    await github.rest.issues.createLabel({
+                      owner: org,
+                      repo: repo.name,
+                      name: target.name,
+                      color: target.color,
+                      description: target.description
+                    });
+                  }
+                }
+              }
+            }
+            core.info("Label synchronization complete across all repositories!");
+          } catch (error) {
+            core.setFailed(`Action failed with error: ${error.message}`);
+          }
+
+          const summary = [
+            '### Label Sync Summary\n',
+            dryRun ? '\nNo labels were created or updated (dry run).\n' : '\nLabels were created/updated as needed.\n',
+            '\n**Target labels that should exist in each repository:**',
+            ...targetLabels.map(l => `- ${l.name} (#${l.color}) — ${l.description}`)
+          ];
+
+          await core.summary.addRaw(summary.join('\n')).write();
+          core.setOutput('target-labels', JSON.stringify(targetLabels.map(l => l.name)));
