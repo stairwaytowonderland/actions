@@ -1,8 +1,6 @@
 name: Handle New Repository
 
 on:
-  repository_dispatch:
-    types: [repository-created]
   workflow_call:
     inputs:
       repo:
@@ -27,9 +25,6 @@ on:
         required: true
         default: 'client_payload'
 
-env:
-  EVENT_KEY: ${{ inputs.event-key || 'client_payload' }}
-
 jobs:
   on-create:
     name: Handle Repository Created Event
@@ -44,7 +39,7 @@ jobs:
           fi
           echo "Repository URL: $CREATED_REPO_URL"
         env:
-          CREATED_REPO_NAME: ${{ inputs.repo || github.event[env.EVENT_KEY].repository.name }}
-          CREATED_REPO_URL: ${{ inputs.url || github.event[env.EVENT_KEY].repository.url }}
-          SENDER_LOGIN: ${{ inputs.sender || github.event[env.EVENT_KEY].sender.login }}
-          SENDER_ID: ${{ inputs.sender-id || github.event[env.EVENT_KEY].sender.id }}
+          CREATED_REPO_NAME: ${{ inputs.repo }}
+          CREATED_REPO_URL: ${{ inputs.url }}
+          SENDER_LOGIN: ${{ inputs.sender }}
+          SENDER_ID: ${{ inputs.sender-id }}
