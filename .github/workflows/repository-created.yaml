@@ -3,9 +3,36 @@ name: Handle New Repository
 on:
   repository_dispatch:
     types: [repository-created]
+  workflow_call:
+    inputs:
+      repo:
+        description: 'The name of the newly created repository (e.g. owner/repo)'
+        type: string
+        required: true
+      url:
+        description: 'The URL of the newly created repository'
+        type: string
+        required: true
+      sender:
+        description: 'The username of the user or app that created the repository'
+        type: string
+        required: true
+      sender-id:
+        description: 'The ID of the user or app that created the repository'
+        type: string
+        required: true
+      event-key:
+        description: 'The key to use for accessing the repository information from the client payload (default: client_payload)'
+        type: string
+        required: true
+        default: 'client_payload'
+
+env:
+  EVENT_KEY: ${{ inputs.event-key || 'client_payload' }}
 
 jobs:
   on-create:
+    name: Handle Repository Created Event
     runs-on: ubuntu-latest
     steps:
       - name: Print Repository Details
@@ -17,7 +44,7 @@ jobs:
           fi
           echo "Repository URL: $CREATED_REPO_URL"
         env:
-          CREATED_REPO_NAME: ${{ github.event.client_payload.repository.name }}
-          CREATED_REPO_URL: ${{ github.event.client_payload.repository.url }}
-          SENDER_LOGIN: ${{ github.event.client_payload.sender.login }}
-          SENDER_ID: ${{ github.event.client_payload.sender.id }}
+          CREATED_REPO_NAME: ${{ inputs.repo || github.event[env.EVENT_KEY].repository.name }}
+          CREATED_REPO_URL: ${{ inputs.url || github.event[env.EVENT_KEY].repository.url }}
+          SENDER_LOGIN: ${{ inputs.sender || github.event[env.EVENT_KEY].sender.login }}
+          SENDER_ID: ${{ inputs.sender-id || github.event[env.EVENT_KEY].sender.id }}
