@@ -14,6 +14,7 @@ Shared actions and workflows for use by this organization.
 │   │   ├── conventional-commit-action/
 │   │   ├── issue-create-action/
 │   │   ├── labels-create-action/
+│   │   ├── labels-sync-action/
 │   │   ├── merge-commit-action/
 │   │   ├── parse-issue-csv-action/
 │   │   ├── terraform-apply/
@@ -27,6 +28,8 @@ Shared actions and workflows for use by this organization.
 │   │   ├── pre-commit.yaml
 │   │   ├── publish.yaml
 │   │   ├── release.yaml
+│   │   ├── repository-created.yaml
+│   │   ├── sync-labels.yaml
 │   │   └── terraform-deploy.yml
 │   └── dependabot.yml
 ├── .editorconfig
@@ -74,7 +77,26 @@ Ensures all needed labels exist in the repository.
 | ---------------- | ------------------------------------------------------------------- |
 | `created-labels` | JSON array of needed label names that were created or already exist |
 
-### 2. `parse-issue-csv-action`
+### 2. `labels-sync-action`
+
+**Description:**
+Syncs a standardized set of labels across all active organization repositories
+
+**Inputs:**
+
+| Name              | Description                     | Required | Default               |
+| ----------------- | ------------------------------- | -------- | --------------------- |
+| `dry-run`         | Dry run (no changes made)       | No       | `''`                  |
+| `update-existing` | Update existing labels          | No       | `''`                  |
+| `github-token`    | GitHub token for authentication | No       | `${{ github.token }}` |
+
+**Outputs:**
+
+| Name            | Description                                                         |
+| --------------- | ------------------------------------------------------------------- |
+| `target-labels` | JSON array of target label names that were created or already exist |
+
+### 3. `parse-issue-csv-action`
 
 **Description:**
 Parses a CSV file of issues and outputs a grouped matrix by type.
@@ -94,7 +116,7 @@ Parses a CSV file of issues and outputs a grouped matrix by type.
 | `matrix` | Grouped matrix object by type (bug, feature, documentation, task) |
 | `types`  | Array of types in the order they were processed                   |
 
-### 3. `issue-create-action`
+### 4. `issue-create-action`
 
 **Description:**
 Creates a GitHub issue from a CSV row and appends to the job summary.
@@ -124,7 +146,7 @@ Creates a GitHub issue from a CSV row and appends to the job summary.
 | `issue-url`  | URL of the created issue (empty if dry run)                     |
 | `issue-urls` | JSON array of created issue URLs (batch only, empty if dry run) |
 
-### 4. `conventional-commit-action`
+### 5. `conventional-commit-action`
 
 **Description:**
 Validates commit messages against the Conventional Commits specification.
@@ -148,7 +170,7 @@ Validates commit messages against the Conventional Commits specification.
 | `invalid-commits` | Multiline list of invalid commit messages          |
 | `commit-count`    | Total number of commits checked                    |
 
-### 5. `merge-commit-action`
+### 6. `merge-commit-action`
 
 **Description:**
 Checks whether the current commit is a merge commit.
@@ -159,7 +181,7 @@ Checks whether the current commit is a merge commit.
 | ---------- | -------------------------------------------------------- |
 | `is_merge` | `true` if commit has multiple parents, otherwise `false` |
 
-### 6. `terraform-plan`
+### 7. `terraform-plan`
 
 **Description:**
 Reusable composite action for Terraform plan.
@@ -173,7 +195,7 @@ Reusable composite action for Terraform plan.
 | `extra-init-args`   | Extra arguments for Terraform init   | No       | `''`    |
 | `extra-plan-args`   | Extra arguments for Terraform plan   | No       | `''`    |
 
-### 7. `terraform-apply`
+### 8. `terraform-apply`
 
 **Description:**
 Reusable composite action for Terraform apply.
@@ -215,7 +237,29 @@ directly or as a reusable workflow.
 | -------------- | --------------------------------------------------- |
 | `github-token` | Optional token with repo scope for checking commits |
 
-### `ci`
+### 1. `ci-package-update`
+
+**Description:**
+Workflow to trigger package update process when `package.json` or `package-lock.json` are changed, with options to specify
+paths and ignore certain commit authors.
+
+**Description:**
+
+| Event Type    | Details                                                                                                          |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- |
+| push          | On push to `main` branch with changes to `package.json` and `package-lock.json`                                  |
+| workflow_call | When called by another workflow, checks for changes to specified paths and ignores commits by specified authors. |
+
+**Behavior:**
+
+- Runs on push to main when `package.json` or `package-lock.json` are changed, and on workflow call when specified paths
+are changed (if not a push event).
+- Uses a PAT for authentication to ensure semantic-release triggers the tag pipeline when a tag is created.
+- Checks for changes to specified paths and ignores commits by specified authors when triggered by workflow call.
+- Dispatches the `ci.yaml` workflow to run in 'publish' mode if triggered by a push event with relevant changes, or if triggered
+by workflow call with 'publish' enabled and relevant changes.
+
+### 2. `ci`
 
 **Description:**
 Main orchestration workflow for release and publish operations of this repo.
@@ -235,7 +279,7 @@ Main orchestration workflow for release and publish operations of this repo.
 
 ## Reusable Workflows (`workflow_call`)
 
-### `conventional-commit`
+### 1. `conventional-commit`
 
 **Description:**
 Reusable workflow to validate commit messages in pull requests or caller-defined refs.
@@ -264,7 +308,7 @@ secrets:
 | `commit-count`               | Number of commits validated                  |
 | `is-merge`                   | Whether the checked commit is a merge commit |
 
-### `create-labels`
+### 2. `create-labels`
 
 **Description:**
 Reusable workflow to validate commit messages in pull requests or caller-defined refs.
@@ -275,6 +319,8 @@ Reusable workflow to validate commit messages in pull requests or caller-defined
 uses: stairwaytowonderland/actions/.github/workflows/create-labels.yaml@main
 with:
   ref: main
+  dry-run: true
+  update-labels: true
 secrets:
   github-token: ${{ secrets.GH_PAT }}
 ```
@@ -293,7 +339,7 @@ secrets:
 | -------------- | ------------------------------------------------------------------------------- |
 | `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
 
-### `import-csv-issues`
+### 3. `import-csv-issues`
 
 **Description:**
 Reusable workflow to import issues from a CSV file.
@@ -336,7 +382,7 @@ secrets:
 | -------------- | ------------------------------------------------------------------------------- |
 | `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
 
-### `pre-commit`
+### 4. `pre-commit`
 
 **Description:**
 Reusable workflow to run pre-commit checks.
@@ -355,7 +401,7 @@ with:
 | -------- | ---------------------------------- | -------- | ------ | ------------------------- |
 | `config` | Path to the pre-commit config file | No       | string | `.pre-commit-config.yaml` |
 
-### `release`
+### 5. `release`
 
 **Description:**
 Runs semantic-release and exposes release metadata for downstream workflows.
@@ -395,7 +441,7 @@ secrets:
 | -------------- | ------------------------------------------------ |
 | `github-token` | Optional token for release creation and dispatch |
 
-### `publish`
+### 6. `publish`
 
 **Description:**
 Publishes a GitHub release for a provided tag and optional precomputed notes.
@@ -434,7 +480,66 @@ secrets:
 | -------------- | ---------------------------------------------- |
 | `github-token` | Optional token to checkout and publish release |
 
-### `terraform-deploy`
+### 7. `sync-labels`
+
+**Description:**
+Sync a defined set of labels across all repositories in the organization. This workflow can be called by other workflows
+(e.g. on a schedule or via manual trigger) to ensure consistent labeling across repos.
+
+**Usage Example:**
+
+```yaml
+uses: stairwaytowonderland/actions/.github/workflows/sync-labels.yaml@main
+with:
+  ref: main
+  dry-run: true
+  update-labels: true
+secrets:
+  github-token: ${{ secrets.GH_PAT }}
+```
+
+**Inputs:**
+
+| Name              | Description                                                               | Required | Type    | Default |
+| ----------------- | ------------------------------------------------------------------------- | -------- | ------- | ------- |
+| `dry-run`         | Ref of this shared actions repository to checkout                         | No       | boolean | `false` |
+| `update-existing` | Whether to update existing labels (e.g. rename, change color/description) | No       | boolean | `false` |
+| `ref`             | Ref of this shared actions repository to checkout                         | No       | string  | `v1`    |
+
+**Secrets:**
+
+| Name           | Description                                                                     |
+| -------------- | ------------------------------------------------------------------------------- |
+| `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
+
+### 8. `repository-created`
+
+**Description:**
+Handle actions to perform when a new repository is created in the organization (e.g. create default labels, set up branch
+protection, etc.)
+
+**Usage Example:**
+
+```yaml
+uses: stairwaytowonderland/actions/.github/workflows/sync-labels.yaml@main
+with:
+  ref: main
+  dry-run: true
+  update-labels: true
+secrets:
+  github-token: ${{ secrets.GH_PAT }}
+```
+
+**Inputs:**
+
+| Name        | Description                                                 | Required | Type   | Default |
+| ----------- | ----------------------------------------------------------- | -------- | ------ | ------- |
+| `repo`      | The name of the newly created repository (e.g. owner/repo)  | Yes      | string | `''`    |
+| `url`       | The URL of the newly created repository                     | Yes      | string | `''`    |
+| `sender`    | The username of the user or app that created the repository | Yes      | string | `''`    |
+| `sender-id` | The ID of the user or app that created the repository       | Yes      | string | `''`    |
+
+### 9. `terraform-deploy`
 
 **Description:**
 Reusable workflow to plan and apply Terraform deployments with AWS OIDC and manual approval.
