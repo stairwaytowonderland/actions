@@ -134,7 +134,11 @@ runs:
                 }
               }
             }
-            core.info("Label synchronization complete across all repositories!");
+            if (dryRun) {
+              core.info("Dry run complete - no labels were created or updated.");
+            } else {
+              core.info("Label synchronization complete across all repositories!");
+            }
           } catch (error) {
             core.setFailed(`Action failed with error: ${error.message}`);
           }
