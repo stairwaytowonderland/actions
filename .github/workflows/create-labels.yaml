@@ -1,4 +1,4 @@
-name: Create Labels
+name: Labels Create
 
 on:
   workflow_call:
