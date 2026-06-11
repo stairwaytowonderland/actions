@@ -1,4 +1,4 @@
-name: Import Issues from CSV
+name: Issues Import (from CSV)
 
 concurrency:
   group: ${{github.repository}}-${{ github.workflow }}
