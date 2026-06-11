@@ -1,0 +1,23 @@
+name: Handle New Repository
+
+on:
+  repository_dispatch:
+    types: [repository-created]
+
+jobs:
+  on-create:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Repository Details
+        run: |
+          echo "A new repository was created!"
+          echo "Name: $CREATED_REPO_NAME"
+          if [ -n "$SENDER_LOGIN" ] && [ -n "$SENDER_ID" ]; then
+            echo "Created by: $SENDER_LOGIN (ID: $SENDER_ID)"
+          fi
+          echo "Repository URL: $CREATED_REPO_URL"
+        env:
+          CREATED_REPO_NAME: ${{ github.event.client_payload.repository.name }}
+          CREATED_REPO_URL: ${{ github.event.client_payload.repository.url }}
+          SENDER_LOGIN: ${{ github.event.client_payload.sender.login }}
+          SENDER_ID: ${{ github.event.client_payload.sender.id }}
