@@ -119,12 +119,14 @@ runs:
 
             let filteredRepos = specifiedActiveRepos;
             if (ignorePatterns.length > 0) {
-              filteredRepos = specifiedActiveRepos.filter(repo => {
-                const shouldIgnore = ignorePatterns.some(pattern => pattern.test(repo.name));
-                if (shouldIgnore) {
-                  core.info(`Ignoring repository "${repo.name}" based on ignore patterns`);
+              filteredRepos = filteredRepos.filter(repo => {
+                for (const pattern of ignorePatterns) {
+                  if (pattern.test(repo.name)) {
+                    core.info(`Ignoring repository "${repo.name}" as it matches ignore pattern: ${pattern}`);
+                    return false;
+                  }
                 }
-                return !shouldIgnore;
+                return true;
               });
               core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
               core.info(`Repositories to be processed: ${filteredRepos.map(r => r.name).join(', ')}`);
