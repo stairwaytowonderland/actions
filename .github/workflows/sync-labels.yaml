@@ -7,6 +7,10 @@ on:
 
   workflow_call:
     inputs:
+      org:
+        description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
+        required: false
+        type: string
       dry-run:
         description: 'Dry run'
         required: true
@@ -29,6 +33,10 @@ on:
 
   workflow_dispatch:
     inputs:
+      org:
+        description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
+        required: false
+        type: string
       dry-run:
         description: 'Dry run'
         required: true
@@ -64,6 +72,7 @@ jobs:
       - name: Sync labels
         uses: ./.actions/.github/actions/labels-sync-action
         with:
+          org: ${{ inputs.org || github.repository_owner }}
           dry-run: ${{ inputs.dry-run }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
           update-existing: ${{ inputs.update-existing }}

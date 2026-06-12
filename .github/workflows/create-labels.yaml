@@ -3,6 +3,14 @@ name: Labels Create
 on:
   workflow_call:
     inputs:
+      owner:
+        description: 'GitHub organization or user that owns the repository'
+        required: false
+        type: string
+      repo:
+        description: 'GitHub repository name (if not the current repository)'
+        required: false
+        type: string
       dry-run:
         description: 'Dry run'
         required: true
@@ -17,7 +25,6 @@ on:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         required: false
         type: string
-        default: 'v1'
     secrets:
       github-token:
         description: 'GitHub token for authentication'
@@ -25,6 +32,14 @@ on:
 
   workflow_dispatch:
     inputs:
+      owner:
+        description: 'GitHub organization or user that owns the repository'
+        required: false
+        type: string
+      repo:
+        description: 'GitHub repository name (if not the current repository)'
+        required: false
+        type: string
       dry-run:
         description: 'Dry run'
         required: true
@@ -39,7 +54,6 @@ on:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         required: false
         type: string
-        default: 'v1'
 
 jobs:
   create-labels:
@@ -60,6 +74,8 @@ jobs:
       - name: Create labels
         uses: ./.actions/.github/actions/labels-create-action
         with:
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repo: ${{ inputs.repo || github.repository }}
           dry-run: ${{ inputs.dry-run }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
           update-existing: ${{ inputs.update-existing }}

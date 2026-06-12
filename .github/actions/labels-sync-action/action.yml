@@ -2,7 +2,7 @@ name: 'Sync Org Default Labels'
 description: 'Syncs a standardized set of labels across all active organization repositories'
 
 inputs:
-  organization:
+  org:
     description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
     required: false
   github-token:
@@ -27,7 +27,7 @@ runs:
     - name: Run Label Sync Script
       uses: actions/github-script@v9
       env:
-        ORG: ${{ inputs.organization }}
+        ORG: ${{ inputs.org }}
         DRY_RUN: ${{ inputs.dry-run == 'true' }}
         UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
         REPOS_IGNORE: ${{ inputs.repos-ignore }}
