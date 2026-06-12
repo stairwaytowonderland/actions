@@ -69,7 +69,7 @@ jobs:
           update-existing: ${{ inputs.update-existing }}
           repos: |
             actions
-            cpython
+          # cpython
           # node-semantic-release
           # repository-create
           # simple-workflow-dispatch
