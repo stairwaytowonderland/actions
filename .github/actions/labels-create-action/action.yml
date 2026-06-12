@@ -25,6 +25,7 @@ inputs:
     default: |
       [
         { "name": "impact:high", "color": "E5ABC7", "description": "High impact" },
+        { "name": "impact:medium", "color": "DFD4F2", "description": "Medium impact" },
         { "name": "impact:low", "color": "C2E0C6", "description": "Low impact" }
       ]
   priority-labels:
@@ -32,14 +33,15 @@ inputs:
     default: |
       [
         { "name": "priority:high", "color": "FF2BBF", "description": "High priority" },
-        { "name": "priority:low", "color": "BAF165", "description": "Low priority" }
+        { "name": "priority:medium", "color": "141C90", "description": "Medium priority" },
+        { "name": "priority:low", "color": "FF7F50", "description": "Low priority" }
       ]
   other-labels:
     description: 'JSON array of other (misc) label objects (name, color, description)'
     default: |
       [
         { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
-        { "name": "task", "color": "0052CC", "description": "General task" },
+        { "name": "task", "color": "005FFF", "description": "General task" },
         { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
         { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" }
       ]
@@ -50,11 +52,11 @@ inputs:
   impact-map:
     description: 'JSON object mapping impact values to normalized label names'
     default: |
-      { "higher": "high", "high": "high", "lower": "low", "low": "low" }
+      { "higher": "high", "high": "high", "medium": "medium", "lower": "low", "low": "low" }
   priority-map:
     description: 'JSON object mapping priority values to normalized label names'
     default: |
-      { "higher": "high", "high": "high", "lower": "low", "low": "low" }
+      { "higher": "high", "high": "high", "medium": "medium", "lower": "low", "low": "low" }
   matrix:
     description: 'JSON matrix of issues to process (from parse-csv output)'
     required: false

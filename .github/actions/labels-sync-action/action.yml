@@ -52,24 +52,26 @@ runs:
           ];
 
           const effortLabels = [
-            { name: "effort: low", color: "adfcc0", description: "Requires minimal effort" },
-            { name: "effort: medium", color: "bfd4f2", description: "Requires moderate effort" },
-            { name: "effort: high", color: "fa2251", description: "Requires significant effort" }
+            { name: "effort:low", color: "adfcc0", description: "Requires minimal effort" },
+            { name: "effort:medium", color: "bfd4f2", description: "Requires moderate effort" },
+            { name: "effort:high", color: "fa2251", description: "Requires significant effort" }
           ];
 
           const impactLabels = [
-            { name: "impact: low", color: "c2e0c6", description: "Low impact on users" },
-            { name: "impact: high", color: "e5abc7", description: "High impact on users" }
+            { name: "impact:low", color: "c2e0c6", description: "Low impact on users" },
+            { name: "impact:medium", color: "dfd4f2", description: "Medium impact on users" },
+            { name: "impact:high", color: "e5abc7", description: "High impact on users" }
           ];
 
           const priorityLabels = [
-            { name: "priority: low", color: "baf165", description: "Low priority" },
-            { name: "priority: high", color: "ff2bbf", description: "High priority" }
+            { name: "priority:low", color: "baf165", description: "Low priority" },
+            { name: "priority:medium", color: "141c90", description: "Medium priority" },
+            { name: "priority:high", color: "ff2bbf", description: "High priority" }
           ];
 
           const otherLabels = [
             { "name": "poc", "color": "0fd40a", "description": "Proof of concept" },
-            { "name": "task", "color": "0052cc", "description": "General task" },
+            { "name": "task", "color": "005fff", "description": "General task" },
             { "name": "security", "color": "fbca04", "description": "Something is a security risk" },
             { "name": "uncategorized", "color": "6302ab", "description": "Needs to be categorized" }
           ];
