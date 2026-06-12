@@ -110,7 +110,7 @@ runs:
 
             specifiedActiveRepos = activeRepos;
             if (specifiedRepos.length > 0) {
-              specifiedActiveRepos = specifiedActiveRepos.filter(repo => specifiedRepos.some(pattern => pattern.test(repo.name)));
+              specifiedActiveRepos = specifiedActiveRepos.filter(repo => specifiedRepos.some(pattern => pattern.test(repo.name))).sort((a, b) => a.name.localeCompare(b.name));
               core.info(`After filtering, ${specifiedActiveRepos.length} repositories will be processed`);
               core.info(`Repositories to be processed after filtering: ${specifiedActiveRepos.map(r => r.name).join(', ')}`);
             }
@@ -124,7 +124,7 @@ runs:
 
             filteredRepos = specifiedActiveRepos;
             if (ignorePatterns.length > 0) {
-              filteredRepos = filteredRepos.filter(repo => !ignorePatterns.some(pattern => pattern.test(repo.name)));
+              filteredRepos = filteredRepos.filter(repo => !ignorePatterns.some(pattern => pattern.test(repo.name))).sort((a, b) => a.name.localeCompare(b.name));
               core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
               core.info(`Repositories to be processed: ${filteredRepos.map(r => r.name).join(', ')}`);
             }
