@@ -44,11 +44,6 @@ on:
         description: 'Allow creating duplicate issues for closed issues'
         type: boolean
 
-      node-version:
-        description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
-        type: string
-        default: '24'
-
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
@@ -96,7 +91,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: ${{ inputs.node-version || '24' }}
+          node-version: '24'
 
       - name: Install PapaParse
         run: npm install papaparse
