@@ -39,11 +39,8 @@ Shared actions and workflows for use by this organization.
 ├── .prettierignore
 ├── .prettierrc
 ├── .releaserc
-├── CHANGELOG.md
 ├── CONTRIBUTING.md
 ├── LICENSE
-├── package-lock.json
-├── package.json
 └── README.md
 ```
 
