@@ -1,55 +1,20 @@
 name: Labels Sync
 
 on:
-  schedule:
-    - cron: '0 0 * * 0' # every Sunday at midnight
-      timezone: 'America/Chicago'
-
-  workflow_call:
-    inputs:
-      org:
-        description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
-        required: false
-        type: string
-      dry-run:
-        description: 'Dry run'
-        required: true
-        type: boolean
-        default: true
-      update-existing:
-        description: 'Whether to update existing labels (e.g. rename, change color/description).'
-        required: true
-        type: boolean
-        default: false
-      ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
-        type: string
-        default: 'v1'
-    secrets:
-      github-token:
-        description: 'GitHub token for authentication'
-        required: false
-
   workflow_dispatch:
     inputs:
       org:
         description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
-        required: false
         type: string
       dry-run:
         description: 'Dry run'
-        required: true
         type: boolean
         default: true
       update-existing:
         description: 'Whether to update existing labels (e.g. rename, change color/description).'
-        required: true
         type: boolean
-        default: false
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
         type: string
         default: 'v1'
 
@@ -72,10 +37,10 @@ jobs:
       - name: Sync labels
         uses: ./.actions/.github/actions/labels-sync-action
         with:
-          org: ${{ inputs.org || github.repository_owner }}
-          dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
-          update-existing: ${{ inputs.update-existing }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          org: ${{ inputs.org || '' }}
+          dry-run: ${{ inputs.dry-run == true }}
+          update-existing: ${{ inputs.update-existing == true }}
           repos: |
             actions
             cpython
