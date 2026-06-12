@@ -84,6 +84,12 @@ runs:
 
           const org = process.env.ORG;
 
+          let activeRepos = [];
+          let specifiedRepos = [];
+          let ignorePatterns = [];
+          let specifiedActiveRepos = [];
+          let filteredRepos = [];
+
           try {
             // 2. Fetch all non-archived repositories in the organization
             core.info(`Fetching repositories for organization: ${org}`);
@@ -93,16 +99,16 @@ runs:
               per_page: 100
             });
 
-            const activeRepos = repos.filter(repo => !repo.archived);
+            activeRepos = repos.filter(repo => !repo.archived);
             core.info(`Found ${activeRepos.length} active repositories to process`);
 
-            const specifiedRepos = (process.env.REPOS || '')
+            specifiedRepos = (process.env.REPOS || '')
               .split('\n')
               .map(pattern => pattern.trim())
               .filter(Boolean)
               .map(pattern => new RegExp(pattern));
 
-            let specifiedActiveRepos = activeRepos;
+            specifiedActiveRepos = activeRepos;
             if (specifiedRepos.length > 0) {
               specifiedActiveRepos = specifiedActiveRepos.filter(repo => specifiedRepos.some(pattern => pattern.test(repo.name)));
               core.info(`After filtering, ${specifiedActiveRepos.length} repositories will be processed`);
@@ -110,13 +116,13 @@ runs:
             }
 
             // Filter out ignored repositories based on patterns
-            const ignorePatterns = (process.env.REPOS_IGNORE || '')
+            ignorePatterns = (process.env.REPOS_IGNORE || '')
               .split('\n')
               .map(pattern => pattern.trim())
               .filter(Boolean)
               .map(pattern => new RegExp(pattern));
 
-            let filteredRepos = specifiedActiveRepos;
+            filteredRepos = specifiedActiveRepos;
             if (ignorePatterns.length > 0) {
               filteredRepos = filteredRepos.filter(repo => !ignorePatterns.some(pattern => pattern.test(repo.name)));
               core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
@@ -186,7 +192,7 @@ runs:
             '### Label Sync Summary\n',
             '\n**Organization:**', org,
             '\n**Total repositories processed:**', filteredRepos.length,
-            '\n**Specified repositories (if any):**', specifiedActiveRepos.length < activeRepos.length ? specifiedActiveRepos.map(r => r.name).join(', ') : 'None (all active repositories included)',
+            '\n**Specified repositories (if any):**', specifiedActiveRepos.length > 0 ? specifiedActiveRepos.map(r => r.name).join(', ') : 'None (all active repositories included)',
             '\n**Ignore patterns applied:**', ignorePatterns.length > 0 ? ignorePatterns.map(p => p.toString()).join(', ') : 'None',
             dryRun ? '\nNo labels were created or updated (dry run).\n' : '\nLabels were created/updated as needed.\n',
             '\n**Target labels that should exist in each repository:**',
