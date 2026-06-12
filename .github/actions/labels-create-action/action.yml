@@ -34,7 +34,7 @@ inputs:
       [
         { "name": "priority:high", "color": "FF2BBF", "description": "High priority" },
         { "name": "priority:medium", "color": "141C90", "description": "Medium priority" },
-        { "name": "priority:low", "color": "FF7F50", "description": "Low priority" }
+        { "name": "priority:low", "color": "BAF164", "description": "Low priority" }
       ]
   other-labels:
     description: 'JSON array of other (misc) label objects (name, color, description)'
