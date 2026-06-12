@@ -1,3 +1,9 @@
+## [1.143.0](https://github.com/stairwaytowonderland/actions/compare/v1.142.0...v1.143.0) (2026-06-12)
+
+### ✨ Features
+
+* update labels actions ([3a3afaa](https://github.com/stairwaytowonderland/actions/commit/3a3afaa015eb2ea17cc3868b8d19fe62b2321eca))
+
 ## [1.142.0](https://github.com/stairwaytowonderland/actions/compare/v1.141.0...v1.142.0) (2026-06-12)
 
 ### ✨ Features
