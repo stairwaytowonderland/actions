@@ -185,8 +185,8 @@ runs:
           let existingLabels = [];
           try {
             const { data: repoLabels } = await github.rest.issues.listLabelsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: owner,
+              repo: repo,
               per_page: 100
             });
             existingLabels = repoLabels.map(l => l.name);
