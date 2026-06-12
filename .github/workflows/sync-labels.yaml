@@ -79,5 +79,5 @@ jobs:
             ^repository-.*$
             ^.*-template$
           repos-ignore: |
-            '^\.github.*$'
-            '^repository-.*$'
+            ^\.github.*$
+            ^repository-.*$
