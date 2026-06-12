@@ -78,5 +78,6 @@ jobs:
             ^python-.*$
             ^repository-.*$
             ^.*-template$
-          # repos-ignore: |
-          #   '^\.github.*$'
+          repos-ignore: |
+            '^\.github.*$'
+            '^repository-.*$'
