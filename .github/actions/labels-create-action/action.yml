@@ -201,6 +201,7 @@ runs:
           const summary = [
             '### Labels Processed\n',
             dryRun ? '\nLabel(s) not created (dry run).\n' : '',
+            '\n**Owner/Repository:**', `${owner}/${repo}`,
             '\n**Needed labels (created or updated):**',
             ...neededButMissing.map(l => {
               const color = l.color;

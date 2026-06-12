@@ -292,6 +292,7 @@ runs:
           if (!prevSummary.includes(tableHeader)) {
             summary += `### Issue Imported\n\n`;
             summary += dryRun ? 'Issue not created (dry run)\n\n' : '';
+            summary += '\n**Owner/Repository:**' + `\n${owner}/${repo}\n\n`;
             summary += tableHeader + '\n' + tableDivider + '\n';
           }
           summary += tableRow + '\n\n';
@@ -356,6 +357,7 @@ runs:
           if (!prevSummary.includes(tableHeader)) {
             summary += `### Issues Imported\n\n`;
             summary += dryRun ? 'Issues not created (dry run)\n\n' : '';
+            summary += '\n**Owner/Repository:**' + `\n${owner}/${repo}\n\n`;
             summary += tableHeader + '\n' + tableDivider + '\n';
           }
 
