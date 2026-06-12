@@ -39,7 +39,7 @@ Shared actions and workflows for use by this organization.
 ├── .prettierignore
 ├── .prettierrc
 ├── .releaserc
-├── CONTRIBUTING.md
+├── CHANGELOG.md
 ├── LICENSE
 └── README.md
 ```
@@ -311,81 +311,7 @@ secrets:
 | `commit-count`               | Number of commits validated                  |
 | `is-merge`                   | Whether the checked commit is a merge commit |
 
-### 2. `create-labels`
-
-**Description:**
-Reusable workflow to validate commit messages in pull requests or caller-defined refs.
-
-**Usage Example:**
-
-```yaml
-uses: stairwaytowonderland/actions/.github/workflows/create-labels.yaml@main
-with:
-  ref: main
-  dry-run: true
-  update-labels: true
-secrets:
-  github-token: ${{ secrets.GH_PAT }}
-```
-
-**Inputs:**
-
-| Name              | Description                                                               | Required | Type    | Default |
-| ----------------- | ------------------------------------------------------------------------- | -------- | ------- | ------- |
-| `dry-run`         | Ref of this shared actions repository to checkout                         | No       | boolean | `false` |
-| `update-existing` | Whether to update existing labels (e.g. rename, change color/description) | No       | boolean | `false` |
-| `ref`             | Ref of this shared actions repository to checkout                         | No       | string  | `v1`    |
-
-**Secrets:**
-
-| Name           | Description                                                                     |
-| -------------- | ------------------------------------------------------------------------------- |
-| `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
-
-### 3. `import-csv-issues`
-
-**Description:**
-Reusable workflow to import issues from a CSV file.
-
-**Usage Example:**
-
-```yaml
-uses: stairwaytowonderland/actions/.github/workflows/import-csv-issues.yaml@main
-with:
-  csv-path: path/to/issues.csv
-  dry-run: false
-  batch: true
-  allow-duplicates: false
-  allow-closed-duplicates: false
-  ref: main
-  action-ref: main
-  node-version: 24
-  max-parallel: 5
-secrets:
-  github-token: ${{ secrets.GH_PAT }}
-```
-
-**Inputs:**
-
-| Name                      | Description                                                                     | Required | Type    | Default    |
-| ------------------------- | ------------------------------------------------------------------------------- | -------- | ------- | ---------- |
-| `ref`                     | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`     |
-| `action-ref`              | Git ref of the shared actions repo to use (e.g. `main` or a tag/commit)         | No       | string  | `main`     |
-| `node-version`            | Node.js version to use for parsing CSV (e.g. `18`, `20`, `24`)                  | No       | string  | `24`       |
-| `dry-run`                 | Dry run (no issues created)                                                     | No       | boolean | `true`     |
-| `max-parallel`            | Maximum number of parallel issue creations (only applies when `batch` is false) | No       | number  | `5`        |
-| `batch`                   | Create issues in batches (by type)                                              | No       | boolean | `true`     |
-| `allow-duplicates`        | Allow creating duplicate issues                                                 | No       | boolean | `false`    |
-| `allow-closed-duplicates` | Allow creating duplicate issues for closed issues                               | No       | boolean | `false`    |
-| `csv-path`                | Path (relative) to the CSV file                                                 | Yes      | string  | `TODO.csv` |
-
-**Secrets:**
-
-| Name           | Description                                                                     |
-| -------------- | ------------------------------------------------------------------------------- |
-| `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
-
-### 4. `pre-commit`
+### 2. `pre-commit`
 
 **Description:**
 Reusable workflow to run pre-commit checks.
@@ -404,7 +330,7 @@ with:
 | -------- | ---------------------------------- | -------- | ------ | ------------------------- |
 | `config` | Path to the pre-commit config file | No       | string | `.pre-commit-config.yaml` |
 
-### 5. `release`
+### 3. `release`
 
 **Description:**
 Runs semantic-release and exposes release metadata for downstream workflows.
@@ -444,7 +370,7 @@ secrets:
 | -------------- | ------------------------------------------------ |
 | `github-token` | Optional token for release creation and dispatch |
 
-### 6. `publish`
+### 4. `publish`
 
 **Description:**
 Publishes a GitHub release for a provided tag and optional precomputed notes.
@@ -483,39 +409,7 @@ secrets:
 | -------------- | ---------------------------------------------- |
 | `github-token` | Optional token to checkout and publish release |
 
-### 7. `sync-labels`
-
-**Description:**
-Sync a defined set of labels across all repositories in the organization. This workflow can be called by other workflows
-(e.g. on a schedule or via manual trigger) to ensure consistent labeling across repos.
-
-**Usage Example:**
-
-```yaml
-uses: stairwaytowonderland/actions/.github/workflows/sync-labels.yaml@main
-with:
-  ref: main
-  dry-run: true
-  update-labels: true
-secrets:
-  github-token: ${{ secrets.GH_PAT }}
-```
-
-**Inputs:**
-
-| Name              | Description                                                               | Required | Type    | Default |
-| ----------------- | ------------------------------------------------------------------------- | -------- | ------- | ------- |
-| `dry-run`         | Ref of this shared actions repository to checkout                         | No       | boolean | `false` |
-| `update-existing` | Whether to update existing labels (e.g. rename, change color/description) | No       | boolean | `false` |
-| `ref`             | Ref of this shared actions repository to checkout                         | No       | string  | `v1`    |
-
-**Secrets:**
-
-| Name           | Description                                                                     |
-| -------------- | ------------------------------------------------------------------------------- |
-| `github-token` | Optional token with permissions to create issues (falls back to `GITHUB_TOKEN`) |
-
-### 8. `repository-created`
+### 5. `repository-created`
 
 **Description:**
 Handle actions to perform when a new repository is created in the organization (e.g. create default labels, set up branch
@@ -542,7 +436,7 @@ secrets:
 | `sender`    | The username of the user or app that created the repository | Yes      | string | `''`    |
 | `sender-id` | The ID of the user or app that created the repository       | Yes      | string | `''`    |
 
-### 9. `terraform-deploy`
+### 6. `terraform-deploy`
 
 **Description:**
 Reusable workflow to plan and apply Terraform deployments with AWS OIDC and manual approval.
