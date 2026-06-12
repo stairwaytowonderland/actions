@@ -69,14 +69,14 @@ jobs:
           update-existing: ${{ inputs.update-existing }}
           repos: |
             actions
-          # cpython
-          # node-semantic-release
-          # repository-create
-          # simple-workflow-dispatch
-          # ^cloudflare-.*$
-          # ^.*-demo$
-          # ^python-.*$
-          # ^repository-.*$
-          # ^.*-template$
+            cpython
+            node-semantic-release
+            repository-create
+            simple-workflow-dispatch
+            ^cloudflare-.*$
+            ^.*-demo$
+            ^python-.*$
+            ^repository-.*$
+            ^.*-template$
           # repos-ignore: |
           #   '^\.github.*$'
