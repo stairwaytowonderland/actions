@@ -35,7 +35,6 @@ runs:
         REPOS: ${{ inputs.repos }}
       with:
         github-token: ${{ inputs.github-token }}
-
         script: |
           const dryRun = process.env.DRY_RUN === 'true';
           const updateExisting = process.env.UPDATE_EXISTING === 'true';
