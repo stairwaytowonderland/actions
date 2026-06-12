@@ -81,11 +81,13 @@ Syncs a standardized set of labels across all active organization repositories
 
 **Inputs:**
 
-| Name              | Description                     | Required | Default               |
-| ----------------- | ------------------------------- | -------- | --------------------- |
-| `dry-run`         | Dry run (no changes made)       | No       | `''`                  |
-| `update-existing` | Update existing labels          | No       | `''`                  |
-| `github-token`    | GitHub token for authentication | No       | `${{ github.token }}` |
+| Name              | Description                                                                                                                   | Required | Default               |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------- | --------------------- |
+| `dry-run`         | Dry run (no changes made)                                                                                                     | No       | `''`                  |
+| `update-existing` | Update existing labels                                                                                                        | No       | `''`                  |
+| `github-token`    | GitHub token for authentication                                                                                               | No       | `${{ github.token }}` |
+| `repos`           | Specific repositories to sync (comma-separated, e.g. "repo1,repo2"). If not provided, all active repositories will be synced. | No       | `''`                  |
+| `repos-ignore`    | Names or patterns (regex) of repositories to ignore (e.g. `/^.github.*$/`).                                                   | No       | `''`                  |
 
 **Outputs:**
 

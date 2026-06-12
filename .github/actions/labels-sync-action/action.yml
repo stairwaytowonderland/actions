@@ -184,6 +184,10 @@ runs:
 
           const summary = [
             '### Label Sync Summary\n',
+            '\n**Organization:**', org,
+            '\n**Total repositories processed:**', filteredRepos.length,
+            '\n**Specified repositories (if any):**', specifiedActiveRepos.length < activeRepos.length ? specifiedActiveRepos.map(r => r.name).join(', ') : 'None (all active repositories included)',
+            '\n**Ignore patterns applied:**', ignorePatterns.length > 0 ? ignorePatterns.map(p => p.toString()).join(', ') : 'None',
             dryRun ? '\nNo labels were created or updated (dry run).\n' : '\nLabels were created/updated as needed.\n',
             '\n**Target labels that should exist in each repository:**',
             ...targetLabels.map(l => `- ${l.name} (#${l.color}) — ${l.description}`)
