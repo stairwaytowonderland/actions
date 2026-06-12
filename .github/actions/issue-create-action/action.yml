@@ -3,6 +3,12 @@ description: 'Reusable action to create a GitHub issue from a CSV row and append
   to the job summary.'
 
 inputs:
+  owner:
+    description: 'GitHub organization or user that owns the repository'
+    required: false
+  repo:
+    description: 'GitHub repository name (if not the current repository)'
+    required: false
   allow-duplicates:
     description: 'Allow creating duplicate issues (default: true)'
     default: 'true'
@@ -63,6 +69,8 @@ runs:
       uses: actions/github-script@v9
       if: inputs.batch-json == '[]'
       env:
+        OWNER: ${{ inputs.owner }}
+        REPO: ${{ inputs.repo }}
         TITLE: ${{ inputs.title }}
         PRIORITY: ${{ inputs.priority }}
         PRIORITY_FIELD_ID: ${{ inputs.priority-field-id }}
@@ -81,6 +89,8 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         script: |
+          const owner = process.env.OWNER || context.repo.owner;
+          const repo = process.env.REPO || context.repo.repo;
           const title = process.env.TITLE;
           const priority = process.env.PRIORITY;
           const priorityFieldId = process.env.PRIORITY_FIELD_ID;
@@ -153,10 +163,10 @@ runs:
           let existsClosed = false;
           // Check for existing open issues with the same title
           const { data: existingIssues } = await github.rest.search.issuesAndPullRequests({
-            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:open in:title "${fullTitle}"`
+            q: `repo:${owner}/${repo} is:issue is:open in:title "${fullTitle}"`
           });
           const { data: existingClosedIssues } = await github.rest.search.issuesAndPullRequests({
-            q: `repo:${context.repo.owner}/${context.repo.repo} is:issue is:closed in:title "${fullTitle}"`
+            q: `repo:${owner}/${repo} is:issue is:closed in:title "${fullTitle}"`
           });
           exists = existingIssues.total_count > 0 || open;
           existsClosed = existingClosedIssues.total_count > 0 || closed;
@@ -191,8 +201,8 @@ runs:
                 isDuplicate = true;
               }
               const issue = await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
+                owner: owner,
+                repo: repo,
                 title: fullTitle,
                 body: `Imported from CSV.\n\n**Priority:** ${priority}\n**Effort:** ${effort}\n\n${description}`,
                 labels: labels,
@@ -211,14 +221,14 @@ runs:
               issueUrl = issue.data.html_url;
               if (completed) {
                 await github.rest.issues.update({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  owner: owner,
+                  repo: repo,
                   issue_number: issue.data.number,
                   state: 'closed'
                 });
                 await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  owner: owner,
+                  repo: repo,
                   issue_number: issue.data.number,
                   body: 'Automatically closed because this item was marked completed during import.'
                 });
@@ -226,7 +236,7 @@ runs:
             }
           }
           // Append to job summary as a Markdown table (always)
-          const titleField = `[${fullTitle}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(fullTitle)})`;
+          const titleField = `[${fullTitle}](${issueUrl || 'https://github.com/' + owner + '/' + repo + '/issues/new?title=' + encodeURIComponent(fullTitle)})`;
           const completedField = completed ? ':white_check_mark:&nbsp;*Yes*' : ':x:&nbsp;*No*';
           const issueTypeField = `${typeEmoji}&nbsp;${issueType}`;
           const descriptionField = `${(description || '').trim() ? description : '—'}`;
@@ -293,6 +303,8 @@ runs:
       uses: actions/github-script@v9
       if: inputs.batch-json != '[]'
       env:
+        OWNER: ${{ inputs.owner }}
+        REPO: ${{ inputs.repo }}
         ROWS_JSON: ${{ inputs.batch-json }}
         TITLE: ${{ inputs.title }}
         PRIORITY: ${{ inputs.priority }}
@@ -310,6 +322,8 @@ runs:
       with:
         github-token: ${{ inputs.github-token }}
         script: |
+          const owner = process.env.OWNER || context.repo.owner;
+          const repo = process.env.REPO || context.repo.repo;
           const title = process.env.TITLE;
           const priority = process.env.PRIORITY;
           const priorityFieldId = process.env.PRIORITY_FIELD_ID;
@@ -356,8 +370,8 @@ runs:
           let closedDone = false;
           while (!openDone) {
             const { data } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: owner,
+              repo: repo,
               state: 'open',
               per_page: 100,
               page
@@ -369,8 +383,8 @@ runs:
           page = 1;
           while (!closedDone) {
             const { data } = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: owner,
+              repo: repo,
               state: 'closed',
               per_page: 100,
               page
@@ -479,8 +493,8 @@ runs:
                   isDuplicate = true;
                 }
                 const issue = await github.rest.issues.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  owner: owner,
+                  repo: repo,
                   title: fullTitle,
                   body: `Imported from CSV.\n\n**Priority:** ${rowPriority}\n**Effort:** ${rowEffort}\n\n${rowDescription}`,
                   labels: labels,
@@ -500,14 +514,14 @@ runs:
                 issueUrl = issue.data.html_url;
                 if (rowCompleted) {
                   await github.rest.issues.update({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
+                    owner: owner,
+                    repo: repo,
                     issue_number: issue.data.number,
                     state: 'closed'
                   });
                   await github.rest.issues.createComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
+                    owner: owner,
+                    repo: repo,
                     issue_number: issue.data.number,
                     body: 'Automatically closed because this item was marked completed during import.'
                   });
@@ -520,7 +534,7 @@ runs:
               if (!firstIssueUrl) firstIssueUrl = issueUrl;
             }
 
-            const titleField = `[${rowTitle}](${issueUrl || 'https://github.com/' + context.repo.owner + '/' + context.repo.repo + '/issues/new?title=' + encodeURIComponent(rowTitle)})`;
+            const titleField = `[${rowTitle}](${issueUrl || 'https://github.com/' + owner + '/' + repo + '/issues/new?title=' + encodeURIComponent(rowTitle)})`;
             const issueTypeField = `${typeEmoji}&nbsp;${issueType}`;
             const descriptionField = `${(rowDescription || '').trim() ? rowDescription : '—'}`;
             const completedField = rowCompleted ? ':white_check_mark:&nbsp;*Yes*' : ':x:&nbsp;*No*';

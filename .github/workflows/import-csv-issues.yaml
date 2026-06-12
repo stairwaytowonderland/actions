@@ -7,53 +7,51 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
+      owner:
+        description: 'GitHub organization or user that owns the repository'
         type: string
-        default: 'v1'
 
-      node-version:
-        description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
-        required: false
+      repo:
+        description: 'GitHub repository name (if not the current repository)'
         type: string
-        default: '24'
-
-      dry-run:
-        description: 'Dry run'
-        required: false
-        type: boolean
-        default: true
-
-      max-parallel:
-        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
-        required: false
-        type: number
-        default: 5
-
-      batch:
-        description: 'Create issues in batches (by type)'
-        required: false
-        type: boolean
-        default: true
-
-      allow-duplicates:
-        description: 'Allow creating duplicate issues'
-        required: false
-        type: boolean
-        default: false
-
-      allow-closed-duplicates:
-        description: 'Allow creating duplicate issues for closed issues'
-        required: false
-        type: boolean
-        default: false
 
       csv-path:
         description: 'Path (relative) to the CSV file'
         required: true
         type: string
         default: 'TODO.csv'
+
+      dry-run:
+        description: 'Dry run'
+        type: boolean
+        default: true
+
+      max-parallel:
+        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
+        type: number
+        default: 5
+
+      batch:
+        description: 'Create issues in batches (by type)'
+        type: boolean
+        default: true
+
+      allow-duplicates:
+        description: 'Allow creating duplicate issues'
+        type: boolean
+
+      allow-closed-duplicates:
+        description: 'Allow creating duplicate issues for closed issues'
+        type: boolean
+
+      node-version:
+        description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
+        type: string
+        default: '24'
+
+      ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
 
   workflow_call:
     secrets:
@@ -62,53 +60,51 @@ on:
         required: false
 
     inputs:
-      ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
+      owner:
+        description: 'GitHub organization or user that owns the repository'
         type: string
-        default: 'v1'
 
-      node-version:
-        description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
-        required: false
+      repo:
+        description: 'GitHub repository name (if not the current repository)'
         type: string
-        default: '24'
-
-      dry-run:
-        description: 'Dry run'
-        required: false
-        type: boolean
-        default: true
-
-      max-parallel:
-        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
-        required: false
-        type: number
-        default: 5
-
-      batch:
-        description: 'Create issues in batches (by type)'
-        required: false
-        type: boolean
-        default: true
-
-      allow-duplicates:
-        description: 'Allow creating duplicate issues'
-        required: false
-        type: boolean
-        default: false
-
-      allow-closed-duplicates:
-        description: 'Allow creating duplicate issues for closed issues'
-        required: false
-        type: boolean
-        default: false
 
       csv-path:
         description: 'Path (relative) to the CSV file'
         required: true
         type: string
         default: 'TODO.csv'
+
+      dry-run:
+        description: 'Dry run'
+        type: boolean
+        default: true
+
+      max-parallel:
+        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
+        type: number
+        default: 5
+
+      batch:
+        description: 'Create issues in batches (by type)'
+        type: boolean
+        default: true
+
+      allow-duplicates:
+        description: 'Allow creating duplicate issues'
+        type: boolean
+
+      allow-closed-duplicates:
+        description: 'Allow creating duplicate issues for closed issues'
+        type: boolean
+
+      node-version:
+        description: 'Node.js version to use for parsing CSV (e.g. 18, 20, 24)'
+        type: string
+        default: '24'
+
+      ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
 
 jobs:
   # check-token:
@@ -153,7 +149,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: ${{ inputs.node-version }}
+          node-version: ${{ inputs.node-version || '24' }}
 
       - name: Install PapaParse
         run: npm install papaparse
@@ -214,9 +210,11 @@ jobs:
       - name: Ensure only needed labels exist
         uses: ./.actions/.github/actions/labels-create-action
         with:
-          matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
-          dry-run: ${{ inputs.dry-run }}
           github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+          owner: ${{ inputs.owner || '' }}
+          repo: ${{ inputs.repo || '' }}
+          matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
+          dry-run: ${{ inputs.dry-run == true }}
 
   create-issue-batch:
     if: ${{ inputs.batch }}
@@ -243,13 +241,15 @@ jobs:
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
         uses: ./.actions/.github/actions/issue-create-action
         with:
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+          owner: ${{ inputs.owner || '' }}
+          repo: ${{ inputs.repo || '' }}
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
           priority-field-id: 535200
           effort-field-id: 535203
-          dry-run: ${{ inputs.dry-run }}
-          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+          dry-run: ${{ inputs.dry-run == true }}
 
   merge-matrix:
     if: ${{ !inputs.batch }}
@@ -300,15 +300,17 @@ jobs:
       - name: Create issue
         uses: ./.actions/.github/actions/issue-create-action
         with:
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+          owner: ${{ inputs.owner || '' }}
+          repo: ${{ inputs.repo || '' }}
           title: ${{ matrix.issue.title }}
           priority: ${{ matrix.issue.priority }}
           effort: ${{ matrix.issue.effort }}
           description: ${{ matrix.issue.description }}
           status: ${{ matrix.issue.status }}
           completed: ${{ matrix.issue.completed }}
-          dry-run: ${{ inputs.dry-run }}
+          dry-run: ${{ inputs.dry-run == true }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
           priority-field-id: 535200
           effort-field-id: 535203
-          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
