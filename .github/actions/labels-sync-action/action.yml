@@ -102,12 +102,12 @@ runs:
               .filter(Boolean)
               .map(pattern => new RegExp(pattern));
 
-            let specifiedActiveRepos = activeRepos;
-            if (specifiedRepos.length > 0) {
-              specifiedActiveRepos = specifiedActiveRepos.filter(repo => specifiedRepos.some(pattern => pattern.test(repo.name)));
+            // let specifiedActiveRepos = activeRepos;
+            // if (specifiedRepos.length > 0) {
+              const specifiedActiveRepos = activeRepos.filter(repo => specifiedRepos.some(pattern => pattern.test(repo.name)));
               core.info(`After filtering, ${specifiedActiveRepos.length} repositories will be processed`);
               core.info(`Repositories to be processed after filtering: ${specifiedActiveRepos.map(r => r.name).join(', ')}`);
-            }
+            // }
 
             // Filter out ignored repositories based on patterns
             const ignorePatterns = (process.env.REPOS_IGNORE || '')
@@ -116,12 +116,12 @@ runs:
               .filter(Boolean)
               .map(pattern => new RegExp(pattern));
 
-            let filteredRepos = specifiedActiveRepos;
-            if (ignorePatterns.length > 0) {
-              filteredRepos = filteredRepos.filter(repo => !ignorePatterns.some(pattern => pattern.test(repo.name)));
+            // let filteredRepos = specifiedActiveRepos;
+            // if (ignorePatterns.length > 0) {
+              const filteredRepos = specifiedActiveRepos.filter(repo => !ignorePatterns.some(pattern => pattern.test(repo.name)));
               core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
               core.info(`Repositories to be processed: ${filteredRepos.map(r => r.name).join(', ')}`);
-            }
+            // }
 
             // 3. Loop through each repository and update labels
             for (const repo of filteredRepos) {
