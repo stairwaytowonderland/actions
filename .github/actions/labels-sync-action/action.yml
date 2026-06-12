@@ -117,20 +117,17 @@ runs:
               .filter(Boolean)
               .map(pattern => new RegExp(pattern));
 
-            let filteredRepos = specifiedActiveRepos;
-            if (ignorePatterns.length > 0) {
-              filteredRepos = filteredRepos.filter(repo => {
-                for (const pattern of ignorePatterns) {
-                  if (pattern.test(repo.name)) {
-                    core.info(`Ignoring repository "${repo.name}" as it matches ignore pattern: ${pattern}`);
-                    return false;
-                  }
+            const filteredRepos = specifiedActiveRepos.filter(repo => {
+              for (const pattern of ignorePatterns) {
+                if (pattern.test(repo.name)) {
+                  core.info(`Ignoring repository "${repo.name}" as it matches ignore pattern: ${pattern}`);
+                  return false;
                 }
-                return true;
-              });
-              core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
-              core.info(`Repositories to be processed: ${filteredRepos.map(r => r.name).join(', ')}`);
-            }
+              }
+              return true;
+            });
+            core.info(`Found ${filteredRepos.length} active repositories to process after applying ignore patterns`);
+            core.info(`Repositories to be processed: ${filteredRepos.map(r => r.name).join(', ')}`);
 
             // 3. Loop through each repository and update labels
             for (const repo of filteredRepos) {
