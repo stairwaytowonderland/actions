@@ -78,7 +78,7 @@ jobs:
             ^python-.*$
             ^repository-.*$
             ^.*-template$
-          # repos-ignore: |
-          #   ^\.github.*$
-          #   ^deprecated-?.*$'
-          #   ^personal-?.*$
+          repos-ignore: |
+            ^\.github.*$
+            ^deprecated-?.*$'
+            ^personal-?.*$
