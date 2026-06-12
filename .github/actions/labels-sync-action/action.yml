@@ -11,13 +11,12 @@ inputs:
   update-existing:
     description: 'Whether to update existing labels with the same name to match the provided color and description (instead of leaving them unchanged).'
     required: false
+  repos:
+    description: 'Specific repositories to sync (comma-separated, e.g. "repo1,repo2"). If not provided, all active repositories will be synced.'
+    required: false
   repos-ignore:
     description: 'Names or patterns (regex) of repositories to ignore (e.g. /^.github.*$/, /^personal-?.*$/).'
     required: false
-    default: |
-      '^\.github.*$'
-      '^deprecated-?.*$'
-      '^personal-?.*$'
 
 runs:
   using: 'composite'
@@ -28,6 +27,7 @@ runs:
         DRY_RUN: ${{ inputs.dry-run == 'true' }}
         UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
         REPOS_IGNORE: ${{ inputs.repos-ignore }}
+        REPOS: ${{ inputs.repos }}
       with:
         github-token: ${{ inputs.github-token }}
 
@@ -92,13 +92,25 @@ runs:
             const activeRepos = repos.filter(repo => !repo.archived);
             core.info(`Found ${activeRepos.length} active repositories to process`);
 
+            const specifiedRepos = (process.env.REPOS || '')
+              .split(',')
+              .map(repo => repo.trim())
+              .filter(Boolean);
+
+            let specifiedActiveRepos = activeRepos;
+            if (specifiedRepos.length > 0) {
+              core.info(`Filtering to specified repositories: ${specifiedRepos.join(', ')}`);
+              specifiedActiveRepos = specifiedActiveRepos.filter(repo => specifiedRepos.includes(repo.name));
+              core.info(`After filtering, ${specifiedActiveRepos.length} repositories will be processed`);
+            }
+
             // Filter out ignored repositories based on patterns
             const ignorePatterns = (process.env.REPOS_IGNORE || '')
               .split('\n')
               .map(pattern => pattern.trim())
               .filter(Boolean)
               .map(pattern => new RegExp(pattern));
-            const filteredRepos = activeRepos.filter(repo => {
+            const filteredRepos = specifiedActiveRepos.filter(repo => {
               for (const pattern of ignorePatterns) {
                 if (pattern.test(repo.name)) {
                   core.info(`Ignoring repository "${repo.name}" as it matches ignore pattern: ${pattern}`);
