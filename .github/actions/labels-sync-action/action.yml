@@ -27,6 +27,7 @@ runs:
       env:
         DRY_RUN: ${{ inputs.dry-run == 'true' }}
         UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
+        REPOS_IGNORE: ${{ inputs.repos-ignore }}
       with:
         github-token: ${{ inputs.github-token }}
 
@@ -92,7 +93,11 @@ runs:
             core.info(`Found ${activeRepos.length} active repositories to process`);
 
             // Filter out ignored repositories based on patterns
-            const ignorePatterns = ${{ inputs.repos-ignore }}.split('\n').map(pattern => new RegExp(pattern.trim()));
+            const ignorePatterns = (process.env.REPOS_IGNORE || '')
+              .split('\n')
+              .map(pattern => pattern.trim())
+              .filter(Boolean)
+              .map(pattern => new RegExp(pattern));
             const filteredRepos = activeRepos.filter(repo => {
               for (const pattern of ignorePatterns) {
                 if (pattern.test(repo.name)) {
