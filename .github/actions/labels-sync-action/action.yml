@@ -5,7 +5,6 @@ inputs:
   organization:
     description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
     required: false
-    default: ${{ github.repository_owner }}
   github-token:
     description: 'Privileged token with access to all organization repositories'
     required: true
@@ -82,7 +81,7 @@ runs:
             ...otherLabels
           ];
 
-          const org = process.env.ORG;
+          const org = process.env.ORG || context.repo.owner;
 
           let activeRepos = [];
           let specifiedRepos = [];

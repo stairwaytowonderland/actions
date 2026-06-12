@@ -2,6 +2,12 @@ name: 'Create Needed Labels'
 description: 'Reusable action to ensure all needed labels exist in the repository.'
 
 inputs:
+  owner:
+    description: 'GitHub organization or user that owns the repository'
+    required: false
+  repo:
+    description: 'GitHub repository name (if not the current repository)'
+    required: false
   types:
     description: 'JSON array of types in order of processing (default: ["bug","feature","documentation","task"])'
     default: |
@@ -83,6 +89,8 @@ runs:
         DRY_RUN: ${{ inputs.dry-run == 'true' }}
         UPDATE_EXISTING: ${{ inputs.update-existing == 'true' }}
         TYPES: ${{ inputs.types }}
+        OWNER: ${{ inputs.owner }}
+        REPO: ${{ inputs.repo }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
@@ -134,6 +142,8 @@ runs:
             else if (/docs?:|documentation/i.test(row.title)) needed.add('documentation');
             else needed.add('task');
           }
+          const owner = process.env.OWNER || context.repo.owner;
+          const repo = process.env.REPO || context.repo.repo;
           const dryRun = process.env.DRY_RUN === 'true';
           const updateExisting = process.env.UPDATE_EXISTING === 'true';
           if (!dryRun) {
@@ -142,14 +152,14 @@ runs:
               if (hasMatrixRows && !needed.has(label.name)) continue;
               try {
                 await github.rest.issues.getLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  owner: owner,
+                  repo: repo,
                   name: label.name
                 });
                 if (updateExisting) {
                   await github.rest.issues.updateLabel({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
+                    owner: owner,
+                    repo: repo,
                     name: label.name,
                     color: label.color,
                     description: label.description
@@ -157,8 +167,8 @@ runs:
                 }
               } catch (e) {
                 await github.rest.issues.createLabel({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
+                  owner: owner,
+                  repo: repo,
                   name: label.name,
                   color: label.color,
                   description: label.description
@@ -169,14 +179,14 @@ runs:
           const neededLabels = hasMatrixRows
             ? targetLabels.filter(l => needed.has(l.name))
             : targetLabels;
-          const labelBaseUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/labels/?q=`;
+          const labelBaseUrl = `https://github.com/${owner}/${repo}/labels/?q=`;
 
           // Check which labels already exist
           let existingLabels = [];
           try {
             const { data: repoLabels } = await github.rest.issues.listLabelsForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
+              owner: owner,
+              repo: repo,
               per_page: 100
             });
             existingLabels = repoLabels.map(l => l.name);
