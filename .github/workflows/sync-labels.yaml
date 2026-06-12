@@ -80,5 +80,4 @@ jobs:
             ^.*-template$
           repos-ignore: |
             ^\.github.*$
-            ^deprecated-?.*$'
-            ^personal-?.*$
+            ^repository-?.*$'
