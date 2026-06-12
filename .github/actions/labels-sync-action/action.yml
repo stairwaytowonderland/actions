@@ -192,9 +192,13 @@ runs:
             '### Label Sync Summary\n',
             dryRun ? '\nNo labels were created or updated (dry run).\n' : '\nLabels were created/updated as needed.\n',
             '\n#### Organization', org,
-            '\n#### Total repositories processed', filteredRepos.length,
+            '\n#### Total active repositories found', activeRepos.length,
+            '\n#### Total specified repositories to include (if any)', specifiedActiveRepos.length,
             '\n#### Specified repositories (if any)', specifiedActiveRepos.length > 0 ? specifiedActiveRepos.map(r => '`' + r.name + '`').join(', ') : 'None (all active repositories included)',
-            '\n#### Ignore patterns applied', ignorePatterns.length > 0 ? ignorePatterns.map(p => '`' + p.toString() + '`').join(', ') : 'None',
+            '\n#### Ignore patterns applied (if any)', ignorePatterns.length > 0 ? ignorePatterns.map(p => '`' + p.toString() + '`').join(', ') : 'None',
+            '\n#### Total repositories ignored due to patterns (if any)', activeRepos.length - specifiedActiveRepos.length,
+            '\n#### Total repositories ignored due to ignore patterns (if any)', specifiedActiveRepos.length - filteredRepos.length,
+            '\n#### Total repositories processed', filteredRepos.length,
             '\n#### Target labels that should exist in each repository',
             ...targetLabels.map(l => `- ${l.name} (#${l.color}) — ${l.description}`)
           ];
