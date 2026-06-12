@@ -67,8 +67,16 @@ jobs:
           dry-run: ${{ inputs.dry-run }}
           github-token: ${{ secrets.github-token || secrets.GITHUB_TOKEN }}
           update-existing: ${{ inputs.update-existing }}
-          repos: 'actions'
-          repos-ignore: |
-            '^\.github.*$'
-            '^deprecated-?.*$'
-            '^personal-?.*$'
+          repos: |
+            actions
+            cpython
+            node-semantic-release
+            repository-create
+            simple-workflow-dispatch
+            ^cloudflare-.*$
+            ^.*-demo$
+            ^python-.*$
+            ^repository-.*$
+            ^.*-template$
+          # repos-ignore: |
+          #   '^\.github.*$'
