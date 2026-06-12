@@ -70,13 +70,13 @@ jobs:
           repos: |
             actions
             cpython
-            node-semantic-release
-            repository-create
-            simple-workflow-dispatch
-            ^cloudflare-.*$
-            ^.*-demo$
-            ^python-.*$
-            ^repository-.*$
-            ^.*-template$
+          # node-semantic-release
+          # repository-create
+          # simple-workflow-dispatch
+          # ^cloudflare-.*$
+          # ^.*-demo$
+          # ^python-.*$
+          # ^repository-.*$
+          # ^.*-template$
           # repos-ignore: |
           #   '^\.github.*$'
