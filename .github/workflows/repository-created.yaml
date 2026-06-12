@@ -22,7 +22,6 @@ on:
 
 jobs:
   on-create:
-    name: Handle Repository Created Event
     runs-on: ubuntu-latest
     steps:
       - name: Print Repository Details
