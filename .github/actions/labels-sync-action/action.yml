@@ -69,6 +69,15 @@ runs:
             { name: "priority:high", color: "ff2bbf", description: "High priority" }
           ];
 
+          const dependabotLabels = [
+            { name: "dependencies", color: "F0FFFF", description: "Related to dependabot dependencies" },
+            { name: "dependencies:github-actions", color: "000000", description: "Related to GitHub Actions dependencies" },
+            { name: "dependencies:npm", color: "000000", description: "Related to npm dependencies" },
+            { name: "dependencies:python", color: "000000", description: "Related to Python dependencies" },
+            { name: "dependencies:docker", color: "000000", description: "Related to Docker dependencies" },
+            { name: "dependencies:terraform", color: "000000", description: "Related to Terraform dependencies" }
+          ];
+
           const otherLabels = [
             { "name": "poc", "color": "0fd40a", "description": "Proof of concept" },
             { "name": "task", "color": "005fff", "description": "General task" },
@@ -80,6 +89,7 @@ runs:
             ...effortLabels,
             ...impactLabels,
             ...priorityLabels,
+            ...dependabotLabels,
             ...otherLabels
           ];
 

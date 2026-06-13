@@ -214,7 +214,7 @@ Reusable composite action for Terraform apply.
 
 ## Workflows
 
-### `ci-package-update`
+### 1. `ci-package-update`
 
 **Description:**
 Checks for changes to package.json and package-lock.json and triggers the publish workflow if needed. Can be called
@@ -239,28 +239,6 @@ directly or as a reusable workflow.
 | Name           | Description                                         |
 | -------------- | --------------------------------------------------- |
 | `github-token` | Optional token with repo scope for checking commits |
-
-### 1. `ci-package-update`
-
-**Description:**
-Workflow to trigger package update process when `package.json` or `package-lock.json` are changed, with options to specify
-paths and ignore certain commit authors.
-
-**Description:**
-
-| Event Type    | Details                                                                                                          |
-| ------------- | ---------------------------------------------------------------------------------------------------------------- |
-| push          | On push to `main` branch with changes to `package.json` and `package-lock.json`                                  |
-| workflow_call | When called by another workflow, checks for changes to specified paths and ignores commits by specified authors. |
-
-**Behavior:**
-
-- Runs on push to main when `package.json` or `package-lock.json` are changed, and on workflow call when specified paths
-are changed (if not a push event).
-- Uses a PAT for authentication to ensure semantic-release triggers the tag pipeline when a tag is created.
-- Checks for changes to specified paths and ignores commits by specified authors when triggered by workflow call.
-- Dispatches the `ci.yaml` workflow to run in 'publish' mode if triggered by a push event with relevant changes, or if triggered
-by workflow call with 'publish' enabled and relevant changes.
 
 ### 2. `ci`
 
