@@ -1,3 +1,9 @@
+## [1.174.0](https://github.com/stairwaytowonderland/actions/compare/v1.173.0...v1.174.0) (2026-06-13)
+
+### ✨ Features
+
+* CODEOWNERS, dependabot, labels ([78f3e6c](https://github.com/stairwaytowonderland/actions/commit/78f3e6c0114cf78fcfb9e7cd3e1d187071d20ab5))
+
 ## [1.173.0](https://github.com/stairwaytowonderland/actions/compare/v1.172.0...v1.173.0) (2026-06-12)
 
 ### ✨ Features
