@@ -23,41 +23,41 @@ updates:
     assignees: ['stairwaytowonderland/owners']
     open-pull-requests-limit: 5 # Limits active PRs to prevent noise
     rebase-strategy: 'auto'
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-      timezone: 'America/Chicago'
-    ignore:
-      - dependency-name: '*'
-        update-types: ['version-update:semver-major']
-    labels: ['dependencies', 'npm']
-    assignees: ['andrewhaller']
-    groups:
-      npm:
-        applies-to: version-updates
-        patterns:
-          - '*'
-    open-pull-requests-limit: 5
-    rebase-strategy: 'auto'
-  - package-ecosystem: 'pip'
-    directory: '/src/'
-    schedule:
-      interval: 'weekly'
-      timezone: 'America/Chicago'
-    labels: ['dependencies', 'python']
-    assignees: ['andrewhaller']
-    open-pull-requests-limit: 5
-    rebase-strategy: 'auto'
-  - package-ecosystem: 'docker'
-    directory: '/docker/'
-    schedule:
-      interval: 'weekly'
-      timezone: 'America/Chicago'
-    labels: ['dependencies', 'docker']
-    assignees: ['andrewhaller']
-    open-pull-requests-limit: 5
-    rebase-strategy: 'auto'
+  # - package-ecosystem: 'npm'
+  #   directory: '/'
+  #   schedule:
+  #     interval: 'weekly'
+  #     timezone: 'America/Chicago'
+  #   ignore:
+  #     - dependency-name: '*'
+  #       update-types: ['version-update:semver-major']
+  #   labels: ['dependencies', 'npm']
+  #   assignees: ['andrewhaller']
+  #   groups:
+  #     npm:
+  #       applies-to: version-updates
+  #       patterns:
+  #         - '*'
+  #   open-pull-requests-limit: 5
+  #   rebase-strategy: 'auto'
+  # - package-ecosystem: 'pip'
+  #   directory: '/src/'
+  #   schedule:
+  #     interval: 'weekly'
+  #     timezone: 'America/Chicago'
+  #   labels: ['dependencies', 'python']
+  #   assignees: ['andrewhaller']
+  #   open-pull-requests-limit: 5
+  #   rebase-strategy: 'auto'
+  # - package-ecosystem: 'docker'
+  #   directory: '/docker/'
+  #   schedule:
+  #     interval: 'weekly'
+  #     timezone: 'America/Chicago'
+  #   labels: ['dependencies', 'docker']
+  #   assignees: ['andrewhaller']
+  #   open-pull-requests-limit: 5
+  #   rebase-strategy: 'auto'
   # - package-ecosystem: 'terraform'
   #   directories:
   #     - '/terraform/'
