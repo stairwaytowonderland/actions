@@ -41,7 +41,7 @@ inputs:
     default: |
       [
         { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
-        { "name": "task", "color": "005FFF", "description": "General task" },
+        { "name": "task", "color": "003FFF", "description": "General task" },
         { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
         { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" },
         { "name": "dependencies", "color": "F0FFFF", "description": "Related to dependabot dependencies" },

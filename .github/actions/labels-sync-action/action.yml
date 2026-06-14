@@ -80,7 +80,7 @@ runs:
 
           const otherLabels = [
             { "name": "poc", "color": "0fd40a", "description": "Proof of concept" },
-            { "name": "task", "color": "005fff", "description": "General task" },
+            { "name": "task", "color": "003fff", "description": "General task" },
             { "name": "security", "color": "fbca04", "description": "Something is a security risk" },
             { "name": "uncategorized", "color": "6302ab", "description": "Needs to be categorized" }
           ];
