@@ -8,6 +8,12 @@ on:
         type: boolean
         required: false
         default: false
+      exclude:
+        description: 'Repos to exclude from watcher handling.'
+        type: string
+        required: false
+        default: |
+          format('{0}/create-test', github.repository_owner)
 
     outputs:
       message_heading:
@@ -28,6 +34,7 @@ on:
 jobs:
   on-watch:
     name: Watching the watchers
+    if: ${{ !contains(inputs.exclude, github.repository) }}
     runs-on: ubuntu-latest
     outputs:
       message_heading: ${{ steps.create-welcome-message.outputs.message_heading }}
