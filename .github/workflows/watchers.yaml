@@ -20,6 +20,11 @@ on:
         description: 'Whether the watcher is a member of the organization.'
         value: ${{ jobs.on-watch.outputs.is-organization-member }}
 
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with repo scope for creating issues.'
+        required: false
+
 jobs:
   on-watch:
     name: Watching the watchers
@@ -58,7 +63,7 @@ jobs:
         id: is-organization-member
         uses: actions/github-script@v9
         with:
-          github-token: ${{ secrets.GH_PAT_CREATE_REPO }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_REPO }}
           script: |
             const username = context.payload?.sender?.login || process.env.GITHUB_ACTOR;
             if (!username) {
