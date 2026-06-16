@@ -1,3 +1,9 @@
+## [1.177.0](https://github.com/stairwaytowonderland/actions/compare/v1.176.0...v1.177.0) (2026-06-16)
+
+### ✨ Features
+
+* addd watchers workflow ([0fdca42](https://github.com/stairwaytowonderland/actions/commit/0fdca42496c22b2ff2222f88434434b9113f1212))
+
 ## [1.176.0](https://github.com/stairwaytowonderland/actions/compare/v1.175.0...v1.176.0) (2026-06-16)
 
 ### ✨ Features
