@@ -1,3 +1,9 @@
+## [1.176.0](https://github.com/stairwaytowonderland/actions/compare/v1.175.0...v1.176.0) (2026-06-16)
+
+### ✨ Features
+
+* change action name ([5fc7be8](https://github.com/stairwaytowonderland/actions/commit/5fc7be821d568cf58a581bf98c1cc7ecf2678d68))
+
 ## [1.175.0](https://github.com/stairwaytowonderland/actions/compare/v1.174.0...v1.175.0) (2026-06-14)
 
 ### ✨ Features
