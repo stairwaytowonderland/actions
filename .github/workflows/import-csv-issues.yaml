@@ -181,7 +181,7 @@ jobs:
 
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
-        uses: ./.actions/.github/actions/issue-create-action
+        uses: ./.actions/.github/actions/issue-import-action
         with:
           github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
           owner: ${{ inputs.owner || '' }}
@@ -240,7 +240,7 @@ jobs:
           ref: ${{ inputs.ref }}
 
       - name: Create issue
-        uses: ./.actions/.github/actions/issue-create-action
+        uses: ./.actions/.github/actions/issue-import-action
         with:
           github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
           owner: ${{ inputs.owner || '' }}
