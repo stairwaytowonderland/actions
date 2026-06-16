@@ -1,0 +1,87 @@
+name: Watchers
+
+on:
+  workflow_call:
+    inputs:
+      create-issue:
+        description: 'Whether to create a welcome issue for the watcher (if they are a member of the organization).'
+        type: boolean
+        required: false
+        default: false
+
+jobs:
+  watch:
+    name: Watching the watchers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log Watch Event
+        run: |
+          echo "Repository is being watched by ${GITHUB_ACTOR}."
+          echo "Event sender: ${{ toJson(github.event.sender) }}"
+
+      - name: Create Welcome Message
+        id: create-welcome-message
+        run: |
+          tee -a "$GITHUB_STEP_SUMMARY" <<EOF
+          ${MESSAGE_HEADING_LEVEL} ${MESSAGE_HEADING}
+
+          ${MESSAGE_BODY}
+          EOF
+
+          message_body_base64=$(printf '%s' "${MESSAGE_BODY}" | base64 | tr -d '\n')
+          echo "message_heading=${MESSAGE_HEADING}" >> "$GITHUB_OUTPUT"
+          echo "message_body_base64=${message_body_base64}" >> "$GITHUB_OUTPUT"
+        env:
+          MESSAGE_HEADING_LEVEL: '#'
+          MESSAGE_HEADING: 'Welcome to the Repository!'
+          MESSAGE_BODY: |
+            Hi @${{ github.event.sender.login || github.actor }},
+
+            Welcome to the repository! We're glad to have you here. If you have any questions or need assistance, feel free to reach out.
+
+      - name: Check Organization Membership
+        id: is-organization-member
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ secrets.GH_PAT_CREATE_REPO }}
+          script: |
+            const username = context.payload?.sender?.login || process.env.GITHUB_ACTOR;
+            if (!username) {
+              core.warning('No actor login found in payload; skipping membership check.');
+              return false;
+            }
+
+            try {
+              const { data: membership } = await github.rest.orgs.getMembershipForUser({
+                org: context.repo.owner,
+                username
+              });
+              core.info(`Membership state for user ${username}: ${membership.state}`);
+              return membership && membership.state === 'active';
+            } catch (error) {
+              if (error.status === 404) {
+                return false;
+              }
+              throw error;
+            }
+
+      # Create issue if actor is member of the organization
+      - name: Create Welcome Issue
+        if: ${{ inputs.create-issue == true && steps.is-organization-member.outputs.result == 'true' && github.event.sender.type == 'User' }}
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const actor = context.payload?.sender?.login || process.env.GITHUB_ACTOR;
+            const messageHeading = process.env.MESSAGE_HEADING;
+            const messageBodyBase64 = process.env.MESSAGE_BODY_BASE64;
+            const messageBody = Buffer.from(messageBodyBase64, 'base64').toString('utf-8');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: messageHeading,
+              body: messageBody,
+              body_encoding: 'utf-8'
+            })
+        env:
+          MESSAGE_HEADING: ${{ steps.create-welcome-message.outputs.message_heading }}
+          MESSAGE_BODY_BASE64: ${{ steps.create-welcome-message.outputs.message_body_base64 }}
