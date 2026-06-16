@@ -13,7 +13,7 @@ on:
         type: string
         required: false
         default: |
-          format('{0}/create-test', github.repository_owner)
+          ${{ format('{0}/create-test', github.repository_owner) }}
 
     outputs:
       message_heading:
