@@ -9,10 +9,25 @@ on:
         required: false
         default: false
 
+    outputs:
+      message_heading:
+        description: 'The heading of the welcome message created for the watcher.'
+        value: ${{ jobs.on-watch.outputs.message_heading }}
+      message_body_base64:
+        description: 'The body of the welcome message created for the watcher, encoded in base64.'
+        value: ${{ jobs.on-watch.outputs.message_body_base64 }}
+      is-organization-member:
+        description: 'Whether the watcher is a member of the organization.'
+        value: ${{ jobs.on-watch.outputs.is-organization-member }}
+
 jobs:
-  watch:
+  on-watch:
     name: Watching the watchers
     runs-on: ubuntu-latest
+    outputs:
+      message_heading: ${{ steps.create-welcome-message.outputs.message_heading }}
+      message_body_base64: ${{ steps.create-welcome-message.outputs.message_body_base64 }}
+      is-organization-member: ${{ steps.is-organization-member.outputs.result }}
     steps:
       - name: Log Watch Event
         run: |
