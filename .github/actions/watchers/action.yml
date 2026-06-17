@@ -43,25 +43,27 @@ runs:
       env:
         JOB_SUMMARY: ${{ inputs.job-summary == 'true' }}
         JOB_SUMMARY_HEADING_LEVEL: ${{ inputs.job-summary-heading-level }}
+        REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
       with:
+        debug: true
         script: |
           let validHeadingLevel = 1;
           const headingLevelInput = process.env.JOB_SUMMARY_HEADING_LEVEL;
           try {
-            const messageHeadingLevel = parseInt(headingLevelInput, 10);
+            const messageHeadingLevel = parseInt(String(headingLevelInput), 10) || 1;
             validHeadingLevel = Math.min(Math.max(messageHeadingLevel, 1), 6);
           } catch (error) {
             core.warning(`Invalid job summary heading level provided: ${headingLevelInput}. Defaulting to ${validHeadingLevel}.`);
           }
-          core.info(`Using heading level ${validHeadingLevel} for job summary heading.`);
+          core.debug(`Using heading level ${validHeadingLevel} for job summary heading.`);
           const messageHeading = process.env.STEP_SUMMARY_HEADING || `Welcome, @${context.payload.sender.login || context.actor}!`;
-          const stargazerLink = `[stargazers](${process.env.GITHUB_REPOSITORY_URL}/stargazers)`;
+          const stargazerLink = `[stargazers](${process.env.REPOSITORY_URL}/stargazers)`;
           const messageStargazer = `See ${stargazerLink} to see all watchers.`;
           const messageBody = process.env.STEP_SUMMARY_BODY || `Thank you for watching this repository. We appreciate your interest and support! If you have any questions or feedback, feel free to open an issue or reach out to the maintainers.\n\n${messageStargazer}`;
           const messageBodyBase64 = Buffer.from(messageBody, 'utf-8').toString('base64');
-          core.info(`Welcome message heading: ${messageHeading}`);
-          core.info(`Welcome message body: ${messageBody}`);
-          core.info(`Encoded welcome message body in base64: ${messageBodyBase64}`);
+          core.debug(`Welcome message heading: ${messageHeading}`);
+          core.debug(`Welcome message body: ${messageBody}`);
+          core.debug(`Encoded welcome message body in base64: ${messageBodyBase64}`);
           core.setOutput('message-heading', messageHeading);
           core.setOutput('message-body-base64', messageBodyBase64);
           const addJobSummary = Boolean(process.env.JOB_SUMMARY);
