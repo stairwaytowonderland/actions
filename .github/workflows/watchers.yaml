@@ -19,6 +19,7 @@ on:
         description: 'Whether to add a job summary with the welcome message for the watcher.'
         type: boolean
         required: false
+        default: true
 
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
@@ -72,18 +73,13 @@ jobs:
 
       - name: Job Summary
         if: inputs.job-summary != true && steps.on-watch.outputs.is-organization-member == 'true'
-        uses: actions/github-script@v6
         env:
           MESSAGE_HEADING: ${{ steps.on-watch.outputs.message-heading }}
           MESSAGE_BODY_BASE64: ${{ steps.on-watch.outputs.message-body-base64 }}
-        with:
-          script: |
-            const messageHeading = process.env.MESSAGE_HEADING;
-            const messageBodyBase64 = process.env.MESSAGE_BODY_BASE64;
-            const messageBody = Buffer.from(messageBodyBase64, 'base64').toString('utf-8');
-            core.info(`Welcome message heading: ${messageHeading}`);
-            core.info(`Welcome message body: ${messageBody}`);
-            core.summary
-              .addHeading(messageHeading, 2)
-              .addRaw(messageBody);
-            await core.summary.write();
+        run: |
+          MESSAGE_BODY=$(printf '%s' "$MESSAGE_BODY_BASE64" | base64 -d)
+          tee -a "$GITHUB_STEP_SUMMARY" <<EOF
+          ## ${MESSAGE_HEADING}
+
+          ${MESSAGE_BODY}
+          EOF
