@@ -104,6 +104,10 @@ runs:
             core.info(`Is watcher '${username}' a member of the organization '${org}'? ${isMember}`);
             return isMember;
           } catch (error) {
+            if (error.status === 403) {
+              core.warning(`Insufficient permissions to check if watcher '${username}' is a member of the organization '${org}'. Ensure the provided GitHub token has the necessary scopes.`);
+              return false;
+            }
             if (error.status === 404) {
               core.warning(`Watcher '${username}' is not a member of the organization '${org}'.`);
               return false;

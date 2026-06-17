@@ -46,6 +46,7 @@ on:
 jobs:
   on-watch:
     name: Watching the watchers
+    # if: ${{ github.repository == format('{0}/repository-template', github.repository_owner) }}
     # if: inputs.exclude == '' || (inputs.exclude != '' && !contains(inputs.exclude, github.repository))
     if: inputs.exclude == '' || (inputs.exclude != '' && inputs.exclude != github.repository)
     runs-on: ubuntu-latest
