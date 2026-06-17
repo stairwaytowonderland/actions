@@ -70,7 +70,7 @@ jobs:
         with:
           create-issue: ${{ inputs.create-issue == true }}
           job-summary: ${{ inputs.job-summary == true }}
-          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_REPO_WRITE }}
 
       - name: Job Summary
         if: inputs.job-summary != true && steps.on-watch.outputs.is-organization-member == 'true'
