@@ -59,13 +59,7 @@ runs:
           core.info(`Encoded welcome message body in base64: ${messageBodyBase64}`);
           core.setOutput('message-heading', messageHeading);
           core.setOutput('message-body-base64', messageBodyBase64);
-          let jobSummaryInput = false;
-          try {
-            jobSummaryInput = core.getBooleanInput('job-summary') === true;
-          } catch (error) {
-            core.warning(`Invalid input for job-summary: ${core.getInput('job-summary')}. Defaulting to ${jobSummaryInput}.`);
-          }
-          const addJobSummary = jobSummaryInput === true;
+          const addJobSummary = core.getInput('job-summary') === 'true';
           if (addJobSummary) {
             try {
               const summary = [
