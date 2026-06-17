@@ -143,4 +143,4 @@ runs:
             await core.summary.addRaw(summary).write();
           } catch (error) {
             core.warning(`Failed to add job summary: ${error.message}`);
-          });
+          };
