@@ -73,10 +73,13 @@ jobs:
       - name: Job Summary
         if: inputs.job-summary != true && steps.on-watch.outputs.is-organization-member == 'true'
         uses: actions/github-script@v6
+        env:
+          MESSAGE_HEADING: ${{ steps.on-watch.outputs.message-heading }}
+          MESSAGE_BODY_BASE64: ${{ steps.on-watch.outputs.message-body-base64 }}
         with:
           script: |
-            const messageHeading = steps.on-watch.outputs.message_heading;
-            const messageBodyBase64 = steps.on-watch.outputs.message_body_base64;
+            const messageHeading = process.env.MESSAGE_HEADING;
+            const messageBodyBase64 = process.env.MESSAGE_BODY_BASE64;
             const messageBody = Buffer.from(messageBodyBase64, 'base64').toString('utf-8');
             core.info(`Welcome message heading: ${messageHeading}`);
             core.info(`Welcome message body: ${messageBody}`);
