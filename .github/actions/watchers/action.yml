@@ -92,7 +92,7 @@ runs:
           }
           const org = context.repo.owner;
           try {
-            const { data: membership } = await github.orgs.getMembershipForUser({
+            const { data: membership } = await github.rest.orgs.getMembershipForUser({
               org,
               username,
             });
@@ -116,7 +116,7 @@ runs:
           const title = steps.welcome-message.outputs.message_heading;
           const bodyBase64 = steps.welcome-message.outputs.message_body_base64;
           const body = Buffer.from(bodyBase64, 'base64').toString('utf-8');
-          await github.issues.create({
+          await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title,
