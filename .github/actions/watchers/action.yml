@@ -42,17 +42,12 @@ runs:
       uses: actions/github-script@v9
       with:
         script: |
-          let messageHeadingLevel = 1;
           let validHeadingLevel = 1;
           try {
-            messageHeadingLevel = Number(inputs.job-summary-heading-level) || Number(process.env.STEP_SUMMARY_HEADING_LEVEL);
-          } catch (error) {
-            core.warning(`Invalid job summary heading level provided: ${messageHeadingLevel}. Defaulting to ${messageHeadingLevel}.`);
-          }
-          try {
+            const messageHeadingLevel = parseInt(process.env.STEP_SUMMARY_HEADING_LEVEL, 10);
             validHeadingLevel = Math.min(Math.max(messageHeadingLevel, 1), 6);
           } catch (error) {
-            core.warning(`Error validating job summary heading level: ${error.message}. Defaulting to ${validHeadingLevel}.`);
+            core.warning(`Invalid job summary heading level provided: ${messageHeadingLevel}. Defaulting to ${validHeadingLevel}.`);
           }
           const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
           const messageHeading = process.env.STEP_SUMMARY_HEADING || `Welcome, @${context.payload.sender.login || context.actor}!`;
@@ -60,15 +55,20 @@ runs:
           const messageStargazer = `See ${stargazerLink} to see all watchers.`;
           const messageBody = process.env.STEP_SUMMARY_BODY || `Thank you for watching this repository. We appreciate your interest and support! If you have any questions or feedback, feel free to open an issue or reach out to the maintainers.\n\n${messageStargazer}`;
           const messageBodyBase64 = Buffer.from(messageBody, 'utf-8').toString('base64');
+          core.info(`Welcome message heading: ${messageHeading}`);
+          core.info(`Welcome message body: ${messageBody}`);
+          core.info(`Encoded welcome message body in base64: ${messageBodyBase64}`);
           core.setOutput('message-heading', messageHeading);
           core.setOutput('message-body-base64', messageBodyBase64);
-          const addJobSummary = core.getBooleanInput('job-summary');
+          let jobSummaryInput = false;
+          try {
+            jobSummaryInput = core.getBooleanInput('job-summary') === true;
+          } catch (error) {
+            core.warning(`Invalid input for job-summary: ${core.getInput('job-summary')}. Defaulting to ${jobSummaryInput}.`);
+          }
+          const addJobSummary = jobSummaryInput === true;
           if (addJobSummary) {
             try {
-              core.info(`Welcome message heading: ${messageHeading}`);
-              core.info(`Welcome message body: ${messageBody}`);
-              core.info(`Encoded welcome message body in base64: ${messageBodyBase64}`);
-
               core.summary
                 .addHeading(messageHeading, validHeadingLevel)
                 .addRaw(messageBody);
