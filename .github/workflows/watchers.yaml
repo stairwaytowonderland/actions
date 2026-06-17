@@ -7,7 +7,7 @@ on:
         description: 'Whether to create a welcome issue for the watcher (if they are a member of the organization).'
         type: boolean
         required: false
-        default: false
+
       exclude:
         description: 'Repos to exclude from watcher handling.'
         type: string
@@ -27,12 +27,12 @@ on:
         default: 'v1'
 
     outputs:
-      message_heading:
+      message-heading:
         description: 'The heading of the welcome message created for the watcher.'
-        value: ${{ jobs.on-watch.outputs.message_heading }}
-      message_body_base64:
+        value: ${{ jobs.on-watch.outputs.message-heading }}
+      message-body-base64:
         description: 'The body of the welcome message created for the watcher, encoded in base64.'
-        value: ${{ jobs.on-watch.outputs.message_body_base64 }}
+        value: ${{ jobs.on-watch.outputs.message-body-base64 }}
       is-organization-member:
         description: 'Whether the watcher is a member of the organization.'
         value: ${{ jobs.on-watch.outputs.is-organization-member }}
@@ -49,8 +49,8 @@ jobs:
     if: inputs.exclude == '' || (inputs.exclude != '' && inputs.exclude != github.repository)
     runs-on: ubuntu-latest
     outputs:
-      message_heading: ${{ steps.on-watch.outputs.message-heading }}
-      message_body_base64: ${{ steps.on-watch.outputs.message-body-base64 }}
+      message-heading: ${{ steps.on-watch.outputs.message-heading }}
+      message-body-base64: ${{ steps.on-watch.outputs.message-body-base64 }}
       is-organization-member: ${{ steps.on-watch.outputs.is-organization-member }}
     steps:
       - name: Checkout shared actions repo
