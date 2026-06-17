@@ -10,8 +10,8 @@ inputs:
     required: false
   job-summary-heading-level:
     description: 'The heading level to use for the welcome message in the job summary (1-6).'
-    required: true
-    default: ''
+    required: false
+    default: '1'
   github-token:
     description: 'GitHub Personal Access Token with repo scope for creating issues.'
     required: true
@@ -46,10 +46,10 @@ runs:
         REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
       with:
         script: |
+          const headingLevelInput = process.env.JOB_SUMMARY_HEADING_LEVEL || '1';
           let validHeadingLevel = 1;
-          const headingLevelInput = process.env.JOB_SUMMARY_HEADING_LEVEL;
           try {
-            const messageHeadingLevel = parseInt(String(headingLevelInput), 10) || 1;
+            const messageHeadingLevel = parseInt(headingLevelInput, 10);
             validHeadingLevel = Math.min(Math.max(messageHeadingLevel, 1), 6);
           } catch (error) {
             core.warning(`Invalid job summary heading level provided: ${headingLevelInput}. Defaulting to ${validHeadingLevel}.`);
