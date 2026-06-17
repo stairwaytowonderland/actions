@@ -64,10 +64,10 @@ jobs:
 
       - name: On Watch
         id: on-watch
-        uses: ./.github/actions/watchers
+        uses: ./.actions/.github/actions/watchers
         with:
           create-issue: ${{ inputs.create-issue == true }}
-          job-summary: true
+          job-summary: ${{ inputs.job-summary == true }}
           github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
       - name: Job Summary
