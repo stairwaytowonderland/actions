@@ -8,6 +8,7 @@ inputs:
   job-summary:
     description: 'Whether to add a job summary with the welcome message for the watcher.'
     required: false
+    default: 'true'
   job-summary-heading-level:
     description: 'The heading level to use for the welcome message in the job summary (1-6).'
     required: false
@@ -69,19 +70,6 @@ runs:
           core.debug(`Encoded welcome message body in base64: ${messageBodyBase64}`);
           core.setOutput('message-heading', messageHeading);
           core.setOutput('message-body-base64', messageBodyBase64);
-          const addJobSummary = Boolean(process.env.JOB_SUMMARY);
-          core.info(`Add job summary: ${addJobSummary}`);
-          if (addJobSummary) {
-            try {
-              const summary = [
-                `${'#'.repeat(validHeadingLevel)} ${messageHeading}`,
-                `\n${messageBody}`,
-              ].join('\n');
-              await core.summary.addRaw(summary).write();
-            } catch (error) {
-              core.warning(`Failed to add job summary: ${error.message}`);
-            }
-          }
 
     - name: Check if Watcher is an Organization Member
       id: is-org-member
@@ -132,4 +120,27 @@ runs:
             repo: context.repo.repo,
             title,
             body,
+          });
+
+    - name: Job Summary
+      if: inputs.job-summary == 'true' && steps.is-org-member.outputs.result == 'true'
+      uses: actions/github-script@v9
+      env:
+        MESSAGE_HEADING: ${{ steps.welcome-message.outputs.message-heading }}
+        MESSAGE_BODY_BASE64: ${{ steps.welcome-message.outputs.message-body-base64 }}
+      with:
+        script: |
+          const messageHeading = process.env.MESSAGE_HEADING;
+          const messageBodyBase64 = process.env.MESSAGE_BODY_BASE64;
+          const messageBody = Buffer.from(messageBodyBase64, 'base64').toString('utf-8');
+          core.info(`Welcome message heading: ${messageHeading}`);
+          core.info(`Welcome message body: ${messageBody}`);
+          try {
+            const summary = [
+              `## ${messageHeading}`,
+              `\n${messageBody}`,
+            ].join('\n');
+            await core.summary.addRaw(summary).write();
+          } catch (error) {
+            core.warning(`Failed to add job summary: ${error.message}`);
           });
