@@ -42,8 +42,8 @@ runs:
       uses: actions/github-script@v9
       with:
         script: |
-          let messageHeadingLevel: number = 1;
-          let validHeadingLevel: number = 1;
+          let messageHeadingLevel = 1;
+          let validHeadingLevel = 1;
           try {
             messageHeadingLevel = Number(inputs.job-summary-heading-level) || Number(process.env.STEP_SUMMARY_HEADING_LEVEL);
           } catch (error) {
