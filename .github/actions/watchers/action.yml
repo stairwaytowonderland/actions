@@ -1,0 +1,124 @@
+name: Watching the Watchers
+description: A workflow to handle events when someone watches a repository. It can create a welcome issue for the watcher if they are a member of the organization, and provides outputs that can be used in subsequent steps or jobs to customize the welcome message and determine if the watcher is an organization member.
+
+inputs:
+  create-issue:
+    description: 'Whether to create a welcome issue for the watcher (if they are a member of the organization).'
+    required: false
+  job-summary:
+    description: 'Whether to add a job summary with the welcome message for the watcher.'
+    required: false
+  job-summary-heading-level:
+    description: 'The heading level to use for the welcome message in the job summary (1-6).'
+    required: true
+    default: ''
+  github-token:
+    description: 'GitHub Personal Access Token with repo scope for creating issues.'
+    required: true
+
+outputs:
+  message-heading:
+    description: 'The heading of the welcome message created for the watcher.'
+    value: ${{ steps.welcome-message.outputs.message-heading }}
+  message-body-base64:
+    description: 'The body of the welcome message created for the watcher, encoded in base64.'
+    value: ${{ steps.welcome-message.outputs.message-body-base64 }}
+  is-organization-member:
+    description: 'Whether the watcher is a member of the organization.'
+    value: ${{ steps.is-org-member.outputs.result }}
+
+runs:
+  using: composite
+  steps:
+    - name: Log Watch Event
+      uses: actions/github-script@v9
+      with:
+        script: |
+          core.notice(`Repository is being watched by ${context.actor}.`);
+          core.info(`Event sender: ${JSON.stringify(context.payload.sender)}`);
+
+    - name: Create Welcome Message
+      id: welcome-message
+      uses: actions/github-script@v9
+      with:
+        script: |
+          let messageHeadingLevel: number = 1;
+          let validHeadingLevel: number = 1;
+          try {
+            messageHeadingLevel = Number(inputs.job-summary-heading-level) || Number(process.env.STEP_SUMMARY_HEADING_LEVEL);
+          } catch (error) {
+            core.warning(`Invalid job summary heading level provided: ${messageHeadingLevel}. Defaulting to ${messageHeadingLevel}.`);
+          }
+          try {
+            validHeadingLevel = Math.min(Math.max(messageHeadingLevel, 1), 6);
+          } catch (error) {
+            core.warning(`Error validating job summary heading level: ${error.message}. Defaulting to ${validHeadingLevel}.`);
+          }
+          const repoFullName = `${context.repo.owner}/${context.repo.repo}`;
+          const messageHeading = process.env.STEP_SUMMARY_HEADING || `Welcome, @${context.payload.sender.login || context.actor}!`;
+          const stargazerLink = `[stargazers](${repoFullName}/stargazers)`;
+          const messageStargazer = `See ${stargazerLink} to see all watchers.`;
+          const messageBody = process.env.STEP_SUMMARY_BODY || `Thank you for watching this repository. We appreciate your interest and support! If you have any questions or feedback, feel free to open an issue or reach out to the maintainers.\n\n${messageStargazer}`;
+          const messageBodyBase64 = Buffer.from(messageBody, 'utf-8').toString('base64');
+          core.setOutput('message-heading', messageHeading);
+          core.setOutput('message-body-base64', messageBodyBase64);
+          const addJobSummary = core.getBooleanInput('job-summary');
+          if (addJobSummary) {
+            try {
+              core.info(`Welcome message heading: ${messageHeading}`);
+              core.info(`Welcome message body: ${messageBody}`);
+              core.info(`Encoded welcome message body in base64: ${messageBodyBase64}`);
+
+              core.summary
+                .addHeading(messageHeading, validHeadingLevel)
+                .addRaw(messageBody);
+
+              await core.summary.write();
+            } catch (error) {
+              core.warning(`Failed to add job summary: ${error.message}`);
+            }
+          }
+
+    - name: Check if Watcher is an Organization Member
+      id: is-org-member
+      uses: actions/github-script@v9
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const username = context.payload?.sender?.login || context.actor;
+          if (!username) {
+            core.warning("No username found for the watcher.");
+            return;
+          }
+          const org = context.repo.owner;
+          try {
+            const { data: membership } = await github.orgs.getMembershipForUser({
+              org,
+              username,
+            });
+            const isMember = membership.state === 'active';
+            core.info(`Is watcher '${username}' a member of the organization '${org}'? ${isMember}`);
+            return isMember;
+          } catch (error) {
+            if (error.status === 404) {
+              core.warning(`Watcher '${username}' is not a member of the organization '${org}'.`);
+              return false;
+            }
+            throw error;
+          }
+
+    - name: Create Welcome Issue
+      if: inputs.create-issue == 'true' && steps.is-org-member.outputs.result == 'true'
+      uses: actions/github-script@v9
+      with:
+        github-token: ${{ inputs.github-token }}
+        script: |
+          const title = steps.welcome-message.outputs.message_heading;
+          const bodyBase64 = steps.welcome-message.outputs.message_body_base64;
+          const body = Buffer.from(bodyBase64, 'base64').toString('utf-8');
+          await github.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title,
+            body,
+          });

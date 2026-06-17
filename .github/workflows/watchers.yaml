@@ -15,6 +15,17 @@ on:
         # default: |
         #   ${{ format('{0}/repository-template', github.repository_owner) }}
 
+      job-summary:
+        description: 'Whether to add a job summary with the welcome message for the watcher.'
+        type: boolean
+        required: false
+
+      ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
+        required: false
+        default: 'v1'
+
     outputs:
       message_heading:
         description: 'The heading of the welcome message created for the watcher.'
@@ -34,81 +45,42 @@ on:
 jobs:
   on-watch:
     name: Watching the watchers
-    if: ${{ inputs.exclude == '' || (inputs.exclude != '' && !contains(inputs.exclude, github.repository)) }}
+    # if: inputs.exclude == '' || (inputs.exclude != '' && !contains(inputs.exclude, github.repository))
+    if: inputs.exclude == '' || (inputs.exclude != '' && inputs.exclude != github.repository)
     runs-on: ubuntu-latest
     outputs:
-      message_heading: ${{ steps.create-welcome-message.outputs.message_heading }}
-      message_body_base64: ${{ steps.create-welcome-message.outputs.message_body_base64 }}
-      is-organization-member: ${{ steps.is-organization-member.outputs.result }}
+      message_heading: ${{ steps.on-watch.outputs.message-heading }}
+      message_body_base64: ${{ steps.on-watch.outputs.message-body-base64 }}
+      is-organization-member: ${{ steps.on-watch.outputs.is-organization-member }}
     steps:
-      - name: Log Watch Event
-        run: |
-          echo "Repository is being watched by ${GITHUB_ACTOR}."
-          echo "Event sender: ${{ toJson(github.event.sender) }}"
-
-      - name: Create Welcome Message
-        id: create-welcome-message
-        run: |
-          tee -a "$GITHUB_STEP_SUMMARY" <<EOF
-          ${MESSAGE_HEADING_LEVEL} ${MESSAGE_HEADING}
-
-          ${MESSAGE_BODY}
-          EOF
-
-          message_body_base64=$(printf '%s' "${MESSAGE_BODY}" | base64 | tr -d '\n')
-          echo "message_heading=${MESSAGE_HEADING}" >> "$GITHUB_OUTPUT"
-          echo "message_body_base64=${message_body_base64}" >> "$GITHUB_OUTPUT"
-        env:
-          MESSAGE_HEADING_LEVEL: '#'
-          MESSAGE_HEADING: 'Welcome to the Repository!'
-          MESSAGE_BODY: |
-            Hi @${{ github.event.sender.login || github.actor }},
-
-            Welcome to the repository! We're glad to have you here. If you have any questions or need assistance, feel free to reach out.
-
-      - name: Check Organization Membership
-        id: is-organization-member
-        uses: actions/github-script@v9
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v6
         with:
-          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_REPO }}
-          script: |
-            const username = context.payload?.sender?.login || process.env.GITHUB_ACTOR;
-            if (!username) {
-              core.warning('No actor login found in payload; skipping membership check.');
-              return false;
-            }
+          repository: stairwaytowonderland/actions
+          ref: ${{ inputs.ref }}
+          path: ./.actions
+          sparse-checkout: |
+            .github
 
-            try {
-              const { data: membership } = await github.rest.orgs.getMembershipForUser({
-                org: context.repo.owner,
-                username
-              });
-              core.info(`Membership state for user ${username}: ${membership.state}`);
-              return membership && membership.state === 'active';
-            } catch (error) {
-              if (error.status === 404) {
-                return false;
-              }
-              throw error;
-            }
+      - name: On Watch
+        id: on-watch
+        uses: ./.github/actions/watchers
+        with:
+          create-issue: ${{ inputs.create-issue == true }}
+          job-summary: true
+          github-token: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
 
-      # Create issue if actor is member of the organization
-      - name: Create Welcome Issue
-        if: ${{ inputs.create-issue == true && steps.is-organization-member.outputs.result == 'true' && github.event.sender.type == 'User' }}
-        uses: actions/github-script@v9
+      - name: Job Summary
+        if: inputs.job-summary != true && steps.on-watch.outputs.is-organization-member == 'true'
+        uses: actions/github-script@v6
         with:
           script: |
-            const actor = context.payload?.sender?.login || process.env.GITHUB_ACTOR;
-            const messageHeading = process.env.MESSAGE_HEADING;
-            const messageBodyBase64 = process.env.MESSAGE_BODY_BASE64;
+            const messageHeading = steps.on-watch.outputs.message_heading;
+            const messageBodyBase64 = steps.on-watch.outputs.message_body_base64;
             const messageBody = Buffer.from(messageBodyBase64, 'base64').toString('utf-8');
-            await github.rest.issues.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: messageHeading,
-              body: messageBody,
-              body_encoding: 'utf-8'
-            })
-        env:
-          MESSAGE_HEADING: ${{ steps.create-welcome-message.outputs.message_heading }}
-          MESSAGE_BODY_BASE64: ${{ steps.create-welcome-message.outputs.message_body_base64 }}
+            core.info(`Welcome message heading: ${messageHeading}`);
+            core.info(`Welcome message body: ${messageBody}`);
+            core.summary
+              .addHeading(messageHeading, 2)
+              .addRaw(messageBody);
+            await core.summary.write();
