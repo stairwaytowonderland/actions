@@ -1,3 +1,9 @@
+## [1.183.0](https://github.com/stairwaytowonderland/actions/compare/v1.182.0...v1.183.0) (2026-06-17)
+
+### ✨ Features
+
+* watchers action and workflow ([1dadd61](https://github.com/stairwaytowonderland/actions/commit/1dadd61e0f0b1eaa428f94e57edef37dac658d59))
+
 ## [1.182.0](https://github.com/stairwaytowonderland/actions/compare/v1.181.0...v1.182.0) (2026-06-16)
 
 ### ✨ Features
