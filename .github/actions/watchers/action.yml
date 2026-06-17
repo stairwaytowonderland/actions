@@ -110,11 +110,14 @@ runs:
     - name: Create Welcome Issue
       if: inputs.create-issue == 'true' && steps.is-org-member.outputs.result == 'true'
       uses: actions/github-script@v9
+      env:
+        MESSAGE_HEADING: ${{ steps.welcome-message.outputs.message-heading }}
+        MESSAGE_BODY_BASE64: ${{ steps.welcome-message.outputs.message-body-base64 }}
       with:
         github-token: ${{ inputs.github-token }}
         script: |
-          const title = steps.welcome-message.outputs.message_heading;
-          const bodyBase64 = steps.welcome-message.outputs.message_body_base64;
+          const title = process.env.MESSAGE_HEADING;
+          const bodyBase64 = process.env.MESSAGE_BODY_BASE64;
           const body = Buffer.from(bodyBase64, 'base64').toString('utf-8');
           await github.rest.issues.create({
             owner: context.repo.owner,
