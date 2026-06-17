@@ -45,7 +45,6 @@ runs:
         JOB_SUMMARY_HEADING_LEVEL: ${{ inputs.job-summary-heading-level }}
         REPOSITORY_URL: ${{ github.server_url }}/${{ github.repository }}
       with:
-        debug: true
         script: |
           let validHeadingLevel = 1;
           const headingLevelInput = process.env.JOB_SUMMARY_HEADING_LEVEL;
