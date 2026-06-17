@@ -50,12 +50,12 @@ runs:
           try {
             const messageHeadingLevel = parseInt(headingLevelInput, 10);
             validHeadingLevel = Math.min(Math.max(messageHeadingLevel, 1), 6);
-            core.info(`Using heading level ${validHeadingLevel} for job summary heading.`);
           } catch (error) {
             core.warning(`Invalid job summary heading level provided: ${headingLevelInput}. Defaulting to ${validHeadingLevel}.`);
           }
+          core.info(`Using heading level ${validHeadingLevel} for job summary heading.`);
           const messageHeading = process.env.STEP_SUMMARY_HEADING || `Welcome, @${context.payload.sender.login || context.actor}!`;
-          const stargazerLink = `[stargazers](${context.repositoryUrl}/stargazers)`;
+          const stargazerLink = `[stargazers](${process.env.GITHUB_REPOSITORY_URL}/stargazers)`;
           const messageStargazer = `See ${stargazerLink} to see all watchers.`;
           const messageBody = process.env.STEP_SUMMARY_BODY || `Thank you for watching this repository. We appreciate your interest and support! If you have any questions or feedback, feel free to open an issue or reach out to the maintainers.\n\n${messageStargazer}`;
           const messageBodyBase64 = Buffer.from(messageBody, 'utf-8').toString('base64');
