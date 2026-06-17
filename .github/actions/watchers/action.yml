@@ -40,14 +40,17 @@ runs:
     - name: Create Welcome Message
       id: welcome-message
       uses: actions/github-script@v9
+      env:
+        JOB_SUMMARY: ${{ inputs.job-summary == 'true' }}
+        JOB_SUMMARY_HEADING_LEVEL: ${{ inputs.job-summary-heading-level }}
       with:
         script: |
           let validHeadingLevel = 1;
-          const headingLevelInput = core.getInput('job-summary-heading-level');
+          const headingLevelInput = process.env.JOB_SUMMARY_HEADING_LEVEL;
           try {
             const messageHeadingLevel = parseInt(headingLevelInput, 10);
-            core.info(`Provided job summary heading level: ${messageHeadingLevel}`);
             validHeadingLevel = Math.min(Math.max(messageHeadingLevel, 1), 6);
+            core.info(`Using heading level ${validHeadingLevel} for job summary heading.`);
           } catch (error) {
             core.warning(`Invalid job summary heading level provided: ${headingLevelInput}. Defaulting to ${validHeadingLevel}.`);
           }
@@ -61,9 +64,7 @@ runs:
           core.info(`Encoded welcome message body in base64: ${messageBodyBase64}`);
           core.setOutput('message-heading', messageHeading);
           core.setOutput('message-body-base64', messageBodyBase64);
-          const jobSummaryInput = core.getInput('job-summary');
-          core.info(`Job summary input value: ${jobSummaryInput}`);
-          const addJobSummary = jobSummaryInput === 'true';
+          const addJobSummary = Boolean(process.env.JOB_SUMMARY);
           core.info(`Add job summary: ${addJobSummary}`);
           if (addJobSummary) {
             try {
