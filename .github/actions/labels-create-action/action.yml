@@ -46,10 +46,13 @@ inputs:
         { "name": "uncategorized", "color": "6302AB", "description": "Needs to be categorized" },
         { "name": "dependencies", "color": "F0FFFF", "description": "Related to dependabot dependencies" },
         { "name": "dependencies:github-actions", "color": "000000", "description": "Related to GitHub Actions dependencies" },
+        { "name": "dependencies:go", "color": "000000", "description": "Related to Go dependencies" },
         { "name": "dependencies:npm", "color": "000000", "description": "Related to npm dependencies" },
+        { "name": "dependencies:ruby", "color": "000000", "description": "Related to Ruby dependencies" },
         { "name": "dependencies:python", "color": "000000", "description": "Related to Python dependencies" },
         { "name": "dependencies:docker", "color": "000000", "description": "Related to Docker dependencies" },
-        { "name": "dependencies:terraform", "color": "000000", "description": "Related to Terraform dependencies" }
+        { "name": "dependencies:terraform", "color": "000000", "description": "Related to Terraform dependencies" },
+        { "name": "dependencies:javascript", "color": "000000", "description": "Related to JavaScript dependencies" }
       ]
   effort-map:
     description: 'JSON object mapping effort values to normalized label names'
