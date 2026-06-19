@@ -62,8 +62,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          # owner: ${{ github.repository_owner }}
-          # repositories: ${{ github.repository }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.repository }}
 
       - name: Semantic release
         id: release
