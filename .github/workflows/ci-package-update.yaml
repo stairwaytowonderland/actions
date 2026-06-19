@@ -12,21 +12,18 @@ on:
       paths:
         description: 'A newline delimited list of file paths to check for changes (e.g. package.json and package-lock.json).'
         type: string
-        required: false
         default: |
           package.json
           package-lock.json
       ignore-authors:
         description: 'A newline delimited list of commit authors to ignore when checking for changes (e.g. semantic-release-bot and github-actions[bot]).'
         type: string
-        required: false
         default: |
           github-actions[bot]
           semantic-release-bot
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for checking commits.'
-        required: false
 
 concurrency:
   group: (${{ github.event_name != 'push' }} && '${{ github.repository_id }}-${{ github.ref_name }}' || ${{ github.run_id }})
@@ -49,7 +46,6 @@ jobs:
           sparse-checkout: ${{ inputs.paths }}
           fetch-depth: 2
           persist-credentials: false
-          token: ${{ secrets.github-token || (secrets.GH_PAT_CREATE_RELEASE || secrets.GITHUB_TOKEN) }}
 
       - name: Check if push event
         id: check-event

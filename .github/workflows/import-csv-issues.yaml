@@ -49,27 +49,6 @@ on:
         type: string
 
 jobs:
-  # check-token:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Check token scopes
-  #       run: |
-  #         curl -sI -H "Authorization: token ${TOKEN}" https://api.github.com | grep -i 'X-OAuth-Scopes'
-  #       env:
-  #         TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
-
-  #     - name: Check token identity
-  #       run: |
-  #         curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/user
-  #       env:
-  #         TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
-
-  #     - name: Check token limit
-  #       run: |
-  #         curl -s -H "Authorization: token ${TOKEN}" https://api.github.com/rate_limit
-  #       env:
-  #         TOKEN: ${{ secrets.github-token || secrets.GH_PAT_CREATE_ISSUE }}
-
   parse-csv:
     runs-on: ubuntu-latest
     outputs:
@@ -149,12 +128,21 @@ jobs:
             .github
           ref: ${{ inputs.ref }}
 
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repositories: ${{ inputs.repo || github.event.repository.name }}
+
       - name: Ensure only needed labels exist
         uses: ./.actions/.github/actions/labels-create-action
         with:
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
-          owner: ${{ inputs.owner || '' }}
-          repo: ${{ inputs.repo || '' }}
+          github-token: ${{ steps.generate-token.outputs.token }}
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repo: ${{ inputs.repo || github.event.repository.name }}
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ inputs.dry-run == true }}
 
@@ -179,13 +167,22 @@ jobs:
             .github
           ref: ${{ inputs.ref }}
 
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repositories: ${{ inputs.repo || github.event.repository.name }}
+
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
         uses: ./.actions/.github/actions/issue-import-action
         with:
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
-          owner: ${{ inputs.owner || '' }}
-          repo: ${{ inputs.repo || '' }}
+          github-token: ${{ steps.generate-token.outputs.token }}
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repo: ${{ inputs.repo || github.event.repository.name }}
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
@@ -239,12 +236,21 @@ jobs:
             .github
           ref: ${{ inputs.ref }}
 
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repositories: ${{ inputs.repo || github.event.repository.name }}
+
       - name: Create issue
         uses: ./.actions/.github/actions/issue-import-action
         with:
-          github-token: ${{ secrets.GH_PAT_CREATE_ISSUE }}
-          owner: ${{ inputs.owner || '' }}
-          repo: ${{ inputs.repo || '' }}
+          github-token: ${{ steps.generate-token.outputs.token }}
+          owner: ${{ inputs.owner || github.repository_owner }}
+          repo: ${{ inputs.repo || github.event.repository.name }}
           title: ${{ matrix.issue.title }}
           priority: ${{ matrix.issue.priority }}
           effort: ${{ matrix.issue.effort }}

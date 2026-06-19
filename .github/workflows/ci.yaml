@@ -14,13 +14,13 @@ on:
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
         type: boolean
-        required: false
         default: true
       publish:
         description: 'Whether to run in publish mode.'
         type: boolean
-        required: false
-        default: false
+      dispatch-workflow:
+        description: 'The workflow file to dispatch after a successful release.'
+        type: boolean
 
 concurrency:
   group: '${{ github.repository_id }}-${{ github.ref_name }}'
@@ -65,7 +65,7 @@ jobs:
         id: dispatch-workflow
         run: echo "dispatch-workflow=$DISPATCH_WORKFLOW" >> $GITHUB_OUTPUT
         env:
-          DISPATCH_WORKFLOW: ${{ secrets.GH_PAT_CREATE_RELEASE == secrets.GITHUB_TOKEN && 'publish.yaml' || '' }}
+          DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow }}
 
   release:
     name: Release
