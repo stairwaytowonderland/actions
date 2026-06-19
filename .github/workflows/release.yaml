@@ -40,8 +40,10 @@ jobs:
         id: vars
         run: |
           echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
+          echo "repo-owner=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+          echo "repo-name=${GITHUB_REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
         env:
-          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
+          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow == 'true' }}
 
       - name: Checkout
         uses: actions/checkout@v6
@@ -56,8 +58,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ github.event.repository.owner }}
-          repositories: ${{ github.event.repository.name }}
+          owner: ${{ steps.vars.outputs.repo-owner }}
+          repositories: ${{ steps.vars.outputs.repo-name }}
 
       - name: Semantic release
         id: release

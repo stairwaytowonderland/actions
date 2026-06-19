@@ -33,9 +33,12 @@ jobs:
       # Resolve the tag from whichever trigger fired:
       #   push: tags                        → github.ref_name  (e.g. v1.2.3)
       #   workflow_dispatch / workflow_call → inputs.tag
-      - name: Resolve tag
+      - name: Set vars
         id: vars
-        run: echo "tag=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "tag=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
+          echo "repo-owner=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+          echo "repo-name=${GITHUB_REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
 
       # Checkout at the input tag so setuptools-scm sees it and stamps the
       # correct version into the wheel metadata.
@@ -52,8 +55,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ github.event.repository.owner }}
-          repositories: ${{ github.event.repository.name }}
+          owner: ${{ steps.vars.outputs.repo-owner }}
+          repositories: ${{ steps.vars.outputs.repo-name }}
 
       - name: Publish release
         id: publish
