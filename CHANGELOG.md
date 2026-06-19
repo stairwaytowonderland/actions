@@ -1,3 +1,11 @@
+## [1.206.0](https://github.com/stairwaytowonderland/actions/compare/v1.205.0...v1.206.0) (2026-06-19)
+
+### ✨ Features
+
+* adding labels ([6f4b687](https://github.com/stairwaytowonderland/actions/commit/6f4b687f1273c674b681be22be6a5c3a6621193a))
+* using app ([1bc72b7](https://github.com/stairwaytowonderland/actions/commit/1bc72b7ef27c17edba2460e7e3d2927fd468de42))
+* using app ([7847f84](https://github.com/stairwaytowonderland/actions/commit/7847f84476fd14bf9325bcb227756891c2181c5d))
+
 ## [1.205.0](https://github.com/stairwaytowonderland/actions/compare/v1.204.0...v1.205.0) (2026-06-17)
 
 ### ✨ Features
