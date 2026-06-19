@@ -38,7 +38,7 @@ jobs:
         run: |
           echo "tag=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
           echo "repo-owner=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
-          echo "repo-name=${GITHUB_REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
+          echo "repo-name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
 
       # Checkout at the input tag so setuptools-scm sees it and stamps the
       # correct version into the wheel metadata.
