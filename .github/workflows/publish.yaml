@@ -10,11 +10,9 @@ on:
       notes-b64:
         description: 'Base64-encoded release notes (Markdown)'
         type: string
-        required: false
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for creating releases.'
-        required: false
 
 jobs:
   publish:
@@ -54,8 +52,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          # owner: ${{ github.repository_owner }}
-          # repositories: ${{ github.repository }}
+          owner: ${{ github.event.repository.owner }}
+          repositories: ${{ github.event.repository.name }}
 
       - name: Publish release
         id: publish

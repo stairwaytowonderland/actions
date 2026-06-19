@@ -48,8 +48,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.repository_owner }}
-          repositories: ${{ inputs.repo || '' }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
+          repositories: ${{ inputs.repo || github.event.repository.name }}
 
       - name: Create labels
         uses: ./.actions/.github/actions/labels-create-action

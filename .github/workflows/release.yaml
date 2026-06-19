@@ -6,20 +6,15 @@ on:
       dispatch-workflow:
         description: 'The workflow file to dispatch after a successful release.'
         type: string
-        required: false
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
         type: boolean
-        required: false
-        default: false
       ref:
         description: 'The git ref or sha to release (e.g. refs/heads/main). Defaults to the current ref.'
         type: string
-        required: false
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for creating releases.'
-        required: false
 
 jobs:
   release:
@@ -52,7 +47,6 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          # token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
@@ -62,8 +56,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          # owner: ${{ github.repository_owner }}
-          # repositories: ${{ github.repository }}
+          owner: ${{ github.event.repository.owner }}
+          repositories: ${{ github.event.repository.name }}
 
       - name: Semantic release
         id: release

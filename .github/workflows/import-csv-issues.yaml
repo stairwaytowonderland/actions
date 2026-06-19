@@ -134,14 +134,14 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.repository_owner }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
           repositories: ${{ inputs.repo || github.event.repository.name }}
 
       - name: Ensure only needed labels exist
         uses: ./.actions/.github/actions/labels-create-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ inputs.owner || github.repository_owner }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
           repo: ${{ inputs.repo || github.event.repository.name }}
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ inputs.dry-run == true }}
@@ -173,7 +173,7 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.repository_owner }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
           repositories: ${{ inputs.repo || github.event.repository.name }}
 
       - name: Create issues by type
@@ -181,7 +181,7 @@ jobs:
         uses: ./.actions/.github/actions/issue-import-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ inputs.owner || github.repository_owner }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
           repo: ${{ inputs.repo || github.event.repository.name }}
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
@@ -242,14 +242,14 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.repository_owner }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
           repositories: ${{ inputs.repo || github.event.repository.name }}
 
       - name: Create issue
         uses: ./.actions/.github/actions/issue-import-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ inputs.owner || github.repository_owner }}
+          owner: ${{ inputs.owner || github.event.repository.owner }}
           repo: ${{ inputs.repo || github.event.repository.name }}
           title: ${{ matrix.issue.title }}
           priority: ${{ matrix.issue.priority }}
