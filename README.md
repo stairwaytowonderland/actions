@@ -268,7 +268,7 @@ Reusable workflow to validate commit messages in pull requests or caller-defined
 **Usage Example:**
 
 ```yaml
-uses: stairwaytowonderland/actions/.github/workflows/conventional-commit.yaml@main
+uses: stairwaytowonderland/actions/.github/workflows/conventional-commit.yaml@v1
 with:
   ref: main
 secrets:
@@ -297,7 +297,7 @@ Reusable workflow to run pre-commit checks.
 **Usage Example:**
 
 ```yaml
-uses: stairwaytowonderland/actions/.github/workflows/pre-commit.yaml@main
+uses: stairwaytowonderland/actions/.github/workflows/pre-commit.yaml@v1
 with:
   config: .pre-commit-config.yaml
 ```
@@ -316,12 +316,11 @@ Runs semantic-release and exposes release metadata for downstream workflows.
 **Usage Example:**
 
 ```yaml
-uses: stairwaytowonderland/actions/.github/workflows/release.yaml@main
+uses: stairwaytowonderland/actions/.github/workflows/release.yaml@v1
+secrets: inherit
 with:
   fail-on-no-release: true
   ref: refs/heads/main
-secrets:
-  github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 ```
 
 **Inputs:**
@@ -356,12 +355,11 @@ Publishes a GitHub release for a provided tag and optional precomputed notes.
 **Usage Example:**
 
 ```yaml
-uses: stairwaytowonderland/actions/.github/workflows/publish.yaml@main
+uses: stairwaytowonderland/actions/.github/workflows/publish.yaml@v1
+secrets: inherit
 with:
   tag: v1.2.3
   notes-b64: ${{ needs.release.outputs.new-release-notes-base64 }}
-secrets:
-  github-token: ${{ secrets.GH_PAT_CREATE_RELEASE }}
 ```
 
 **Inputs:**
@@ -396,7 +394,7 @@ protection, etc.)
 **Usage Example:**
 
 ```yaml
-uses: stairwaytowonderland/actions/.github/workflows/sync-labels.yaml@main
+uses: stairwaytowonderland/actions/.github/workflows/sync-labels.yaml@v1
 with:
   ref: main
   dry-run: true
@@ -422,7 +420,7 @@ Reusable workflow to plan and apply Terraform deployments with AWS OIDC and manu
 **Usage Example:**
 
 ```yaml
-uses: stairwaytowonderland/actions/.github/workflows/terraform-deploy.yml@main
+uses: stairwaytowonderland/actions/.github/workflows/terraform-deploy.yml@v1
 with:
   working-directory: path/to/dir
   custom-directory: path/to/custom
