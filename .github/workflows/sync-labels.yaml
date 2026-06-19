@@ -33,10 +33,18 @@ jobs:
           sparse-checkout: |
             .github
 
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          owner: ${{ inputs.org || github.repository_owner }}
+
       - name: Sync labels
         uses: ./.actions/.github/actions/labels-sync-action
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.generate-token.outputs.token }}
           org: ${{ inputs.org || '' }}
           dry-run: ${{ inputs.dry-run == true }}
           update-existing: ${{ inputs.update-existing == true }}
