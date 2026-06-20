@@ -1,0 +1,39 @@
+name: Repository Info Action
+description: Get repository info such as the repository name and owner.
+
+inputs:
+  repo:
+    description: 'The full name of the repository (with the owner), e.g., owner/repo.'
+    default: ${{ github.repository }}
+  owner:
+    description: 'The owner of the repository.'
+    default: ${{ github.repository_owner }}
+
+outputs:
+  repo-name:
+    description: 'The name of the repository (without the owner).'
+    value: ${{ steps.get-repo-name.outputs.repo-name }}
+  repo-owner:
+    description: 'The owner of the repository.'
+    value: ${{ steps.get-repo-owner.outputs.repo-owner }}
+  repo-url:
+    description: 'The URL of the repository.'
+    value: ${{ steps.get-repo-url.outputs.repo-url }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Get repository name
+      id: get-repo-name
+      shell: bash
+      run: echo "repo-name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+    - name: Get repository owner
+      id: get-repo-owner
+      shell: bash
+      env:
+        OWNER_INPUT: ${{ inputs.owner || github.repository_owner }}
+      run: echo "repo-owner=${OWNER_INPUT:-$GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+    - name: Get repository URL
+      id: get-repo-url
+      shell: bash
+      run: echo "repo-url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"

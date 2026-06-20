@@ -10,13 +10,36 @@ on:
       notes-b64:
         description: 'Base64-encoded release notes (Markdown)'
         type: string
+      action-ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for creating releases.'
 
 jobs:
+  repo-info:
+    name: Get Repository Info
+    runs-on: ubuntu-latest
+    outputs:
+      repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
+      repo-name: ${{ steps.repo-info.outputs.repo-name }}
+    steps:
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v6
+        with:
+          repository: stairwaytowonderland/actions
+          path: ./.actions
+          sparse-checkout: |
+            .github
+          ref: ${{ inputs.action-ref }}
+      - name: Get repo info
+        id: repo-info
+        uses: ./.actions/.github/actions/repo-info-action
+
   publish:
     name: Publish GitHub Release
+    needs: [repo-info]
     runs-on: ubuntu-latest
 
     permissions:
@@ -37,8 +60,6 @@ jobs:
         id: vars
         run: |
           echo "tag=${{ inputs.tag || github.ref_name }}" >> "$GITHUB_OUTPUT"
-          echo "repo-owner=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
-          echo "repo-name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
 
       # Checkout at the input tag so setuptools-scm sees it and stamps the
       # correct version into the wheel metadata.
@@ -55,8 +76,8 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ steps.vars.outputs.repo-owner }}
-          repositories: ${{ steps.vars.outputs.repo-name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repositories: ${{ needs.repo-info.outputs.repo-name }}
 
       - name: Publish release
         id: publish

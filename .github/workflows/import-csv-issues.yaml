@@ -49,6 +49,28 @@ on:
         type: string
 
 jobs:
+  repo-info:
+    name: Get Repository Info
+    runs-on: ubuntu-latest
+    outputs:
+      repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
+      repo-name: ${{ steps.repo-info.outputs.repo-name }}
+    steps:
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v6
+        with:
+          repository: stairwaytowonderland/actions
+          path: ./.actions
+          sparse-checkout: |
+            .github
+          ref: ${{ inputs.ref }}
+      - name: Get repo info
+        id: repo-info
+        uses: ./.actions/.github/actions/repo-info-action
+        with:
+          repo: ${{ inputs.repo }}
+          owner: ${{ inputs.owner }}
+
   parse-csv:
     runs-on: ubuntu-latest
     outputs:
@@ -114,7 +136,7 @@ jobs:
 
   create-labels:
     runs-on: ubuntu-latest
-    needs: parse-csv
+    needs: [parse-csv, repo-info]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
