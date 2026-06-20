@@ -19,7 +19,7 @@ on:
 
 jobs:
   repo-info:
-    name: Get Repository Info
+    name: Get repo info
     runs-on: ubuntu-latest
     outputs:
       repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
