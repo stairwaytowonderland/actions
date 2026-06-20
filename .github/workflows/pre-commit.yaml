@@ -10,7 +10,6 @@ on:
       config:
         description: 'Path to the pre-commit config file.'
         type: string
-        required: false
         default: '.pre-commit-config.yaml'
 
 env:

@@ -5,26 +5,22 @@ on:
     inputs:
       owner:
         description: 'GitHub organization or user that owns the repository'
-        required: false
         type: string
       repo:
         description: 'GitHub repository name (if not the current repository)'
-        required: false
         type: string
       dry-run:
         description: 'Dry run'
-        required: true
         type: boolean
         default: true
       update-existing:
         description: 'Whether to update existing labels (e.g. rename, change color/description).'
         required: true
         type: boolean
-        default: false
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        required: false
         type: string
+        default: 'v1'
 
 jobs:
   repo-info:
