@@ -76,6 +76,7 @@ jobs:
     with:
       dispatch-workflow: ${{ needs.setup.outputs.dispatch-workflow }}
       fail-on-no-release: ${{ inputs.fail-on-no-release || false }}
+      action-ref: 'main'
 
   publish:
     name: Publish
@@ -85,6 +86,7 @@ jobs:
     secrets: inherit
     with:
       tag: ${{ github.ref_name }}
+      action-ref: 'main'
 
   update-majorver:
     name: Update Major Version Tag
