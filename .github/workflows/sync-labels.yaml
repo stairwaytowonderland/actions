@@ -16,6 +16,7 @@ on:
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
+        default: 'v1'
 
 jobs:
   repo-info:
