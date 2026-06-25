@@ -83,45 +83,22 @@ jobs:
         #   types: ${{ inputs.types }}
         #   scopes: ${{ inputs.scopes }}
 
-      - name: Resolve auth strategy
-        id: auth
-        run: |
-          has_token=false
-          if [ -n "$INPUT_GITHUB_TOKEN" ]; then
-            has_token=true
-          fi
-          echo "has-token=$has_token" >> "$GITHUB_OUTPUT"
-
-          can_generate_app_token=false
-          if [ -n "$APP_PRIVATE_KEY" ] && [ -n "$APP_CLIENT_ID" ]; then
-            can_generate_app_token=true
-          fi
-          echo "can-generate-app-token=$can_generate_app_token" >> "$GITHUB_OUTPUT"
-
-          generate_app_token=false
-          if ! $has_token && $can_generate_app_token; then
-            generate_app_token=true
-          fi
-          echo "generate-app-token=$generate_app_token" >> "$GITHUB_OUTPUT"
-        env:
-          INPUT_GITHUB_TOKEN: ${{ secrets.github-token }}
-          APP_PRIVATE_KEY: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          APP_CLIENT_ID: ${{ vars.ORG_REPO_USER_APP_ID }}
-
-      - name: Generate GitHub App Token
-        if: steps.conventional-commits.outputs.valid != 'true' && steps.auth.outputs.generate-app-token == 'true'
-        id: generate-token
-        uses: actions/create-github-app-token@v3
+      - name: Get token for PR comment (if validation fails)
+        # if: failure() && github.event_name == 'pull_request'
+        if: failure() && steps.conventional-commits.outputs.valid != 'true'
+        id: get-token
+        uses: ./.actions/.github/actions/auth-token-action
         with:
-          client-id: ${{ secrets.ORG_REPO_USER_APP_ID || vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          github-token: ${{ secrets.github-token }}
+          app-private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          app-client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
 
       - name: Comment on PR (if validation fails)
         # if: failure() && github.event_name == 'pull_request'
         if: failure() && steps.conventional-commits.outputs.valid != 'true'
         uses: actions/github-script@v9
         with:
-          github-token: ${{ secrets.github-token || steps.generate-token.outputs.token }}
+          github-token: ${{ secrets.github-token || steps.get-token.outputs.auth-token }}
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,

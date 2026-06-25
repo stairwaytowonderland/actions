@@ -297,6 +297,7 @@ secrets: inherit
 | `ORG_REPO_USER_APP_ID`      | Optional GitHub App client ID used when `github-token` is not provided.   |
 
 Notes:
+
 - `secrets: inherit` works only with secrets that are available to the caller run context.
 - For public repositories, secrets are not passed to workflows triggered from pull requests created by forks.
 

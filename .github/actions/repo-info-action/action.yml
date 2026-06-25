@@ -26,13 +26,15 @@ runs:
     - name: Get repository name
       id: get-repo-name
       shell: bash
-      run: echo "repo-name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+      env:
+        REPO: ${{ inputs.repo || github.repository }}
+      run: echo "repo-name=${REPO#*/}" >> "$GITHUB_OUTPUT"
     - name: Get repository owner
       id: get-repo-owner
       shell: bash
       env:
-        OWNER_INPUT: ${{ inputs.owner || github.repository_owner }}
-      run: echo "repo-owner=${OWNER_INPUT:-$GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+        OWNER: ${{ inputs.owner || github.repository_owner }}
+      run: echo "repo-owner=${OWNER:-$GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
     - name: Get repository URL
       id: get-repo-url
       shell: bash

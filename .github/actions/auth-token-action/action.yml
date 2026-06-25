@@ -1,0 +1,75 @@
+name: Get Authorization Token
+description: 'Reusable action to get an authorization token either from a GitHub App or a user (or personal) access token.'
+
+inputs:
+  github-token:
+    description: 'GitHub Personal Access Token with repo scope for checking commits.'
+  app-private-key:
+    description: 'GitHub App private key used to generate a fallback token for PR comments.'
+  app-client-id:
+    description: 'GitHub App client ID used to generate a fallback token for PR comments.'
+
+outputs:
+  auth-token:
+    description: 'The authorization token obtained either from a GitHub App or a user (or personal) access token'
+    value: ${{ steps.set-output.outputs.auth-token }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Repo info
+      id: repo-info
+      shell: bash
+      run: |
+        echo "repo-owner=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+        echo "repo-name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+
+    - name: Resolve auth strategy
+      id: auth
+      shell: bash
+      run: |
+        has_token=false
+        if [ -n "$INPUT_GITHUB_TOKEN" ]; then
+          has_token=true
+        fi
+        echo "has-token=$has_token" >> "$GITHUB_OUTPUT"
+
+        can_generate_app_token=false
+        if [ -n "$APP_PRIVATE_KEY" ] && [ -n "$APP_CLIENT_ID" ]; then
+          can_generate_app_token=true
+        fi
+        echo "can-generate-app-token=$can_generate_app_token" >> "$GITHUB_OUTPUT"
+
+        generate_app_token=false
+        if ! $has_token && $can_generate_app_token; then
+          generate_app_token=true
+        fi
+        echo "generate-app-token=$generate_app_token" >> "$GITHUB_OUTPUT"
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        APP_PRIVATE_KEY: ${{ inputs.app-private-key }}
+        APP_CLIENT_ID: ${{ inputs.app-client-id }}
+
+    - name: Generate GitHub App Token
+      if: steps.auth.outputs.generate-app-token == 'true'
+      id: generate-token
+      uses: actions/create-github-app-token@v3
+      with:
+        client-id: ${{ inputs.app-client-id }}
+        private-key: ${{ inputs.app-private-key }}
+        owner: ${{ steps.repo-info.outputs.repo-owner }}
+        repositories: ${{ steps.repo-info.outputs.repo-name }}
+
+    - name: Set auth-token output
+      id: set-output
+      uses: actions/github-script@v9
+      env:
+        HAS_TOKEN: ${{ steps.auth.outputs.has-token }}
+        GENERATED_TOKEN: ${{ steps.auth.outputs.generate-app-token == 'true' && steps.generate-token.outputs.token || '' }}
+      with:
+        script: |
+          const hasToken = process.env.HAS_TOKEN === 'true';
+          const generatedToken = process.env.GENERATED_TOKEN;
+          const authToken = hasToken ? process.env.INPUT_GITHUB_TOKEN : generatedToken;
+          core.setSecret(authToken);
+          core.setOutput('auth-token', authToken);
