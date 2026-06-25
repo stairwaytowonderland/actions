@@ -271,8 +271,7 @@ Reusable workflow to validate commit messages in pull requests or caller-defined
 uses: stairwaytowonderland/actions/.github/workflows/conventional-commit.yaml@v1
 with:
   ref: main
-secrets:
-  github-token: ${{ secrets.GH_PAT }}
+secrets: inherit
 ```
 
 **Inputs:**
@@ -288,6 +287,18 @@ secrets:
 | `conventional-commits-valid` | `true` when all checked commits are valid    |
 | `commit-count`               | Number of commits validated                  |
 | `is-merge`                   | Whether the checked commit is a merge commit |
+
+**Secrets:**
+
+| Name                        | Description                                                               |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `github-token`              | Optional token to post PR comments on validation failures.                |
+| `ORG_REPO_USER_PRIVATE_KEY` | Optional GitHub App private key used when `github-token` is not provided. |
+| `ORG_REPO_USER_APP_ID`      | Optional GitHub App client ID used when `github-token` is not provided.   |
+
+Notes:
+- `secrets: inherit` works only with secrets that are available to the caller run context.
+- For public repositories, secrets are not passed to workflows triggered from pull requests created by forks.
 
 ### 2. `pre-commit`
 
