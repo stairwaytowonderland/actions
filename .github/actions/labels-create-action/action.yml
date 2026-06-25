@@ -16,7 +16,7 @@ inputs:
     description: 'JSON array of effort label objects (name, color, description)'
     default: |
       [
-        { "name": "effort:high", "color": "FA2251", "description": "High effort" },
+        { "name": "effort:high", "color": "FA1070", "description": "High effort" },
         { "name": "effort:medium", "color": "BFD4F2", "description": "Medium effort" },
         { "name": "effort:low", "color": "ADFCC0", "description": "Low effort" }
       ]
@@ -36,14 +36,24 @@ inputs:
         { "name": "priority:medium", "color": "141C90", "description": "Medium priority" },
         { "name": "priority:low", "color": "BAF165", "description": "Low priority" }
       ]
-  other-labels:
-    description: 'JSON array of other (misc) label objects (name, color, description)'
+  default-labels:
+    description: 'JSON array of default label objects (name, color, description)'
     default: |
       [
-        { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
-        { "name": "task", "color": "003FFF", "description": "General task" },
-        { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
-        { "name": "uncategorized", "color": "800949", "description": "Needs to be categorized" },
+        { "name": "bug", "color": "FF0000", "description": "Something isn't working" },
+        { "name": "documentation", "color": "0075CA", "description": "Improvements or additions to documentation" },
+        { "name": "duplicate", "color": "CFD3D7", "description": "This issue or pull request already exists" },
+        { "name": "enhancement", "color": "A2EEEF", "description": "New feature or request" },
+        { "name": "good first issue", "color": "7057FF", "description": "Good for newcomers" },
+        { "name": "help wanted", "color": "008672", "description": "Extra attention is needed" },
+        { "name": "invalid", "color": "E4E669", "description": "This doesn't seem right" },
+        { "name": "question", "color": "D876E3", "description": "Further information is requested" },
+        { "name": "wontfix", "color": "FFFFFF", "description": "This will not be worked on" }
+      ]
+  dependabot-labels:
+    description: 'JSON array of dependabot label objects (name, color, description)'
+    default: |
+      [
         { "name": "dependencies", "color": "F0FFFF", "description": "Related to dependabot dependencies" },
         { "name": "deps:go", "color": "16E2E2", "description": "Related to Go dependencies" },
         { "name": "deps:ruby", "color": "CC342D", "description": "Related to Ruby dependencies" },
@@ -52,6 +62,15 @@ inputs:
         { "name": "deps:terraform", "color": "7B42BC", "description": "Related to Terraform dependencies" },
         { "name": "deps:javascript", "color": "168700", "description": "Related to JavaScript dependencies" },
         { "name": "deps:github-actions", "color": "000000", "description": "Related to GitHub Actions dependencies" }
+      ]
+  other-labels:
+    description: 'JSON array of other (misc) label objects (name, color, description)'
+    default: |
+      [
+        { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
+        { "name": "task", "color": "003FFF", "description": "General task" },
+        { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
+        { "name": "uncategorized", "color": "800949", "description": "Needs to be categorized" }
       ]
   effort-map:
     description: 'JSON object mapping effort values to normalized label names'
@@ -91,6 +110,8 @@ runs:
         PRIORITY_LABELS: ${{ inputs.priority-labels }}
         EFFORT_LABELS: ${{ inputs.effort-labels }}
         IMPACT_LABELS: ${{ inputs.impact-labels }}
+        DEFAULT_LABELS: ${{ inputs.default-labels }}
+        DEPENDABOT_LABELS: ${{ inputs.dependabot-labels }}
         OTHER_LABELS: ${{ inputs.other-labels }}
         PRIORITY_MAP: ${{ inputs.priority-map }}
         IMPACT_MAP: ${{ inputs.impact-map }}
@@ -108,10 +129,14 @@ runs:
           const effortLabels = JSON.parse(process.env.EFFORT_LABELS);
           const impactLabels = JSON.parse(process.env.IMPACT_LABELS);
           const otherLabels = JSON.parse(process.env.OTHER_LABELS);
+          const defaultLabels = JSON.parse(process.env.DEFAULT_LABELS);
+          const dependabotLabels = JSON.parse(process.env.DEPENDABOT_LABELS);
           const targetLabels = [
             ...priorityLabels,
             ...effortLabels,
             ...impactLabels,
+            ...defaultLabels,
+            ...dependabotLabels,
             ...otherLabels
           ];
           const priorityMap = JSON.parse(process.env.PRIORITY_MAP);

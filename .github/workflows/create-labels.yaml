@@ -1,14 +1,18 @@
 name: Labels Create
 
+concurrency:
+  group: ${{github.repository}}-${{ github.workflow }}
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
     inputs:
-      owner:
-        description: 'GitHub organization or user that owns the repository'
-        type: string
-      repo:
-        description: 'GitHub repository name (if not the current repository)'
-        type: string
+      # owner:
+      #   description: 'GitHub organization or user that owns the repository'
+      #   type: string
+      # repo:
+      #   description: 'GitHub repository name (if not the current repository)'
+      #   type: string
       dry-run:
         description: 'Dry run'
         type: boolean
@@ -41,9 +45,6 @@ jobs:
       - name: Get repo info
         id: repo-info
         uses: ./.actions/.github/actions/repo-info-action
-        with:
-          repo: ${{ inputs.repo }}
-          owner: ${{ inputs.owner }}
 
   create-labels:
     runs-on: ubuntu-latest

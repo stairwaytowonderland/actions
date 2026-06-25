@@ -7,43 +7,35 @@ concurrency:
 on:
   workflow_dispatch:
     inputs:
-      owner:
-        description: 'GitHub organization or user that owns the repository'
-        type: string
-
-      repo:
-        description: 'GitHub repository name (if not the current repository)'
-        type: string
-
+      # owner:
+      #   description: 'GitHub organization or user that owns the repository'
+      #   type: string
+      # repo:
+      #   description: 'GitHub repository name (if not the current repository)'
+      #   type: string
       csv-path:
         description: 'Path (relative) to the CSV file'
         required: true
         type: string
         default: 'TODO.csv'
-
       dry-run:
         description: 'Dry run'
         type: boolean
         default: true
-
       max-parallel:
         description: 'Maximum number of parallel issue creations (only applies when batch is false)'
         type: number
         default: 5
-
       batch:
         description: 'Create issues in batches (by type)'
         type: boolean
         default: true
-
       allow-duplicates:
         description: 'Allow creating duplicate issues'
         type: boolean
-
       allow-closed-duplicates:
         description: 'Allow creating duplicate issues for closed issues'
         type: boolean
-
       ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
@@ -68,9 +60,6 @@ jobs:
       - name: Get repo info
         id: repo-info
         uses: ./.actions/.github/actions/repo-info-action
-        with:
-          repo: ${{ inputs.repo }}
-          owner: ${{ inputs.owner }}
 
   parse-csv:
     runs-on: ubuntu-latest
@@ -157,21 +146,21 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.event.repository.owner }}
-          repositories: ${{ inputs.repo || github.event.repository.name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repositories: ${{ needs.repo-info.outputs.repo-name }}
 
       - name: Ensure only needed labels exist
         uses: ./.actions/.github/actions/labels-create-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ inputs.owner || github.event.repository.owner }}
-          repo: ${{ inputs.repo || github.event.repository.name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repo: ${{ needs.repo-info.outputs.repo-name }}
           matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
           dry-run: ${{ inputs.dry-run == true }}
 
   create-issue-batch:
     if: ${{ inputs.batch }}
-    needs: [parse-csv, create-labels]
+    needs: [repo-info, parse-csv, create-labels]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 1
@@ -196,16 +185,16 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.event.repository.owner }}
-          repositories: ${{ inputs.repo || github.event.repository.name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repositories: ${{ needs.repo-info.outputs.repo-name }}
 
       - name: Create issues by type
         if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
         uses: ./.actions/.github/actions/issue-import-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ inputs.owner || github.event.repository.owner }}
-          repo: ${{ inputs.repo || github.event.repository.name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repo: ${{ needs.repo-info.outputs.repo-name }}
           batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
           allow-duplicates: ${{ inputs.allow-duplicates }}
           allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
@@ -215,7 +204,7 @@ jobs:
 
   merge-matrix:
     if: ${{ !inputs.batch }}
-    needs: parse-csv
+    needs: [parse-csv]
     runs-on: ubuntu-latest
     outputs:
       all: ${{ steps.merge.outputs.all }}
@@ -240,7 +229,7 @@ jobs:
 
   create-issue:
     if: ${{ !inputs.batch }}
-    needs: [merge-matrix, create-labels]
+    needs: [repo-info, merge-matrix, create-labels]
     runs-on: ubuntu-latest
     strategy:
       max-parallel: ${{ inputs.max-parallel }}
@@ -265,15 +254,15 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.owner || github.event.repository.owner }}
-          repositories: ${{ inputs.repo || github.event.repository.name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repositories: ${{ needs.repo-info.outputs.repo-name }}
 
       - name: Create issue
         uses: ./.actions/.github/actions/issue-import-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ inputs.owner || github.event.repository.owner }}
-          repo: ${{ inputs.repo || github.event.repository.name }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repo: ${{ needs.repo-info.outputs.repo-name }}
           title: ${{ matrix.issue.title }}
           priority: ${{ matrix.issue.priority }}
           effort: ${{ matrix.issue.effort }}
