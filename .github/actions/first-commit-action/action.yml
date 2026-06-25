@@ -1,0 +1,29 @@
+name: Check if first commit
+description: 'Reusable action to check if the current commit is the first commit in the repository.'
+
+# Ref: https://haya14busa.github.io/github-action-brandings/
+branding:
+  icon: tag
+  color: red
+
+outputs:
+  is-first-commit:
+    description: 'Whether the current commit is the first commit in the repository'
+    value: ${{ steps.check-first-commit.outputs.is-first-commit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Check if this is the first commit
+      id: check
+      shell: bash
+      run: |
+        if [ $(git rev-list --count HEAD) -eq 1 ]; then
+          echo "This is the first commit."
+          echo "is-first-commit=true" >> $GITHUB_OUTPUT
+        else
+          echo "This is not the first commit."
+          echo "is-first-commit=false" >> $GITHUB_OUTPUT
+        fi
