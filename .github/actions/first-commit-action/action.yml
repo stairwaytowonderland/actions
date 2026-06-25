@@ -17,12 +17,16 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v6
     - name: Check if this is the first commit
-      id: check
+      id: check-first-commit
       shell: bash
+      env:
+        GITHUB_ZERO_EVENT: '0000000000000000000000000000000000000000'
+        GITHUB_EVENT_BEFORE: ${{ github.event.before }}
       run: |
-        if [ $(git rev-list --count HEAD) -eq 1 ]; then
+        if [ $(git rev-list --count HEAD) -eq 1 ] && [ "$GITHUB_EVENT_BEFORE" == "$GITHUB_ZERO_EVENT" ]; then
           echo "This is the first commit."
           echo "is-first-commit=true" >> $GITHUB_OUTPUT
+          echo "::notice::This is the first commit in the repository."
         else
           echo "This is not the first commit."
           echo "is-first-commit=false" >> $GITHUB_OUTPUT
