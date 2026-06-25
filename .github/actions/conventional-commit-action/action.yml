@@ -34,7 +34,7 @@ inputs:
 outputs:
   valid:
     description: 'Whether all commits are valid conventional commits'
-    value: ${{ steps.check.outputs.valid }}
+    value: ${{ steps.check.outputs.valid == 'true' }}
   invalid-commits:
     description: 'List of invalid commit messages'
     value: ${{ steps.check.outputs.invalid_commits }}
