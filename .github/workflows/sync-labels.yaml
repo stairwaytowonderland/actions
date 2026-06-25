@@ -3,9 +3,9 @@ name: Labels Sync
 on:
   workflow_dispatch:
     inputs:
-      org:
-        description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
-        type: string
+      # org:
+      #   description: 'GitHub organization to sync labels in (defaults to the organization of the repository this action is run in)'
+      #   type: string
       dry-run:
         description: 'Dry run'
         type: boolean
@@ -40,6 +40,7 @@ jobs:
 
   sync-labels:
     runs-on: ubuntu-latest
+    needs: [repo-info]
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
@@ -59,13 +60,13 @@ jobs:
         with:
           client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
           private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ inputs.org || github.event.repository.owner }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
 
       - name: Sync labels
         uses: ./.actions/.github/actions/labels-sync-action
         with:
           github-token: ${{ steps.generate-token.outputs.token }}
-          org: ${{ inputs.org || github.event.repository.owner }}
+          org: ${{ needs.repo-info.outputs.repo-owner }}
           dry-run: ${{ inputs.dry-run == true }}
           update-existing: ${{ inputs.update-existing == true }}
           repos: |
