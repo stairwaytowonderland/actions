@@ -101,10 +101,10 @@ runs:
         echo "::endgroup::"
 
         # Get commits
-        mapfile -t COMMITS < <(git log --format="%H" "$COMMIT_RANGE")
+        # mapfile -t COMMITS < <(git log --format="%H" "$COMMIT_RANGE")
 
         echo "::group::Commit count"
-        commit_count="${#COMMITS[@]}"
+        commit_count=$(git rev-list --count "$COMMIT_RANGE")
         echo "commit_count=$commit_count" >> $GITHUB_OUTPUT
         echo "Commit count: $commit_count"
         echo "::endgroup::"
@@ -115,7 +115,7 @@ runs:
           exit 0
         fi
 
-        echo "::group::Validating ${#COMMITS[@]} commit(s)"
+        echo "::group::Validating $commit_count commit(s)"
 
         # Validation regex for conventional commits
         # Format: type(scope)!: subject
@@ -134,7 +134,7 @@ runs:
         INVALID_COMMITS=()
         ALL_VALID=true
 
-        for commit in "${COMMITS[@]}"; do
+        git log --format="%H" "$COMMIT_RANGE" | while read -r commit; do
           COMMIT_MSG=$(git log -1 --format=%s "$commit")
           COMMIT_SHORT=$(git log -1 --format=%h "$commit")
 
@@ -147,7 +147,7 @@ runs:
           else
             echo "  ✅ Valid"
           fi
-        done
+        done < <(git log --format="%H" "$COMMIT_RANGE")
 
         echo "::endgroup::"
 
