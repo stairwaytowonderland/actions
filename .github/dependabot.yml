@@ -42,7 +42,7 @@ updates:
     assignees: ['andrewhaller']
   - package-ecosystem: 'github-actions'
     directories:
-      - '/'
+      - './.github/workflows'
       - '.github/actions/**'
     exclude-paths:
       - '.github/workflows/ci*.yaml'
