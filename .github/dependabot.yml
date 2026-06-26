@@ -11,8 +11,7 @@ updates:
   # https://docs.github.com/en/code-security/how-tos/secure-your-supply-chain/manage-your-dependency-security/customizing-dependabot-security-prs
   - package-ecosystem: 'github-actions'
     directories:
-      - './.github/workflows'
-      - '.github/actions/**'
+      - '.github/**'
     exclude-paths:
       - '.github/workflows/ci*.yaml'
       - '.github/workflows/create-labels.yaml'
@@ -37,8 +36,7 @@ updates:
     rebase-strategy: 'auto'
     assignees: ['andrewhaller']
   - package-ecosystem: 'github-actions'
-    directories:
-      - '/'
+    directory: '/'
     # Prevent Dependabot from checking workflows inside these paths
     exclude-paths:
       - '.github/actions/**'
