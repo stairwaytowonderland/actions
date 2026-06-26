@@ -21,28 +21,8 @@ on:
         description: 'GitHub Personal Access Token with repo scope for creating releases.'
 
 jobs:
-  repo-info:
-    name: Get repo info
-    runs-on: ubuntu-latest
-    outputs:
-      repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
-      repo-name: ${{ steps.repo-info.outputs.repo-name }}
-    steps:
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v6
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          sparse-checkout: |
-            .github
-          ref: ${{ inputs.action-ref }}
-      - name: Get repo info
-        id: repo-info
-        uses: ./.actions/.github/actions/repo-info-action
-
   release:
     name: Semantic Release
-    needs: [repo-info]
     runs-on: ubuntu-latest
 
     # https://github.com/semantic-release/npm#trusted-publishing-from-github-actions
