@@ -68,7 +68,6 @@ jobs:
         id: auth-token
         uses: ./.actions/.github/actions/auth-token-action
         with:
-          github-token: ${{ secrets.github-token }}
           app-private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
           app-client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
 
