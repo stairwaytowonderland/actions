@@ -67,12 +67,12 @@ runs:
       id: set-output
       uses: actions/github-script@v9
       env:
-        HAS_TOKEN: ${{ steps.auth.outputs.has-token }}
+        HAS_TOKEN: ${{ steps.auth.outputs.has-token == 'true' }}
         GENERATED_TOKEN: ${{ steps.auth.outputs.generate-app-token == 'true' && steps.generate-token.outputs.token || '' }}
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
         script: |
           const hasToken = process.env.HAS_TOKEN === 'true';
-          const generatedToken = process.env.GENERATED_TOKEN;
-          const authToken = hasToken ? process.env.INPUT_GITHUB_TOKEN : generatedToken;
+          const authToken = hasToken ? process.env.INPUT_GITHUB_TOKEN : process.env.GENERATED_TOKEN;
           core.setSecret(authToken);
           core.setOutput('auth-token', authToken);
