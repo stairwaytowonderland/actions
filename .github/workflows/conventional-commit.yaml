@@ -55,13 +55,13 @@ jobs:
           GITHUB_ACTION_PATH: ${{ github.action_path }}
 
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions

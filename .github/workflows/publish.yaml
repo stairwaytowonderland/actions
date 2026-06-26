@@ -26,7 +26,7 @@ jobs:
       repo-name: ${{ steps.repo-info.outputs.repo-name }}
     steps:
       - name: Checkout shared actions repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
@@ -64,14 +64,14 @@ jobs:
       # Checkout at the input tag so setuptools-scm sees it and stamps the
       # correct version into the wheel metadata.
       - name: Checkout release tag
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.vars.outputs.tag }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
