@@ -31,21 +31,37 @@ runs:
       shell: bash
       env:
         REPO: ${{ inputs.repo || github.repository }}
-      run: echo "repo-name=${REPO#*/}" >> "$GITHUB_OUTPUT"
+      run: |
+        repo_name="${REPO#*/}"
+        echo "repo-name=$repo_name" >> "$GITHUB_OUTPUT"
+        echo "::info::Repository name: $repo_name"
     - name: Get repository owner
       id: get-repo-owner
       shell: bash
       env:
         OWNER: ${{ inputs.owner || github.repository_owner }}
-      run: echo "repo-owner=${OWNER:-$GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+      run: |
+        repo_owner="${OWNER:-$GITHUB_REPOSITORY_OWNER}"
+        echo "repo-owner=$repo_owner" >> "$GITHUB_OUTPUT"
+        echo "::info::Repository owner: $repo_owner"
     - name: Get repository URL
       id: get-repo-url
       shell: bash
-      run: echo "repo-url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"
-    - name: Set repository full name
+      run: |
+        repo_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+        echo "repo-url=$repo_url" >> "$GITHUB_OUTPUT"
+        echo "::info::Repository URL: $repo_url"
+    - name: Validate repository full name
       id: set-full-name
       shell: bash
       env:
         REPO_NAME: ${{ steps.get-repo-name.outputs.repo-name }}
         REPO_OWNER: ${{ steps.get-repo-owner.outputs.repo-owner }}
-      run: echo "repo-full-name=${REPO_OWNER}/${REPO_NAME}" >> "$GITHUB_OUTPUT"
+      run: |
+        repo_full_name="${REPO_OWNER}/${REPO_NAME}"
+        if [ "$repo_full_name" != "${GITHUB_REPOSITORY}" ]; then
+          echo "::error::The provided repository full name ($repo_full_name) does not match the current repository ($GITHUB_REPOSITORY)."
+          exit 1
+        fi
+        echo "repo-full-name=$repo_full_name" >> "$GITHUB_OUTPUT"
+        echo "::info::Repository full name: $repo_full_name"

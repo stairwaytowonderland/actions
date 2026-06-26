@@ -1,0 +1,106 @@
+name: Release a New Version
+
+on:
+  workflow_call:
+    inputs:
+      dispatch-workflow:
+        description: 'The workflow file to dispatch after a successful release.'
+        type: string
+      fail-on-no-release:
+        description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
+        type: boolean
+      ref:
+        description: 'The git ref or sha to release (e.g. refs/heads/main). Defaults to the current ref.'
+        type: string
+      action-ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
+        default: 'v1'
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with repo scope for creating releases.'
+
+jobs:
+  repo-info:
+    name: Get repo info
+    runs-on: ubuntu-latest
+    outputs:
+      repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
+      repo-name: ${{ steps.repo-info.outputs.repo-name }}
+    steps:
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v6
+        with:
+          repository: stairwaytowonderland/actions
+          path: ./.actions
+          sparse-checkout: |
+            .github
+          ref: ${{ inputs.action-ref }}
+      - name: Get repo info
+        id: repo-info
+        uses: ./.actions/.github/actions/repo-info-action
+
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+    needs: [repo-info]
+
+    # https://github.com/semantic-release/npm#trusted-publishing-from-github-actions
+    permissions:
+      actions: write
+      contents: write
+      issues: write
+      pull-requests: write
+
+    outputs:
+      new-release-published: ${{ steps.release.outputs.new-release-published }}
+      new-release-version: ${{ steps.release.outputs.new-release-version }}
+      new-release-git-tag: ${{ steps.release.outputs.new-release-git-tag }}
+      new-release-notes: ${{ steps.release.outputs.new-release-notes }}
+      new-release-notes-base64: ${{ steps.release.outputs.new-release-notes-base64 }}
+
+    steps:
+      - name: Set vars
+        id: vars
+        run: |
+          echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
+        env:
+          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Generate GitHub App Token
+        id: generate-token
+        uses: actions/create-github-app-token@v3
+        with:
+          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          owner: ${{ needs.repo-info.outputs.repo-owner }}
+          repositories: ${{ needs.repo-info.outputs.repo-name }}
+
+      - name: Semantic release
+        id: release
+        uses: stairwaytowonderland/node-semantic-release@v1
+        with:
+          github-token: ${{ steps.generate-token.outputs.token }}
+
+      - name: Release failed
+        if: steps.release.outputs.new-release-published != 'true' && inputs.fail-on-no-release
+        uses: actions/github-script@v9
+        with:
+          script: |
+            core.setFailed('Release failed')
+
+      - name: Dispatch Publish workflow
+        if: steps.release.outputs.new-release-published == 'true' && steps.vars.outputs.is-dispatch-workflow == 'true'
+        uses: stairwaytowonderland/simple-workflow-dispatch@main
+        with:
+          workflow: ${{ inputs.dispatch-workflow }}
+          tag: ${{ steps.release.outputs.new-release-git-tag }}
+          fields: |
+            notes-b64=${{ steps.release.outputs.new-release-notes-base64 }}
