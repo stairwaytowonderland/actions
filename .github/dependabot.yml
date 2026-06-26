@@ -12,12 +12,16 @@ updates:
   - package-ecosystem: 'github-actions'
     directories:
       - '/'
-      - '.github/actions/**'
+    # Prevent Dependabot from checking workflows inside these paths
     exclude-paths:
-      - '.github/workflows/ci*.yaml'
-      - '.github/workflows/create-labels.yaml'
-      - '.github/workflows/sync-labels.yaml'
-      - '.github/workflows/importcsv-issues.yaml'
+      - '.github/actions/**'
+      - '.github/workflows/release*.yaml'
+      - '.github/workflows/publish.yaml'
+      - '.github/workflows/pre-commit.yaml'
+      - '.github/workflows/conventional-commit.yaml'
+      - '.github/workflows/terraform-deploy.yaml'
+      - '.github/workflows/repository-created.yaml'
+      - '.github/workflows/watchers.yaml'
     schedule:
       # interval: "monthly"
       # day: "friday"
@@ -39,16 +43,12 @@ updates:
   - package-ecosystem: 'github-actions'
     directories:
       - '/'
-    # Prevent Dependabot from checking workflows inside these paths
-    exclude-paths:
       - '.github/actions/**'
-      - '.github/workflows/release*.yaml'
-      - '.github/workflows/publish.yaml'
-      - '.github/workflows/pre-commit.yaml'
-      - '.github/workflows/conventional-commit.yaml'
-      - '.github/workflows/terraform-deploy.yaml'
-      - '.github/workflows/repository-created.yaml'
-      - '.github/workflows/watchers.yaml'
+    exclude-paths:
+      - '.github/workflows/ci*.yaml'
+      - '.github/workflows/create-labels.yaml'
+      - '.github/workflows/sync-labels.yaml'
+      - '.github/workflows/importcsv-issues.yaml'
     schedule:
       # interval: "monthly"
       # day: "friday"
@@ -57,8 +57,8 @@ updates:
       timezone: 'America/Chicago'
     labels: ['dependencies', 'deps:github-actions']
     commit-message:
-      prefix: 'fix'
-      include: 'scope' # Automatically appends "(deps)" -> ci(deps):
+      prefix: 'chore'
+      include: 'scope' # Automatically appends "(deps)" -> chore(deps):
     groups:
       github-actions:
         applies-to: version-updates
