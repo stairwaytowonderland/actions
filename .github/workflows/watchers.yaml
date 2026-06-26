@@ -53,15 +53,25 @@ jobs:
       message-heading: ${{ steps.on-watch.outputs.message-heading }}
       message-body-base64: ${{ steps.on-watch.outputs.message-body-base64 }}
       is-organization-member: ${{ steps.on-watch.outputs.is-organization-member }}
+
     steps:
       - name: Checkout shared actions repo
         uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
-          ref: ${{ inputs.action-ref }}
           path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
           sparse-checkout: |
             .github
+
+      - name: Get auth token
+        id: auth-token
+        uses: ./.actions/.github/actions/auth-token-action
+        with:
+          github-token: ${{ secrets.github-token }}
+          app-private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          app-client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
 
       - name: On Watch
         id: on-watch
@@ -69,7 +79,7 @@ jobs:
         with:
           create-issue: ${{ inputs.create-issue == true }}
           job-summary: ${{ inputs.job-summary == true }}
-          github-token: ${{ secrets.github-token || secrets.GH_PAT_REPO_WRITE }}
+          github-token: ${{ steps.auth-token.outputs.token }}
 
       - name: Job Summary
         if: inputs.job-summary != true && steps.on-watch.outputs.is-organization-member == 'true'
