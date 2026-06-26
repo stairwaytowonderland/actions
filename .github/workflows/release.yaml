@@ -74,20 +74,34 @@ jobs:
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
+      # - name: Generate GitHub App Token
+      #   id: generate-token
+      #   uses: actions/create-github-app-token@v3
+      #   with:
+      #     client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+      #     private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+      #     owner: ${{ needs.repo-info.outputs.repo-owner }}
+      #     repositories: ${{ needs.repo-info.outputs.repo-name }}
+
+      # - name: Semantic release
+      #   id: release
+      #   uses: stairwaytowonderland/node-semantic-release@v1
+      #   with:
+      #     github-token: ${{ secrets.github-token || steps.generate-token.outputs.token }}
+
+      - name: Get auth token
+        id: get-token
+        uses: stairwaytowonderland/actions/.github/actions/auth-token-action@v1
         with:
-          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repositories: ${{ needs.repo-info.outputs.repo-name }}
+          github-token: ${{ secrets.github-token }}
+          app-private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+          app-client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
 
       - name: Semantic release
         id: release
         uses: stairwaytowonderland/node-semantic-release@v1
         with:
-          github-token: ${{ steps.generate-token.outputs.token }}
+          github-token: ${{ steps.get-token.outputs.token }}
 
       - name: Release failed
         if: steps.release.outputs.new-release-published != 'true' && inputs.fail-on-no-release
