@@ -12,6 +12,7 @@ updates:
   - package-ecosystem: 'github-actions'
     directories:
       - '/'
+      - '.github/actions/**'
     # Prevent Dependabot from checking workflows inside these paths
     exclude-paths:
       - '.github/actions/**'
@@ -43,7 +44,6 @@ updates:
   - package-ecosystem: 'github-actions'
     directories:
       - './.github/workflows'
-      - '.github/actions/**'
     exclude-paths:
       - '.github/workflows/ci*.yaml'
       - '.github/workflows/create-labels.yaml'
