@@ -1,3 +1,14 @@
+## [1.249.1](https://github.com/stairwaytowonderland/actions/compare/v1.249.0...v1.249.1) (2026-06-26)
+
+### 📚 Documentation
+
+* update README ([dfbdedf](https://github.com/stairwaytowonderland/actions/commit/dfbdedf3689f2bc83c1df0cc62484c6d9a2dfa65))
+* update README ([a91f366](https://github.com/stairwaytowonderland/actions/commit/a91f366bcfcf023660ee06c5e348988909a0b5f6))
+
+### 🔄 CI/CD
+
+* **deps:** bump the github-actions group across 2 directories with 1 update ([#5](https://github.com/stairwaytowonderland/actions/issues/5)) ([0ecde8b](https://github.com/stairwaytowonderland/actions/commit/0ecde8b3c03825ec3f3801efab60fc6f6a119135))
+
 ## [1.249.0](https://github.com/stairwaytowonderland/actions/compare/v1.248.0...v1.249.0) (2026-06-26)
 
 ### ✨ Features
