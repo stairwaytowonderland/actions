@@ -65,7 +65,7 @@ jobs:
         run: |
           echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
         env:
-          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow == 'true' }}
+          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
 
       - name: Checkout
         uses: actions/checkout@v6
