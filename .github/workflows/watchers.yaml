@@ -51,7 +51,7 @@ jobs:
 
     steps:
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions

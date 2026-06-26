@@ -50,7 +50,7 @@ jobs:
       repo-name: ${{ steps.repo-info.outputs.repo-name }}
     steps:
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
@@ -69,12 +69,12 @@ jobs:
       types: ${{ steps.parse.outputs.types }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
@@ -133,12 +133,12 @@ jobs:
     needs: [parse-csv, repo-info]
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
@@ -175,12 +175,12 @@ jobs:
         type: ${{ fromJson(needs.parse-csv.outputs.types) }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
@@ -247,12 +247,12 @@ jobs:
         issue: ${{ fromJson(needs.merge-matrix.outputs.all) }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions

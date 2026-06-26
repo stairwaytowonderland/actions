@@ -48,14 +48,14 @@ jobs:
           IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
 
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
       - name: Checkout shared actions repo
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
