@@ -34,7 +34,7 @@ runs:
       run: |
         repo_name="${REPO#*/}"
         echo "repo-name=$repo_name" >> "$GITHUB_OUTPUT"
-        echo "::info::Repository name: $repo_name"
+        echo "::debug::Repository name: $repo_name"
     - name: Get repository owner
       id: get-repo-owner
       shell: bash
@@ -43,14 +43,14 @@ runs:
       run: |
         repo_owner="${OWNER:-$GITHUB_REPOSITORY_OWNER}"
         echo "repo-owner=$repo_owner" >> "$GITHUB_OUTPUT"
-        echo "::info::Repository owner: $repo_owner"
+        echo "::debug::Repository owner: $repo_owner"
     - name: Get repository URL
       id: get-repo-url
       shell: bash
       run: |
         repo_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
         echo "repo-url=$repo_url" >> "$GITHUB_OUTPUT"
-        echo "::info::Repository URL: $repo_url"
+        echo "::debug::Repository URL: $repo_url"
     - name: Validate repository full name
       id: set-full-name
       shell: bash
@@ -64,4 +64,4 @@ runs:
           exit 1
         fi
         echo "repo-full-name=$repo_full_name" >> "$GITHUB_OUTPUT"
-        echo "::info::Repository full name: $repo_full_name"
+        echo "::debug::Repository full name: $repo_full_name"

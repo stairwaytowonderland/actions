@@ -48,6 +48,8 @@ runs:
           generate_app_token=true
         fi
         echo "generate-app-token=$generate_app_token" >> "$GITHUB_OUTPUT"
+
+        echo "::debug::Resolved auth strategy: has-token=$has_token, can-generate-app-token=$can_generate_app_token, generate-app-token=$generate_app_token"
       env:
         INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
         APP_PRIVATE_KEY: ${{ inputs.app-private-key }}
