@@ -16,7 +16,7 @@ updates:
       - '.github/workflows/ci*.yaml'
       - '.github/workflows/create-labels.yaml'
       - '.github/workflows/sync-labels.yaml'
-      - '.github/workflows/importcsv-issues.yaml'
+      - '.github/workflows/import-csv-issues.yaml'
     schedule:
       # interval: "monthly"
       # day: "friday"
@@ -40,7 +40,8 @@ updates:
     # Prevent Dependabot from checking workflows inside these paths
     exclude-paths:
       - '.github/actions/**'
-      - '.github/workflows/release*.yaml'
+      - '.github/workflows/release.yaml'
+      - '.github/workflows/release-debug.yaml'
       - '.github/workflows/publish.yaml'
       - '.github/workflows/pre-commit.yaml'
       - '.github/workflows/conventional-commit.yaml'
