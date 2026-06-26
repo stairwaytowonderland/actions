@@ -1,3 +1,9 @@
+## [1.237.0](https://github.com/stairwaytowonderland/actions/compare/v1.236.0...v1.237.0) (2026-06-26)
+
+### ✨ Features
+
+* update workflow ([9419921](https://github.com/stairwaytowonderland/actions/commit/941992121247dfcd3c08d31ca008adea875b8b78))
+
 ## [1.236.0](https://github.com/stairwaytowonderland/actions/compare/v1.235.0...v1.236.0) (2026-06-26)
 
 ### ✨ Features
