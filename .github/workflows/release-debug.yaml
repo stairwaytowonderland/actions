@@ -74,14 +74,14 @@ jobs:
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-          repositories: ${{ github.repository }}
+      # - name: Generate GitHub App Token
+      #   id: generate-token
+      #   uses: actions/create-github-app-token@v3
+      #   with:
+      #     client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
+      #     private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
+      #     owner: ${{ github.repository_owner }}
+      #     repositories: ${{ github.repository }}
 
       - name: Semantic release
         id: release
