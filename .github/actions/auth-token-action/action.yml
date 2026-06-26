@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: |
         has_token=false
-        if [ -n "$INPUT_GITHUB_TOKEN" ]; then
+        if [[ -n "$RAW_GITHUB_TOKEN" ]]; then
           has_token=true
         fi
         echo "has-token=$has_token" >> "$GITHUB_OUTPUT"
@@ -49,17 +49,17 @@ runs:
         fi
         echo "generate-app-token=$generate_app_token" >> "$GITHUB_OUTPUT"
       env:
-        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
-        APP_PRIVATE_KEY: ${{ inputs.app-private-key }}
-        APP_CLIENT_ID: ${{ inputs.app-client-id }}
+        RAW_GITHUB_TOKEN: ${{ inputs['github-token'] }}
+        APP_PRIVATE_KEY: ${{ inputs['app-private-key'] }}
+        APP_CLIENT_ID: ${{ inputs['app-client-id'] }}
 
     - name: Generate GitHub App Token
       if: steps.auth.outputs.generate-app-token == 'true'
       id: generate-token
       uses: actions/create-github-app-token@v3
       with:
-        client-id: ${{ inputs.app-client-id }}
-        private-key: ${{ inputs.app-private-key }}
+        client-id: ${{ inputs['app-client-id'] }}
+        private-key: ${{ inputs['app-private-key'] }}
         owner: ${{ steps.repo-info.outputs.repo-owner }}
         repositories: ${{ steps.repo-info.outputs.repo-name }}
 
@@ -69,10 +69,11 @@ runs:
       env:
         HAS_TOKEN: ${{ steps.auth.outputs.has-token == 'true' }}
         GENERATED_TOKEN: ${{ steps.auth.outputs.generate-app-token == 'true' && steps.generate-token.outputs.token || '' }}
-        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        RAW_GITHUB_TOKEN: ${{ inputs['github-token'] }}
       with:
         script: |
           const hasToken = process.env.HAS_TOKEN === 'true';
-          const authToken = hasToken ? process.env.INPUT_GITHUB_TOKEN : process.env.GENERATED_TOKEN;
+          const authToken = hasToken ? process.env.RAW_GITHUB_TOKEN : process.env.GENERATED_TOKEN;
           core.setSecret(authToken);
           core.setOutput('auth-token', authToken);
+          core.setOutput('token', authToken);
