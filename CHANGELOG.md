@@ -1,3 +1,9 @@
+## [1.249.2](https://github.com/stairwaytowonderland/actions/compare/v1.249.1...v1.249.2) (2026-06-26)
+
+### 🔄 CI/CD
+
+* **deps:** bump the github-actions group across 2 directories with 1 update ([#12](https://github.com/stairwaytowonderland/actions/issues/12)) ([335ead1](https://github.com/stairwaytowonderland/actions/commit/335ead1bb194f9787b34effbb01e5d33f3dbda55))
+
 ## [1.249.1](https://github.com/stairwaytowonderland/actions/compare/v1.249.0...v1.249.1) (2026-06-26)
 
 ### 📚 Documentation
