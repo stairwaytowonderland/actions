@@ -6,25 +6,21 @@ on:
       create-issue:
         description: 'Whether to create a welcome issue for the watcher (if they are a member of the organization).'
         type: boolean
-        required: false
 
       exclude:
         description: 'Repos to exclude from watcher handling.'
         type: string
-        required: false
         # default: |
         #   ${{ format('{0}/repository-template', github.repository_owner) }}
 
       job-summary:
         description: 'Whether to add a job summary with the welcome message for the watcher.'
         type: boolean
-        required: false
         default: true
 
       action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
-        required: false
         default: 'v1'
 
     outputs:
@@ -41,7 +37,6 @@ on:
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for creating issues.'
-        required: false
 
 jobs:
   on-watch:
@@ -75,7 +70,7 @@ jobs:
 
       - name: On Watch
         id: on-watch
-        uses: ./.actions/.github/actions/watchers
+        uses: ./.actions/.github/actions/watchers-action
         with:
           create-issue: ${{ inputs.create-issue == true }}
           job-summary: ${{ inputs.job-summary == true }}
