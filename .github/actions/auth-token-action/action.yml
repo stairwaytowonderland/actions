@@ -15,7 +15,7 @@ outputs:
     value: ${{ steps.set-output.outputs.auth-token }}
   token:
     description: 'The authorization token obtained either from a GitHub App or a user (or personal) access token'
-    value: ${{ steps.set-output.outputs.token }}
+    value: ${{ steps.set-output.outputs.auth-token }}
 
 runs:
   using: 'composite'
