@@ -30,7 +30,7 @@ Shared actions and workflows for use by this organization.
 │   │   ├── release.yaml
 │   │   ├── repository-created.yaml
 │   │   ├── sync-labels.yaml
-│   │   └── terraform-deploy.yml
+│   │   └── terraform-deploy.yaml
 │   └── dependabot.yml
 ├── .editorconfig
 ├── .gitignore
