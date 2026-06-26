@@ -8,7 +8,7 @@ on:
 
   workflow_call:
     inputs:
-      ref:
+      action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
         default: 'v1'
@@ -65,7 +65,7 @@ jobs:
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.action-ref }}
           persist-credentials: false
           sparse-checkout: |
             .github

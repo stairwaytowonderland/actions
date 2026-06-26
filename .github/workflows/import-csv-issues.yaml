@@ -36,7 +36,7 @@ on:
       allow-closed-duplicates:
         description: 'Allow creating duplicate issues for closed issues'
         type: boolean
-      ref:
+      action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
         default: 'v1'
@@ -54,9 +54,10 @@ jobs:
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
           sparse-checkout: |
             .github
-          ref: ${{ inputs.ref }}
       - name: Get repo info
         id: repo-info
         uses: ./.actions/.github/actions/repo-info-action
@@ -69,15 +70,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Checkout shared actions repo
         uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
           sparse-checkout: |
             .github
-          ref: ${{ inputs.ref }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -138,7 +142,7 @@ jobs:
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.action-ref }}
           persist-credentials: false
           sparse-checkout: |
             .github
@@ -172,15 +176,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Checkout shared actions repo
         uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
           sparse-checkout: |
             .github
-          ref: ${{ inputs.ref }}
 
       - name: Generate GitHub App Token
         id: generate-token
@@ -241,15 +248,18 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Checkout shared actions repo
         uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
           sparse-checkout: |
             .github
-          ref: ${{ inputs.ref }}
 
       - name: Generate GitHub App Token
         id: generate-token

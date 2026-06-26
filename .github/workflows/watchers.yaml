@@ -21,7 +21,7 @@ on:
         required: false
         default: true
 
-      ref:
+      action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
         required: false
@@ -58,7 +58,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.action-ref }}
           path: ./.actions
           sparse-checkout: |
             .github

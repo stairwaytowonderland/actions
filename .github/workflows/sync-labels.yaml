@@ -13,7 +13,7 @@ on:
       update-existing:
         description: 'Whether to update existing labels (e.g. rename, change color/description).'
         type: boolean
-      ref:
+      action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
         default: 'v1'
@@ -33,7 +33,7 @@ jobs:
           path: ./.actions
           sparse-checkout: |
             .github
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.action-ref }}
       - name: Get repo info
         id: repo-info
         uses: ./.actions/.github/actions/repo-info-action
@@ -52,7 +52,7 @@ jobs:
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
-          ref: ${{ inputs.ref }}
+          ref: ${{ inputs.action-ref }}
           persist-credentials: false
           sparse-checkout: |
             .github

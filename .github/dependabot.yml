@@ -20,7 +20,15 @@ updates:
       interval: 'weekly'
       timezone: 'America/Chicago'
     labels: ['dependencies', 'deps:github-actions']
-    assignees: ['stairwaytowonderland/owners']
+    commit-message:
+      prefix: 'ci'
+      include: 'scope' # Automatically appends "(deps)" -> ci(deps):
+    groups:
+      github-actions:
+        applies-to: version-updates
+        patterns:
+          - '*'
+    assignees: ['andrewhaller']
     open-pull-requests-limit: 5 # Limits active PRs to prevent noise
     rebase-strategy: 'auto'
   # - package-ecosystem: 'npm'
