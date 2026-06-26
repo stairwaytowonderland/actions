@@ -10,6 +10,9 @@ inputs:
     default: ${{ github.repository_owner }}
 
 outputs:
+  repo-full-name:
+    description: 'The full name of the repository (with the owner).'
+    value: ${{ steps.set-full-name.outputs.repo-full-name }}
   repo-name:
     description: 'The name of the repository (without the owner).'
     value: ${{ steps.get-repo-name.outputs.repo-name }}
@@ -39,3 +42,10 @@ runs:
       id: get-repo-url
       shell: bash
       run: echo "repo-url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}" >> "$GITHUB_OUTPUT"
+    - name: Set repository full name
+      id: set-full-name
+      shell: bash
+      env:
+        REPO_NAME: ${{ steps.get-repo-name.outputs.repo-name }}
+        REPO_OWNER: ${{ steps.get-repo-owner.outputs.repo-owner }}
+      run: echo "repo-full-name=${REPO_OWNER}/${REPO_NAME}" >> "$GITHUB_OUTPUT"

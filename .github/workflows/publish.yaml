@@ -70,9 +70,19 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v6
+        with:
+          repository: stairwaytowonderland/actions
+          path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
+          sparse-checkout: |
+            .github
+
       - name: Get auth token
         id: auth-token
-        uses: stairwaytowonderland/actions/.github/actions/auth-token-action@v1
+        uses: ./.github/actions/auth-token-action
         with:
           github-token: ${{ secrets.github-token }}
           app-private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}

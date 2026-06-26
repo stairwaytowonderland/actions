@@ -52,13 +52,16 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Checkout shared actions repo
         uses: actions/checkout@v6
         with:
           repository: stairwaytowonderland/actions
-          ref: ${{ inputs.ref }}
           path: ./.actions
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
           sparse-checkout: |
             .github
 
