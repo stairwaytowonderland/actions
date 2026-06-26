@@ -1,3 +1,9 @@
+## [1.248.0](https://github.com/stairwaytowonderland/actions/compare/v1.247.0...v1.248.0) (2026-06-26)
+
+### ✨ Features
+
+* update ([e83c3db](https://github.com/stairwaytowonderland/actions/commit/e83c3dbb652e6fc15af3f0e5e2156f207f5899d5))
+
 ## [1.247.0](https://github.com/stairwaytowonderland/actions/compare/v1.246.0...v1.247.0) (2026-06-26)
 
 ### ✨ Features
