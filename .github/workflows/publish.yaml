@@ -83,6 +83,6 @@ jobs:
         uses: stairwaytowonderland/node-semantic-release@v1
         with:
           publish: true
-          github-token: ${{ steps.auth-token.outputs.auth-token }}
+          github-token: ${{ steps.auth-token.outputs.token }}
           notes-b64: ${{ inputs.notes-b64 }}
           tag: ${{ steps.vars.outputs.tag }}
