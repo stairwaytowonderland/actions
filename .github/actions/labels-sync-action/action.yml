@@ -71,13 +71,13 @@ runs:
 
           const dependabotLabels = [
             { name: "dependencies", color: "F0FFFF", description: "Related to dependabot dependencies" },
-            { name: "deps:go", color: "16e2e2", description: "Related to Go dependencies" },
-            { name: "deps:ruby", color: "cc342d", description: "Related to Ruby dependencies" },
-            { name: "deps:python", color: "306998", description: "Related to Python dependencies" },
-            { name: "deps:docker", color: "21ceff", description: "Related to Docker dependencies" },
-            { name: "deps:terraform", color: "7b42bc", description: "Related to Terraform dependencies" },
-            { name: "deps:javascript", color: "168700", description: "Related to JavaScript dependencies" },
-            { name: "deps:github-actions", color: "000000", description: "Related to GitHub Actions dependencies" }
+            { name: "depsgo", color: "16e2e2", description: "Related to Go dependencies" },
+            { name: "depsruby", color: "cc342d", description: "Related to Ruby dependencies" },
+            { name: "depspython", color: "306998", description: "Related to Python dependencies" },
+            { name: "depsdocker", color: "21ceff", description: "Related to Docker dependencies" },
+            { name: "depsterraform", color: "7b42bc", description: "Related to Terraform dependencies" },
+            { name: "depsjavascript", color: "168700", description: "Related to JavaScript dependencies" },
+            { name: "depsgithub_actions", color: "000000", description: "Related to GitHub Actions dependencies" }
           ];
 
           const otherLabels = [

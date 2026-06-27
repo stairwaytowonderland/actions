@@ -24,7 +24,7 @@ updates:
       # internal: "daily" # Can be daily, weekly, or monthly
       interval: 'weekly'
       timezone: 'America/Chicago'
-    labels: ['dependencies', 'deps:github-actions']
+    labels: ['dependencies', 'github_actions']
     commit-message:
       prefix: 'ci'
       include: 'scope' # Automatically appends "(deps)" -> chore(deps):
@@ -54,7 +54,7 @@ updates:
       # internal: "daily" # Can be daily, weekly, or monthly
       interval: 'weekly'
       timezone: 'America/Chicago'
-    labels: ['dependencies', 'deps:github-actions']
+    labels: ['dependencies', 'github_actions']
     commit-message:
       prefix: 'chore'
       include: 'scope' # Automatically appends "(deps)" -> ci(deps):
@@ -74,7 +74,7 @@ updates:
   #   ignore:
   #     - dependency-name: '*'
   #       update-types: ['version-update:semver-major']
-  #   labels: ['dependencies', 'deps:javascript']
+  #   labels: ['dependencies', 'javascript']
   #   groups:
   #     npm:
   #       applies-to: version-updates
@@ -88,7 +88,7 @@ updates:
   #   schedule:
   #     interval: 'weekly'
   #     timezone: 'America/Chicago'
-  #   labels: ['dependencies', 'deps:python']
+  #   labels: ['dependencies', 'python']
   #   open-pull-requests-limit: 5
   #   rebase-strategy: 'auto'
   #   assignees: ['andrewhaller']
@@ -97,7 +97,7 @@ updates:
   #   schedule:
   #     interval: 'weekly'
   #     timezone: 'America/Chicago'
-  #   labels: ['dependencies', 'deps:docker']
+  #   labels: ['dependencies', 'docker']
   #   open-pull-requests-limit: 5
   #   rebase-strategy: 'auto'
   #   assignees: ['andrewhaller']
@@ -108,7 +108,7 @@ updates:
   #   schedule:
   #     interval: 'weekly'
   #     timezone: 'America/Chicago'
-  #   labels: ['dependencies', 'deps:terraform']
+  #   labels: ['dependencies', 'terraform']
   #   open-pull-requests-limit: 5
   #   rebase-strategy: 'auto'
   #   assignees: ['andrewhaller']
