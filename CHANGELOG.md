@@ -1,3 +1,9 @@
+## [1.250.0](https://github.com/stairwaytowonderland/actions/compare/v1.249.3...v1.250.0) (2026-06-27)
+
+### ✨ Features
+
+* update default label names in labels actions (create, sync) ([7f3830f](https://github.com/stairwaytowonderland/actions/commit/7f3830fa26eaf7e4f955724a44ac52bb5fb9f500))
+
 ## [1.249.3](https://github.com/stairwaytowonderland/actions/compare/v1.249.2...v1.249.3) (2026-06-26)
 
 ### 🔄 CI/CD
