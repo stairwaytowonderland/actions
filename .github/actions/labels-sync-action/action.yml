@@ -45,9 +45,9 @@ runs:
             { name: "duplicate", color: "cfd3d7", description: "This issue or pull request already exists" },
             { name: "enhancement", color: "a2eeef", description: "New feature or request" },
             { name: "good first issue", color: "7057ff", description: "Good for newcomers" },
-            { name: "help wanted", color: "008a7f", description: "Extra attention is needed" },
-            { name: "invalid", color: "e4e669", description: "This doesn't seem right" },
-            { name: "question", color: "d876e3", description: "Further information is requested" },
+            { name: "help wanted", color: "baf165", description: "Extra attention is needed" },
+            { name: "invalid", color: "fff9d9", description: "This doesn't seem right" },
+            { name: "question", color: "ff2bbf", description: "Further information is requested" },
             { name: "wontfix", color: "ffffff", description: "This will not be worked on" }
           ];
 
@@ -64,9 +64,9 @@ runs:
           ];
 
           const priorityLabels = [
-            { name: "priority:low", color: "baf165", description: "Low priority" },
-            { name: "priority:medium", color: "141c90", description: "Medium priority" },
-            { name: "priority:high", color: "ff2bbf", description: "High priority" }
+            { name: "priority:low", color: "f0fcf0", description: "Low priority" },
+            { name: "priority:medium", color: "eff9ff", description: "Medium priority" },
+            { name: "priority:high", color: "fff6fc", description: "High priority" }
           ];
 
           const dependabotLabels = [
@@ -84,7 +84,8 @@ runs:
             { "name": "poc", "color": "0fd40a", "description": "Proof of concept" },
             { "name": "task", "color": "003fff", "description": "General task" },
             { "name": "security", "color": "fbca04", "description": "Something is a security risk" },
-            { "name": "uncategorized", "color": "800949", "description": "Needs to be categorized" }
+            { "name": "information", "color": "141c90", "description": "More information required" },
+            { "name": "uncategorized", "color": "fcf9ff", "description": "Needs to be categorized" }
           ];
 
           const targetLabels = [

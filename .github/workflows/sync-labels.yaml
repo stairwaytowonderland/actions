@@ -60,14 +60,13 @@ jobs:
             actions
             cpython
             node-semantic-release
-            repository-create
             resume-converter
             simple-workflow-dispatch
             ^cloudflare-.*$
             ^python-.*$
             ^repository-.*$
-            ^.*-template$
           repos-ignore: |
             ^\.github.*$
             ^deprecated-?.*$
             ^personal-?.*$
+            ^.*-template$

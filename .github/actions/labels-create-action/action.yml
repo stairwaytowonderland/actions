@@ -32,9 +32,9 @@ inputs:
     description: 'JSON array of priority label objects (name, color, description)'
     default: |
       [
-        { "name": "priority:high", "color": "FF2BBF", "description": "High priority" },
-        { "name": "priority:medium", "color": "141C90", "description": "Medium priority" },
-        { "name": "priority:low", "color": "BAF165", "description": "Low priority" }
+        { "name": "priority:high", "color": "FF6FC", "description": "High priority" },
+        { "name": "priority:medium", "color": "EFF9FF", "description": "Medium priority" },
+        { "name": "priority:low", "color": "F0FCF0", "description": "Low priority" }
       ]
   default-labels:
     description: 'JSON array of default label objects (name, color, description)'
@@ -45,9 +45,9 @@ inputs:
         { "name": "duplicate", "color": "CFD3D7", "description": "This issue or pull request already exists" },
         { "name": "enhancement", "color": "A2EEEF", "description": "New feature or request" },
         { "name": "good first issue", "color": "7057FF", "description": "Good for newcomers" },
-        { "name": "help wanted", "color": "008A7F", "description": "Extra attention is needed" },
-        { "name": "invalid", "color": "E4E669", "description": "This doesn't seem right" },
-        { "name": "question", "color": "D876E3", "description": "Further information is requested" },
+        { "name": "help wanted", "color": "BAF165", "description": "Extra attention is needed" },
+        { "name": "invalid", "color": "FFF9D9", "description": "This doesn't seem right" },
+        { "name": "question", "color": "FF2BBF", "description": "Further information is requested" },
         { "name": "wontfix", "color": "FFFFFF", "description": "This will not be worked on" }
       ]
   dependabot-labels:
@@ -70,7 +70,8 @@ inputs:
         { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
         { "name": "task", "color": "003FFF", "description": "General task" },
         { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
-        { "name": "uncategorized", "color": "800949", "description": "Needs to be categorized" }
+        { "name": "information", "color": "141C90", "description": "More information required" },
+        { "name": "uncategorized", "color": "FCF9FF", "description": "Needs to be categorized" }
       ]
   effort-map:
     description: 'JSON object mapping effort values to normalized label names'
