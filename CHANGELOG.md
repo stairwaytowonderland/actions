@@ -1,3 +1,9 @@
+## [1.251.0](https://github.com/stairwaytowonderland/actions/compare/v1.250.0...v1.251.0) (2026-06-30)
+
+### ✨ Features
+
+* update workflow and dependabot ([05c7d96](https://github.com/stairwaytowonderland/actions/commit/05c7d962e7b5120d8681ae45783ce0b6f6259c11))
+
 ## [1.250.0](https://github.com/stairwaytowonderland/actions/compare/v1.249.3...v1.250.0) (2026-06-27)
 
 ### ✨ Features
