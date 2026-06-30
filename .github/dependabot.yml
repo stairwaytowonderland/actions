@@ -27,7 +27,7 @@ updates:
     # labels: ['dependencies', 'github_actions']
     commit-message:
       prefix: 'ci'
-      include: 'scope' # Automatically appends "(deps)" -> chore(deps):
+      include: 'scope' # Automatically appends "(deps)" -> ci(deps):
     groups:
       github-actions:
         applies-to: version-updates
@@ -41,6 +41,7 @@ updates:
     # Prevent Dependabot from checking workflows inside these paths
     exclude-paths:
       - '.github/actions/**'
+      - '.github/workflows/linter.yaml'
       - '.github/workflows/release*.yaml'
       - '.github/workflows/publish.yaml'
       - '.github/workflows/pre-commit.yaml'
@@ -57,7 +58,7 @@ updates:
     # labels: ['dependencies', 'github_actions']
     commit-message:
       prefix: 'chore'
-      include: 'scope' # Automatically appends "(deps)" -> ci(deps):
+      include: 'scope' # Automatically appends "(deps)" -> chore(deps):
     groups:
       github-actions:
         applies-to: version-updates
