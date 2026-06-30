@@ -42,6 +42,7 @@ updates:
     exclude-paths:
       - '.github/actions/**'
       - '.github/workflows/linter.yaml'
+      - '.github/workflows/licensed.yaml'
       - '.github/workflows/release*.yaml'
       - '.github/workflows/publish.yaml'
       - '.github/workflows/pre-commit.yaml'
