@@ -1,3 +1,9 @@
+## [1.254.0](https://github.com/stairwaytowonderland/actions/compare/v1.253.0...v1.254.0) (2026-06-30)
+
+### ✨ Features
+
+* update label colors ([635c316](https://github.com/stairwaytowonderland/actions/commit/635c3161d61fa59f7a22a3623bee045455b14a21))
+
 ## [1.253.0](https://github.com/stairwaytowonderland/actions/compare/v1.252.0...v1.253.0) (2026-06-30)
 
 ### ✨ Features
