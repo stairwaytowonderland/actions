@@ -70,7 +70,7 @@ inputs:
         { "name": "poc", "color": "0FD40A", "description": "Proof of concept" },
         { "name": "task", "color": "003FFF", "description": "General task" },
         { "name": "security", "color": "FBCA04", "description": "Something is a security risk" },
-        { "name": "information", "color": "141C90", "description": "More information required" },
+        { "name": "more information", "color": "141C90", "description": "More information required" },
         { "name": "uncategorized", "color": "FCF9FF", "description": "Needs to be categorized" }
       ]
   effort-map:

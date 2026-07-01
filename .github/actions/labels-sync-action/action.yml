@@ -84,7 +84,7 @@ runs:
             { "name": "poc", "color": "0fd40a", "description": "Proof of concept" },
             { "name": "task", "color": "003fff", "description": "General task" },
             { "name": "security", "color": "fbca04", "description": "Something is a security risk" },
-            { "name": "information", "color": "141c90", "description": "More information required" },
+            { "name": "more information", "color": "141c90", "description": "More information required" },
             { "name": "uncategorized", "color": "fcf9ff", "description": "Needs to be categorized" }
           ];
 
