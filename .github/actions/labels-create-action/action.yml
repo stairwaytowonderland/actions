@@ -40,13 +40,13 @@ inputs:
     description: 'JSON array of default label objects (name, color, description)'
     default: |
       [
-        { "name": "bug", "color": "FF0000", "description": "Something isn't working" },
+        { "name": "bug", "color": "FF0000", "description": "Something isn\u0027t working" },
         { "name": "documentation", "color": "0075CA", "description": "Improvements or additions to documentation" },
         { "name": "duplicate", "color": "CFD3D7", "description": "This issue or pull request already exists" },
         { "name": "enhancement", "color": "A2EEEF", "description": "New feature or request" },
         { "name": "good first issue", "color": "7057FF", "description": "Good for newcomers" },
         { "name": "help wanted", "color": "BAF165", "description": "Extra attention is needed" },
-        { "name": "invalid", "color": "FFF9D9", "description": "This doesn't seem right" },
+        { "name": "invalid", "color": "FFF9D9", "description": "This doesn\u0027t seem right" },
         { "name": "question", "color": "FF2BBF", "description": "Further information is requested" },
         { "name": "wontfix", "color": "FFFFFF", "description": "This will not be worked on" }
       ]
