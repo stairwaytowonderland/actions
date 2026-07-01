@@ -16,9 +16,9 @@ inputs:
     description: 'JSON array of effort label objects (name, color, description)'
     default: |
       [
-        { "name": "effort:high", "color": "FA1070", "description": "High effort" },
-        { "name": "effort:medium", "color": "BFD4F2", "description": "Medium effort" },
-        { "name": "effort:low", "color": "ADFCC0", "description": "Low effort" }
+        { "name": "effort:high", "color": "FFF6FC", "description": "High effort" },
+        { "name": "effort:medium", "color": "EFF9FF", "description": "Medium effort" },
+        { "name": "effort:low", "color": "F0FCF0", "description": "Low effort" }
       ]
   impact-labels:
     description: 'JSON array of impact label objects (name, color, description)'
@@ -32,9 +32,9 @@ inputs:
     description: 'JSON array of priority label objects (name, color, description)'
     default: |
       [
-        { "name": "priority:high", "color": "FFF6FC", "description": "High priority" },
-        { "name": "priority:medium", "color": "EFF9FF", "description": "Medium priority" },
-        { "name": "priority:low", "color": "F0FCF0", "description": "Low priority" }
+        { "name": "priority:high", "color": "FA1070", "description": "High priority" },
+        { "name": "priority:medium", "color": "BFD4F2", "description": "Medium priority" },
+        { "name": "priority:low", "color": "ADFCC0", "description": "Low priority" }
       ]
   default-labels:
     description: 'JSON array of default label objects (name, color, description)'

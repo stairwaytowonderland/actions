@@ -52,9 +52,9 @@ runs:
           ];
 
           const effortLabels = [
-            { name: "effort:low", color: "adfcc0", description: "Requires minimal effort" },
-            { name: "effort:medium", color: "bfd4f2", description: "Requires moderate effort" },
-            { name: "effort:high", color: "fa1070", description: "Requires significant effort" }
+            { name: "effort:low", color: "f0fcf0", description: "Requires minimal effort" },
+            { name: "effort:medium", color: "eff9ff", description: "Requires moderate effort" },
+            { name: "effort:high", color: "fff6fc", description: "Requires significant effort" }
           ];
 
           const impactLabels = [
@@ -64,13 +64,13 @@ runs:
           ];
 
           const priorityLabels = [
-            { name: "priority:low", color: "f0fcf0", description: "Low priority" },
-            { name: "priority:medium", color: "eff9ff", description: "Medium priority" },
-            { name: "priority:high", color: "fff6fc", description: "High priority" }
+            { name: "priority:low", color: "adfcc0", description: "Low priority" },
+            { name: "priority:medium", color: "bfd4f2", description: "Medium priority" },
+            { name: "priority:high", color: "fa1070", description: "High priority" }
           ];
 
           const dependabotLabels = [
-            { name: "dependencies", color: "F0FFFF", description: "Related to dependabot dependencies" },
+            { name: "dependencies", color: "f0ffff", description: "Related to dependabot dependencies" },
             { name: "go", color: "16e2e2", description: "Related to Go dependencies" },
             { name: "ruby", color: "cc342d", description: "Related to Ruby dependencies" },
             { name: "python", color: "306998", description: "Related to Python dependencies" },
