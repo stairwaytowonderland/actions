@@ -1,3 +1,9 @@
+## [1.263.0](https://github.com/stairwaytowonderland/actions/compare/v1.262.0...v1.263.0) (2026-07-03)
+
+### ✨ Features
+
+* is-first-release-tag ([19cfd09](https://github.com/stairwaytowonderland/actions/commit/19cfd09981f57aa3b2a338341866556fa3c7aac6))
+
 ## [1.262.0](https://github.com/stairwaytowonderland/actions/compare/v1.261.0...v1.262.0) (2026-07-03)
 
 ### ✨ Features
