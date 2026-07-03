@@ -1,0 +1,35 @@
+name: Check if has release tags
+description: 'Reusable action to check if the repository has any release tags.'
+
+# Ref: https://haya14busa.github.io/github-action-brandings/
+branding:
+  icon: tag
+  color: red
+
+outputs:
+  has-release-tags:
+    description: 'Whether the repository has any release tags'
+    value: ${{ steps.release-tag.outputs.result }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout code
+      uses: actions/checkout@v7
+
+    - name: Detect release tags
+      id: release-tag
+      if: ${{ steps.set-vars.outputs.is-tag-create-workflow == 'true' }}
+      uses: actions/github-script@v9
+      with:
+        script: |
+          const { owner, repo } = context.repo
+          const { data: tags } = await github.rest.repos.listTags({
+            owner,
+            repo,
+            per_page: 1,
+          })
+          const hasReleaseTags = tags.length > 0
+          core.info(`has-release-tags=${hasReleaseTags}`)
+          # core.setOutput('has-release-tags', hasReleaseTags ? 'true' : 'false')
+          return hasReleaseTags ? 'true' : 'false'
