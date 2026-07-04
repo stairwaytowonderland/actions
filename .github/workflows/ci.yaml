@@ -47,8 +47,9 @@ on:
         type: string
 
 concurrency:
-  group: '${{ github.repository_id }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}'
-  cancel-in-progress: true
+  # group: '${{ github.repository_id }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}'
+  group: ${{ github.event_name == 'push' && format('{0}-{1}', github.repository_id, github.workflow) || '' }}
+  cancel-in-progress: ${{ github.event_name == 'push' && true || false }}
 
 permissions:
   actions: write
