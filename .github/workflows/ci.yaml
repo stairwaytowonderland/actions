@@ -89,10 +89,3 @@ jobs:
     with:
       tag: ${{ inputs.tag || github.ref_name }}
       notes-b64: ${{ inputs.notes-b64 }}
-
-  normalize-majorver:
-    name: Normalize Major Version Tag
-    # if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_call' && inputs.normalize-majorver == true) }}
-    if: github.event_name == 'push'
-    needs: [publish]
-    uses: ./.github/workflows/normalize-majorver.yaml
