@@ -16,4 +16,4 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: stairwaytowonderland/normalize-majorver@v1
+      - uses: stairwaytowonderland/normalize-majorver@main
