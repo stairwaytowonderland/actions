@@ -1,3 +1,9 @@
+## [1.267.0](https://github.com/stairwaytowonderland/actions/compare/v1.266.0...v1.267.0) (2026-07-04)
+
+### ✨ Features
+
+* ci updates ([ed273f3](https://github.com/stairwaytowonderland/actions/commit/ed273f358412220fc11772fed27c7bd836021531))
+
 ## [1.266.0](https://github.com/stairwaytowonderland/actions/compare/v1.265.0...v1.266.0) (2026-07-04)
 
 ### ✨ Features
