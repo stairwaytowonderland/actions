@@ -46,10 +46,10 @@ on:
         description: 'Base64-encoded release notes (Markdown)'
         type: string
 
-# concurrency:
-#   # group: '${{ github.repository_id }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}'
-#   group: ${{ github.event_name == 'push' && format('{0}-{1}', github.repository_id, github.workflow) || '' }}
-#   cancel-in-progress: ${{ github.event_name != 'push' }}
+concurrency:
+  # group: '${{ github.repository_id }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}'
+  group: ${{ github.event_name == 'push' && format('{0}-{1}-{2}-{3}', github.repository_id, github.workflow, github.event_name, github.ref) || github.run_id }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 permissions:
   actions: write
