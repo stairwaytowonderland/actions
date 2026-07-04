@@ -3,7 +3,7 @@ name: Normalize Major Version Tag
 on:
   workflow_call:
   workflow_run:
-    workflows: ['Publish a Release']
+    workflows: ['CI']
     types: [completed]
 
 concurrency:
@@ -19,6 +19,7 @@ permissions:
 jobs:
   normalize-majorver:
     name: Normalize Major Version Tag
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
