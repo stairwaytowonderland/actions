@@ -2,9 +2,6 @@ name: Normalize Major Version Tag
 
 on:
   workflow_call:
-  workflow_run:
-    workflows: ['CI']
-    types: [completed]
 
 permissions:
   contents: write
@@ -15,9 +12,8 @@ permissions:
 jobs:
   normalize-majorver:
     name: Normalize Major Version Tag
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: stairwaytowonderland/normalize-majorver@v1
+      - uses: stairwaytowonderland/normalize-majorver@main

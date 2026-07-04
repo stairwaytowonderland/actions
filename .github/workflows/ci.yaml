@@ -23,6 +23,9 @@ on:
       publish:
         description: 'Whether to run in publish mode.'
         type: boolean
+      normalize-majorver:
+        description: 'Whether to normalize the major version tag after a successful release.'
+        type: boolean
       tag:
         description: 'Existing release tag to publish (e.g. v1.2.3)'
         type: string
@@ -38,6 +41,9 @@ on:
         default: true
       publish:
         description: 'Whether to run in publish mode.'
+        type: boolean
+      normalize-majorver:
+        description: 'Whether to normalize the major version tag (e.g. v1.2.3 → v1).'
         type: boolean
       tag:
         description: 'Existing release tag to publish (e.g. v1.2.3)'
@@ -89,3 +95,9 @@ jobs:
     with:
       tag: ${{ inputs.tag || github.ref_name }}
       notes-b64: ${{ inputs.notes-b64 }}
+
+  normalize-majorver:
+    name: Normalize Major Version Tag
+    if: inputs.normalize-majorver == true
+    needs: [publish]
+    uses: ./.github/workflows/normalize-majorver.yaml
