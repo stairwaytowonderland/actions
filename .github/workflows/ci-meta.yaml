@@ -20,6 +20,18 @@ on:
       has-release-tags:
         description: 'Whether the repository has any release tags.'
         value: ${{ jobs.meta.outputs.has-release-tags }}
+      repo-owner:
+        description: 'The owner of the repository.'
+        value: ${{ jobs.meta.outputs.repo-owner }}
+      repo-name:
+        description: 'The name of the repository.'
+        value: ${{ jobs.meta.outputs.repo-name }}
+      repo-full-name:
+        description: 'The full name of the repository (owner/name).'
+        value: ${{ jobs.meta.outputs.repo-full-name }}
+      repo-url:
+        description: 'The URL of the repository.'
+        value: ${{ jobs.meta.outputs.repo-url }}
 
 permissions:
   contents: read
@@ -35,6 +47,10 @@ jobs:
       is-release-workflow: ${{ steps.set-vars.outputs.is-release-workflow }}
       is-publish-workflow: ${{ steps.set-vars.outputs.is-publish-workflow }}
       has-release-tags: ${{ steps.release-tags.outputs.has-release-tags }}
+      repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
+      repo-name: ${{ steps.repo-info.outputs.repo-name }}
+      repo-full-name: ${{ steps.repo-info.outputs.repo-full-name }}
+      repo-url: ${{ steps.repo-info.outputs.repo-url }}
 
     steps:
       - name: Check if this is the first commit
