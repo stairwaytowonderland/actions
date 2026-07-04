@@ -47,7 +47,7 @@ on:
         type: string
 
 concurrency:
-  group: ${{ github.event_name == 'push' && format('{0}-{1}-{2}-{3}', github.repository_id, github.workflow, github.event_name, github.ref || github.run_id) }}
+  group: ${{ format('{0}-{1}-{2}-{3}', github.repository_id, github.workflow, github.event_name, github.ref || github.run_id) }}
   cancel-in-progress: ${{ github.event_name == 'push' }}
 
 permissions:
