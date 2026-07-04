@@ -10,9 +10,6 @@ on:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
         default: 'v1'
-    secrets:
-      github-token:
-        description: 'GitHub Personal Access Token with repo scope for creating releases.'
     outputs:
       is-release-workflow:
         description: 'Whether this workflow is a release workflow.'
