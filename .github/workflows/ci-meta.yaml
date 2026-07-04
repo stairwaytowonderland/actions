@@ -1,15 +1,6 @@
-name: CI
+name: CI Meta
 
 on:
-  workflow_dispatch:
-    inputs:
-      publish:
-        description: 'Whether to publish a new release'
-        type: boolean
-      action-ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        type: string
-        default: 'v1'
   workflow_call:
     inputs:
       publish:
@@ -38,10 +29,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: write
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 # Use PAT instead of GITHUB_TOKEN to cause semantic-release to trigger tag pipeline when tag is created.
 # 'Fine-grained token' repo permissions: Contents
@@ -50,8 +38,6 @@ jobs:
   meta:
     name: Meta
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     outputs:
       is-release-workflow: ${{ steps.set-vars.outputs.is-release-workflow }}
       is-publish-workflow: ${{ steps.set-vars.outputs.is-publish-workflow }}
