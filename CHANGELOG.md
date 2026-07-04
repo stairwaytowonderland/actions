@@ -1,3 +1,9 @@
+## [1.268.0](https://github.com/stairwaytowonderland/actions/compare/v1.267.0...v1.268.0) (2026-07-04)
+
+### ✨ Features
+
+* add normalize-majorver workflow ([bf3e054](https://github.com/stairwaytowonderland/actions/commit/bf3e054fa59ab62495404bf451be10573cba72a1))
+
 ## [1.267.0](https://github.com/stairwaytowonderland/actions/compare/v1.266.0...v1.267.0) (2026-07-04)
 
 ### ✨ Features
