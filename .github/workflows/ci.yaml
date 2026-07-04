@@ -89,12 +89,3 @@ jobs:
     with:
       tag: ${{ inputs.tag || github.ref_name }}
       notes-b64: ${{ inputs.notes-b64 }}
-
-  normalize-majorver:
-    name: Normalize Major Version Tag
-    needs: [publish]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: stairwaytowonderland/normalize-majorver@v1

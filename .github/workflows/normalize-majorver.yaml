@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  workflow_call:
+  workflow_run:
+    workflows: ['Publish a Release']
+    types: [completed]
+
+concurrency:
+  group: '${{ github.repository_id }}-${{ github.workflow }}'
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+# Use PAT instead of GITHUB_TOKEN to cause semantic-release to trigger tag pipeline when tag is created.
+# 'Fine-grained token' repo permissions: Contents
+
+jobs:
+  normalize-majorver:
+    name: Normalize Major Version Tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: stairwaytowonderland/normalize-majorver@v1
