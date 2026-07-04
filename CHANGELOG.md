@@ -1,3 +1,9 @@
+## [1.266.0](https://github.com/stairwaytowonderland/actions/compare/v1.265.0...v1.266.0) (2026-07-04)
+
+### ✨ Features
+
+* ci-meta ([efac35f](https://github.com/stairwaytowonderland/actions/commit/efac35f9acb2be7126484157032922cddc011f00))
+
 ## [1.265.0](https://github.com/stairwaytowonderland/actions/compare/v1.264.0...v1.265.0) (2026-07-04)
 
 ### ✨ Features
