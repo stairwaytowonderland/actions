@@ -24,10 +24,6 @@ on:
         description: 'Whether the repository has any release tags.'
         value: ${{ jobs.meta.outputs.has-release-tags }}
 
-concurrency:
-  group: '${{ github.repository_id }}-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}'
-  cancel-in-progress: true
-
 permissions:
   contents: read
 
