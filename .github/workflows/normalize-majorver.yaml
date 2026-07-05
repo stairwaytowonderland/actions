@@ -20,4 +20,4 @@ jobs:
     steps:
       - uses: stairwaytowonderland/normalize-majorver@main
         with:
-          github-token: ${{ secrets.github-token || '' }}
+          github-token: ${{ secrets.github-token || github.token }}
