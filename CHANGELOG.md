@@ -1,7 +1,5 @@
 ## [1.303.0](https://github.com/stairwaytowonderland/actions/compare/v1.302.0...v1.303.0) (2026-07-05)
 
-x
-
 ### ✨ Features
 
 * testing package changes ([f209f15](https://github.com/stairwaytowonderland/actions/commit/f209f1548a01c553e33c0f4c48b2513d83686527))

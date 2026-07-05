@@ -64,7 +64,7 @@ jobs:
 
       - name: Check for changed files
         id: has-paths
-        uses: ./.actions/changed-files-action
+        uses: ./.actions/.github/actions/changed-files-action
         with:
           paths: ${{ inputs.paths }}
           ignore-authors: ${{ inputs.ignore-authors }}
