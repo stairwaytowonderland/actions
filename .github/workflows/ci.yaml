@@ -81,7 +81,7 @@ jobs:
     permissions:
       contents: read
     with:
-      action-ref: ${{ inputs.action-ref || 'main' }}
+      action-ref: ${{ inputs.action-ref }}
       publish: ${{ inputs.publish == true || (inputs.tag != '' && inputs.notes-b64 != '') }}
 
   release:
@@ -91,7 +91,7 @@ jobs:
     uses: ./.github/workflows/release.yaml
     secrets: inherit
     with:
-      action-ref: ${{ inputs.action-ref || 'main' }}
+      action-ref: ${{ inputs.action-ref }}
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags == 'false' && 'ci.yml' || '' }}
       normalize-majorver: ${{ inputs.normalize-majorver == true }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
@@ -105,7 +105,7 @@ jobs:
       contents: write
     secrets: inherit
     with:
-      action-ref: ${{ inputs.action-ref || 'main' }}
+      action-ref: ${{ inputs.action-ref }}
       tag: ${{ inputs.tag || github.ref_name }}
       notes-b64: ${{ inputs.notes-b64 }}
 
