@@ -80,7 +80,7 @@ jobs:
           ref: ${{ inputs.action-ref }}
           persist-credentials: false
           sparse-checkout: |
-            .github
+            .github/actions
 
       - name: Detect existing release tags
         id: release-tags
