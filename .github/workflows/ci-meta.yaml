@@ -85,23 +85,4 @@ jobs:
       - name: Detect existing release tags
         id: release-tags
         if: ${{ steps.set-vars.outputs.is-release-workflow == 'true' }}
-        uses: actions/github-script@v9
-        with:
-          script: |
-            const { owner, repo } = context.repo
-            const { data: tags } = await github.rest.repos.listTags({
-              owner,
-              repo,
-              per_page: 1,
-            })
-            const hasReleaseTags = tags.length > 0
-            core.info(`has-release-tags=${hasReleaseTags}`)
-            core.setOutput('has-release-tags', hasReleaseTags ? 'true' : 'false')
-
-      - name: Show vars
-        if: ${{ steps.set-vars.outputs.is-publish-workflow == 'true' }}
-        run: |
-          echo "is-release-workflow=${{ steps.set-vars.outputs.is-release-workflow == 'true' }}"
-          echo "is-publish-workflow=${{ steps.set-vars.outputs.is-publish-workflow == 'true' }}"
-          echo "has-release-tags=${{ steps.release-tags.outputs.has-release-tags == 'true' }}"
-          echo "github.ref=${{ github.ref }}"
+        uses: ./.actions/.github/actions/has-tag-action

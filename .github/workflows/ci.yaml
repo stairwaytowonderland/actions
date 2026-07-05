@@ -29,6 +29,9 @@ on:
       notes-b64:
         description: 'Base64-encoded release notes (Markdown)'
         type: string
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with repo scope for creating releases.'
 
   workflow_dispatch:
     inputs:
@@ -97,3 +100,5 @@ jobs:
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
       contents: write
+    secrets:
+      github-token: ${{ secrets.github-token || '' }}
