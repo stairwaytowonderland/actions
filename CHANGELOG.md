@@ -1,3 +1,10 @@
+## [1.305.0](https://github.com/stairwaytowonderland/actions/compare/v1.304.0...v1.305.0) (2026-07-05)
+
+### ✨ Features
+
+* testing package changes ([178115c](https://github.com/stairwaytowonderland/actions/commit/178115c93036abee9ef3cc239cc3fae1d19511c1))
+* testing package changes ([a4a184a](https://github.com/stairwaytowonderland/actions/commit/a4a184a7a0a87237d7d51c3aced5e38a75f6a67e))
+
 ## [1.304.0](https://github.com/stairwaytowonderland/actions/compare/v1.303.0...v1.304.0) (2026-07-05)
 
 ### ✨ Features
