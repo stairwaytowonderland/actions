@@ -76,7 +76,7 @@ jobs:
     permissions:
       contents: read
     with:
-      action-ref: ${{ inputs.action-ref }}
+      action-ref: main
       publish: ${{ inputs.publish == true || (inputs.tag != '' && inputs.notes-b64 != '') }}
 
   release:
