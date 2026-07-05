@@ -1,0 +1,151 @@
+name: Get Authorization Token
+description: 'Reusable action to get an authorization token either from a GitHub App or a user (or personal) access token.'
+
+inputs:
+  paths:
+    description: 'The paths to check for changes. If any of these paths have changed, the action will output a list of changed files.'
+    # default: |
+    #   package.json
+    #   package-lock.json
+  ignore-authors:
+    description: 'A newline delimited list of commit authors to ignore when checking for changes (e.g. semantic-release-bot and github-actions[bot]).'
+    # default: |
+    #   github-actions[bot]
+    #   semantic-release-bot
+  ignore-events:
+    description: 'A newline delimited list of GitHub event names to ignore when checking for changes (e.g. push, pull_request, workflow_dispatch).'
+outputs:
+  changed-files:
+    description: 'A newline delimited list of changed files.'
+    value: ${{ steps.changed-files.outputs.changed-files }}
+  changed-files-filtered:
+    description: 'A newline delimited list of changed files that match the specified paths and are not authored by ignored authors.'
+    value: ${{ steps.intersect-files.outputs.intersected-files }}
+  trigger-update:
+    description: 'Whether to trigger an update based on the changed files and ignored authors.'
+    value: ${{ steps.has-paths.outputs.trigger-update == 'true' && steps.has-authors.outputs.trigger-update == 'true' }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check event
+      id: check-event
+      shell: bash
+      run: |
+        if [ -z "$IGNORE_EVENTS" ]; then
+          echo "is-ignore-event=false" >> $GITHUB_OUTPUT
+        elif echo "$IGNORE_EVENTS" | grep -qE "^${GITHUB_EVENT_NAME}$"; then
+          echo "is-ignore-event=true" >> $GITHUB_OUTPUT
+        else
+          echo "is-ignore-event=false" >> $GITHUB_OUTPUT
+        fi
+      env:
+        IGNORE_EVENTS: ${{ inputs.ignore-events }}
+
+    - name: Get changed files
+      id: changed-files
+      if: steps.check-event.outputs.is-ignore-event != 'true'
+      shell: bash
+      run: |
+        echo "CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)"
+        if [ -n "$CHANGED_FILES" ]; then
+          echo "::notice::Changed files: $CHANGED_FILES"
+          echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+        else
+          echo "::warning::No changed files detected."
+        fi
+      env:
+        REF_BEFORE: ${{ github.event.before }}
+        REF_AFTER: ${{ github.event.after }}
+
+    - name: Get specified paths
+      id: specified-paths
+      if: steps.check-event.outputs.is-ignore-event != 'true'
+      shell: bash
+      run: |
+        if [ -n "$SPECIFIED_PATHS" ]; then
+          echo "::notice::Paths to check: $SPECIFIED_PATHS"
+          echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
+        else
+          echo "::warning::No paths specified to check."
+        fi
+      env:
+        SPECIFIED_PATHS: ${{ inputs.paths }}
+
+    - name: Determine if workflow should run based on changed paths
+      id: has-paths
+      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
+      shell: bash
+      run: |
+        FILES=()
+        SHOULD_RUN=false
+        echo "::group::Checking commits for changes to specified paths"
+        echo "Changed files: $CHANGED_FILES"
+        echo "Paths to check:"
+        echo "$SPECIFIED_PATHS"
+        for path in $SPECIFIED_PATHS; do
+          echo "Checking path: $path"
+          if echo "$CHANGED_FILES" | grep -qE "^$path$"; then
+            echo "::notice::Found change to path: $path"
+            FILES+=("$path")
+            SHOULD_RUN=true
+            break
+          fi
+        done
+        if [ "$SHOULD_RUN" != 'true' ]; then
+          echo "::warning::No changes found for specified paths."
+        fi
+        echo "::endgroup::"
+        echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
+      env:
+        SPECIFIED_PATHS: ${{ steps.specified-paths.outputs.paths }}
+        CHANGED_FILES: ${{ steps.changed-files.outputs.changed-files }}
+
+    - name: Determine if workflow should run based on commit authors
+      id: has-authors
+      if: steps.check-event.outputs.is-ignore-event != 'true'
+      shell: bash
+      run: |
+        FILES=()
+        SHOULD_RUN=true
+        if [ -z "$IGNORE_AUTHORS" ]; then
+          echo "::notice::No authors specified to ignore, skipping author check."
+          echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        echo "::group::Checking commits for ignored authors"
+        AUTHORS=$(git log -1 --pretty=format:'%an')
+        echo "Commit authors: $AUTHORS"
+        echo "Authors to ignore:"
+        echo "$IGNORE_AUTHORS"
+        for author in $IGNORE_AUTHORS; do
+          echo "Checking author: $author"
+          if echo "$AUTHORS" | grep -qE "^$author$"; then
+            echo "::notice::Latest commit authored by ignored author: $author"
+            SHOULD_RUN=false
+            break
+          else
+            FILES+=("$author")
+          fi
+        done
+        if [ "$SHOULD_RUN" = 'true' ]; then
+          echo "::notice::No ignored authors found in latest commit."
+        fi
+        echo "::endgroup::"
+        echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
+      env:
+        IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
+
+    - name: Intersect filtered files from paths and authors
+      id: intersect-files
+      if: steps.check-event.outputs.is-ignore-event != 'true'
+      shell: bash
+      env:
+        PATHS_FILES: ${{ steps.has-paths.outputs.filtered-files }}
+        AUTHORS_FILES: ${{ steps.has-authors.outputs.filtered-files }}
+      run: |
+        INTERSECTED_FILES=$(comm -12 <(echo "$PATHS_FILES" | sort) <(echo "$AUTHORS_FILES" | sort))
+        echo "Intersected files: $INTERSECTED_FILES"
+        echo "intersected-files=$INTERSECTED_FILES" >> $GITHUB_OUTPUT

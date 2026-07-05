@@ -21,6 +21,9 @@ on:
         default: |
           github-actions[bot]
           semantic-release-bot
+      action-ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
     secrets:
       github-token:
         description: 'GitHub Personal Access Token with repo scope for checking commits.'
@@ -37,7 +40,7 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     outputs:
-      trigger-update: ${{ (github.event_name != 'push' && steps.has-paths.outputs.trigger-update == 'true' && steps.has-authors.outputs.trigger-update == 'true') || (github.event_name == 'push' && steps.has-authors.outputs.trigger-update == 'true') }}
+      trigger-update: ${{ steps.has-paths.outputs.trigger-update == 'true' }}
 
     steps:
       - name: Checkout code
@@ -47,99 +50,23 @@ jobs:
           fetch-depth: 2
           persist-credentials: false
 
-      - name: Check if push event
-        id: check-event
-        run: |
-          echo "is-push=${IS_PUSH}" >> $GITHUB_OUTPUT
-          echo "::notice::GitHub event name (github.event_name): '${GITHUB_EVENT_NAME}'"
-        env:
-          IS_PUSH: ${{ github.event_name == 'push' }}
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v7
+        with:
+          repository: stairwaytowonderland/actions
+          path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
+          sparse-checkout: |
+            .github/actions
 
-      - name: Get changed files
-        id: changed-files
-        if: steps.check-event.outputs.is-push != 'true'
-        run: |
-          echo "CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)"
-          if [ -n "$CHANGED_FILES" ]; then
-            echo "::notice::Changed files: $CHANGED_FILES"
-            echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
-          else
-            echo "::warning::No changed files detected."
-          fi
-        env:
-          REF_BEFORE: ${{ github.event.before }}
-          REF_AFTER: ${{ github.event.after }}
-
-      - name: Get specified paths
-        id: specified-paths
-        if: steps.check-event.outputs.is-push != 'true'
-        run: |
-          echo "PATHS=${{ inputs.paths }}"
-          if [ -n "${{ inputs.paths }}" ]; then
-            echo "::notice::Paths to check: $PATHS"
-            echo "paths=$PATHS" >> $GITHUB_OUTPUT
-          else
-            echo "::warning::No paths specified to check."
-          fi
-        env:
-          PATHS: ${{ inputs.paths }}
-
-      - name: Determine if workflow should run based on changed paths
+      - name: Check for changed files
         id: has-paths
-        if: steps.check-event.outputs.is-push != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
-        run: |
-          SHOULD_RUN=false
-          echo "::group::Checking commits for changes to specified paths"
-          echo "Changed files: $CHANGED_FILES"
-          echo "Paths to check:"
-          echo "$PATHS"
-          for path in $PATHS; do
-            echo "Checking path: $path"
-            if echo "$CHANGED_FILES" | grep -qE "^$path$"; then
-              echo "::notice::Found change to path: $path"
-              SHOULD_RUN=true
-              break
-            fi
-          done
-          if [ "$SHOULD_RUN" != 'true' ]; then
-            echo "::warning::No changes found for specified paths."
-          fi
-          echo "::endgroup::"
-          echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        env:
-          PATHS: ${{ steps.specified-paths.outputs.paths }}
-          CHANGED_FILES: ${{ steps.changed-files.outputs.changed-files }}
-
-      - name: Determine if workflow should run based on commit authors
-        id: has-authors
-        if: steps.check-event.outputs.is-push != 'true'
-        run: |
-          SHOULD_RUN=true
-          if [ -z "$IGNORE_AUTHORS" ]; then
-            echo "::notice::No authors specified to ignore, skipping author check."
-            echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "::group::Checking commits for ignored authors"
-          AUTHORS=$(git log -1 --pretty=format:'%an')
-          echo "Commit authors: $AUTHORS"
-          echo "Authors to ignore:"
-          echo "$IGNORE_AUTHORS"
-          for author in $IGNORE_AUTHORS; do
-            echo "Checking author: $author"
-            if echo "$AUTHORS" | grep -qE "^$author$"; then
-              echo "::notice::Latest commit authored by ignored author: $author"
-              SHOULD_RUN=false
-              break
-            fi
-          done
-          if [ "$SHOULD_RUN" = 'true' ]; then
-            echo "::notice::No ignored authors found in latest commit."
-          fi
-          echo "::endgroup::"
-          echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        env:
-          IGNORE_AUTHORS: ${{ inputs.ignore-authors || 'github-actions[bot] semantic-release-bot' }}
+        uses: ./.actions/changed-files-action
+        with:
+          paths: ${{ inputs.paths }}
+          ignore-authors: ${{ inputs.ignore-authors }}
+          ignore-events: push
 
   package-update:
     name: Update packages
