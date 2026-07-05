@@ -58,7 +58,7 @@ jobs:
         with:
           repository: stairwaytowonderland/actions
           path: ./.actions
-          ref: ${{ inputs.action-ref }}
+          ref: main
           persist-credentials: false
           sparse-checkout: |
             .github/actions
