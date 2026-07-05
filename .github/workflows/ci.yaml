@@ -95,5 +95,5 @@ jobs:
     if: github.repository == 'stairwaytowonderland/actions' && startsWith(github.ref, 'refs/tags/v')
     needs: [publish]
     uses: ./.github/workflows/normalize-majorver.yaml
-    # permissions:
-    #   contents: write
+    permissions:
+      contents: write
