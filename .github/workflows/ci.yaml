@@ -83,7 +83,8 @@ jobs:
     needs: [meta]
     if: ${{ needs.meta.outputs.is-release-workflow == 'true' }}
     uses: ./.github/workflows/release.yaml
-    secrets: inherit
+    secrets:
+      github-token: ${{ secrets.github-token || '' }}
     with:
       action-ref: ${{ inputs.action-ref }}
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags == 'false' && 'ci.yml' || '' }}
@@ -96,7 +97,8 @@ jobs:
     uses: ./.github/workflows/publish.yaml
     permissions:
       contents: write
-    secrets: inherit
+    secrets:
+      github-token: ${{ secrets.github-token || '' }}
     with:
       action-ref: ${{ inputs.action-ref }}
       tag: ${{ inputs.tag || github.ref_name }}
