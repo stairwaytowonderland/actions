@@ -16,13 +16,16 @@ on:
 
   workflow_call:
     inputs:
-      action-ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        type: string
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
         type: boolean
         default: true
+      action-ref:
+        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+        type: string
+      normalize-majorver:
+        description: 'Whether to normalize major version tags (e.g. v1.0.0 → v1).'
+        type: boolean
       publish:
         description: 'Whether to run in publish mode.'
         type: boolean
@@ -45,6 +48,9 @@ on:
       action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
+      normalize-majorver:
+        description: 'Whether to normalize major version tags (e.g. v1.0.0 → v1).'
+        type: boolean
       publish:
         description: 'Whether to run in publish mode.'
         type: boolean
@@ -75,7 +81,7 @@ jobs:
     permissions:
       contents: read
     with:
-      action-ref: main
+      action-ref: ${{ inputs.action-ref }}
       publish: ${{ inputs.publish == true || (inputs.tag != '' && inputs.notes-b64 != '') }}
 
   release:
@@ -87,6 +93,7 @@ jobs:
     with:
       action-ref: ${{ inputs.action-ref }}
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags == 'false' && 'ci.yml' || '' }}
+      normalize-majorver: ${{ inputs.normalize-majorver == true }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
   publish:
@@ -104,7 +111,7 @@ jobs:
 
   normalize-majorver:
     name: Normalize Major Version Tag
-    if: github.repository == 'stairwaytowonderland/actions' && startsWith(github.ref, 'refs/tags/v')
+    if: (github.repository == 'stairwaytowonderland/actions' && startsWith(github.ref, 'refs/tags/v')) || inputs.normalize-majorver == true
     needs: [publish]
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
