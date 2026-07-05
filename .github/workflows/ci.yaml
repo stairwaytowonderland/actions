@@ -19,9 +19,6 @@ on:
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
         type: boolean
-      normalize-majorver:
-        description: 'Whether to normalize major version tags (e.g. v1.0.0 → v1).'
-        type: boolean
       publish:
         description: 'Whether to run in publish mode.'
         type: boolean
@@ -39,9 +36,6 @@ on:
     inputs:
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
-        type: boolean
-      normalize-majorver:
-        description: 'Whether to normalize major version tags (e.g. v1.0.0 → v1).'
         type: boolean
       publish:
         description: 'Whether to run in publish mode.'
@@ -82,19 +76,18 @@ jobs:
   release:
     name: Release
     needs: [meta]
-    if: ${{ needs.meta.outputs.is-release-workflow == 'true' }}
+    if: needs.meta.outputs.is-release-workflow == 'true'
     uses: ./.github/workflows/release.yaml
     secrets: inherit
     with:
       action-ref: ${{ inputs.action-ref }}
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags != 'true' && 'ci.yml' || '' }}
-      normalize-majorver: ${{ inputs.normalize-majorver == true }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
   publish:
     name: Publish
     needs: [meta]
-    if: ${{ needs.meta.outputs.is-publish-workflow == 'true' }}
+    if: needs.meta.outputs.is-publish-workflow == 'true'
     uses: ./.github/workflows/publish.yaml
     permissions:
       contents: write
@@ -106,7 +99,7 @@ jobs:
 
   normalize-majorver:
     name: Normalize Major Version Tag
-    if: (github.repository == 'stairwaytowonderland/actions' && startsWith(github.ref, 'refs/tags/v')) || inputs.normalize-majorver == true
+    if: needs.publish.outputs.release-published == 'true' && github.repository == 'stairwaytowonderland/actions'
     needs: [publish]
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
