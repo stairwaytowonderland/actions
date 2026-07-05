@@ -16,9 +16,9 @@ runs:
   steps:
     - name: Detect release tags
       id: release-tag
-      if: ${{ steps.set-vars.outputs.is-tag-create-workflow == 'true' }}
       uses: actions/github-script@v9
       with:
+        result-encoding: string
         script: |
           const { owner, repo } = context.repo
           const { data: tags } = await github.rest.repos.listTags({
@@ -28,5 +28,4 @@ runs:
           })
           const hasReleaseTags = tags.length > 0
           core.info(`has-release-tags=${hasReleaseTags}`)
-          # core.setOutput('has-release-tags', hasReleaseTags ? 'true' : 'false')
           return hasReleaseTags ? 'true' : 'false'
