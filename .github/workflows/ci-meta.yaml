@@ -53,6 +53,12 @@ jobs:
       repo-url: ${{ steps.repo-info.outputs.repo-url }}
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: Checkout shared actions repo
         uses: actions/checkout@v7
         with:
