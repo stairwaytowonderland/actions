@@ -108,4 +108,5 @@ jobs:
           workflow: ${{ inputs.dispatch-workflow }}
           tag: ${{ steps.release.outputs.new-release-git-tag }}
           fields: |
+            action-ref=${{ inputs.action-ref }}
             notes-b64=${{ steps.release.outputs.new-release-notes-base64 }}
