@@ -1,3 +1,10 @@
+## [1.301.0](https://github.com/stairwaytowonderland/actions/compare/v1.300.0...v1.301.0) (2026-07-05)
+
+### ✨ Features
+
+* test manual CHANGELOG update ([e5cb39a](https://github.com/stairwaytowonderland/actions/commit/e5cb39ab0da9764136e8a9869338d374cf3d0716))
+* updates ([deb6fa2](https://github.com/stairwaytowonderland/actions/commit/deb6fa2f1760fcdc4c344ff24706f1aed3806fb5))
+
 ## [1.300.0](https://github.com/stairwaytowonderland/actions/compare/v1.299.0...v1.300.0) (2026-07-05)
 
 ### ✨ Features
