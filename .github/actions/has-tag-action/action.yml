@@ -16,39 +16,16 @@ runs:
   steps:
     - name: Detect release tags
       id: release-tag
-      shell: node {0}
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-        GITHUB_REPOSITORY: ${{ github.repository }}
-        GITHUB_API_URL: ${{ github.api_url }}
-        GITHUB_OUTPUT: ${{ github.output }}
-      run: |
-        const fs = require('fs');
-
-        const token = process.env.GITHUB_TOKEN;
-        const repository = process.env.GITHUB_REPOSITORY;
-        const apiUrl = process.env.GITHUB_API_URL;
-        const outputFile = process.env.GITHUB_OUTPUT;
-
-        if (!token || !repository || !apiUrl || !outputFile) {
-          throw new Error('Missing required GitHub Actions environment context.');
-        }
-
-        const endpoint = `${apiUrl}/repos/${repository}/tags?per_page=1`;
-
-        const response = await fetch(endpoint, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/vnd.github+json',
-          },
-        });
-
-        if (!response.ok) {
-          const body = await response.text();
-          throw new Error(`GitHub API request failed (${response.status}): ${body}`);
-        }
-
-        const tags = await response.json();
-        const hasReleaseTags = Array.isArray(tags) && tags.length > 0;
-        console.log(`has-release-tags=${hasReleaseTags}`);
-        fs.appendFileSync(outputFile, `result=${hasReleaseTags ? 'true' : 'false'}\n`);
+      uses: actions/github-script@v9
+      with:
+        result-encoding: string
+        script: |
+          const { owner, repo } = context.repo
+          const { data: tags } = await github.rest.repos.listTags({
+            owner,
+            repo,
+            per_page: 1,
+          })
+          const hasReleaseTags = tags.length > 0
+          core.info(`has-release-tags=${hasReleaseTags}`)
+          return hasReleaseTags ? 'true' : 'false'
