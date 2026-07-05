@@ -32,6 +32,12 @@ concurrency:
   group: ${{ github.event_name != 'push' && format('{0}-{1}', github.repository_id, github.ref_name || github.run_id) }}
   cancel-in-progress: ${{ github.event_name != 'push' }}
 
+permissions:
+  actions: write
+  contents: write
+  issues: write
+  pull-requests: write
+
 # Use PAT instead of GITHUB_TOKEN to cause semantic-release to trigger tag pipeline when tag is created.
 # 'Fine-grained token' repo permissions: Contents
 

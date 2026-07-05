@@ -92,7 +92,7 @@ jobs:
     secrets: inherit
     with:
       action-ref: ${{ inputs.action-ref }}
-      dispatch-workflow: ${{ needs.meta.outputs.has-release-tags == 'false' && 'ci.yml' || '' }}
+      dispatch-workflow: ${{ needs.meta.outputs.has-release-tags != 'true' && 'ci.yml' || '' }}
       normalize-majorver: ${{ inputs.normalize-majorver == true }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
