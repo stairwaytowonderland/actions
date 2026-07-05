@@ -53,13 +53,23 @@ jobs:
       repo-url: ${{ steps.repo-info.outputs.repo-url }}
 
     steps:
+      - name: Checkout shared actions repo
+        uses: actions/checkout@v7
+        with:
+          repository: stairwaytowonderland/actions
+          path: ./.actions
+          ref: ${{ inputs.action-ref }}
+          persist-credentials: false
+          sparse-checkout: |
+            .github/actions
+
       - name: Check if this is the first commit
         id: check-if-first-commit
-        uses: stairwaytowonderland/actions/.github/actions/first-commit-action@v1
+        uses: ./.actions/.github/actions/first-commit-action
 
       - name: Get repo info
         id: repo-info
-        uses: stairwaytowonderland/actions/.github/actions/repo-info-action@v1
+        uses: ./.actions/.github/actions/repo-info-action
 
       - name: Check workflow type
         id: set-vars
@@ -71,16 +81,6 @@ jobs:
             echo "is-release-workflow=$IS_RELEASE_WORKFLOW"
             echo "is-publish-workflow=$IS_PUBLISH_WORKFLOW"
           } >> "$GITHUB_OUTPUT"
-
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github/actions
 
       - name: Detect existing release tags
         id: release-tags
