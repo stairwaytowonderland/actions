@@ -97,4 +97,3 @@ jobs:
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
       contents: write
-    secrets: inherit
