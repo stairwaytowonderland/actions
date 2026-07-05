@@ -4,7 +4,6 @@ on:
   push:
     branches: [main]
     paths:
-      - 'CHANGELOG.md'
       - 'package.json'
       - 'package-lock.json'
 
@@ -16,7 +15,6 @@ on:
         default: |
           package.json
           package-lock.json
-          CHANGELOG.md
       ignore-authors:
         description: 'A newline delimited list of commit authors to ignore when checking for changes (e.g. semantic-release-bot and github-actions[bot]).'
         type: string
