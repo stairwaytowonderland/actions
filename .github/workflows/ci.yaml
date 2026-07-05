@@ -86,7 +86,7 @@ jobs:
     uses: ./.github/workflows/release.yaml
     secrets: inherit
     with:
-      action-ref: ${{ inputs.action-ref }}
+      action-ref: main
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags == 'false' && 'ci.yml' || '' }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
@@ -99,7 +99,7 @@ jobs:
       contents: write
     secrets: inherit
     with:
-      action-ref: ${{ inputs.action-ref }}
+      action-ref: main
       tag: ${{ inputs.tag || github.ref_name }}
       notes-b64: ${{ inputs.notes-b64 }}
 
