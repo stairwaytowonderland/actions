@@ -32,9 +32,9 @@ on:
       notes-b64:
         description: 'Base64-encoded release notes (Markdown)'
         type: string
-    secrets:
-      github-token:
-        description: 'GitHub Personal Access Token with repo scope for creating releases.'
+    # secrets:
+    #   github-token:
+    #     description: 'GitHub Personal Access Token with repo scope for creating releases.'
 
   workflow_dispatch:
     inputs:
@@ -83,8 +83,7 @@ jobs:
     needs: [meta]
     if: ${{ needs.meta.outputs.is-release-workflow == 'true' }}
     uses: ./.github/workflows/release.yaml
-    secrets:
-      github-token: ${{ secrets.github-token || '' }}
+    secrets: inherit
     with:
       action-ref: ${{ inputs.action-ref }}
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags == 'false' && 'ci.yml' || '' }}
@@ -97,8 +96,7 @@ jobs:
     uses: ./.github/workflows/publish.yaml
     permissions:
       contents: write
-    secrets:
-      github-token: ${{ secrets.github-token || '' }}
+    secrets: inherit
     with:
       action-ref: ${{ inputs.action-ref }}
       tag: ${{ inputs.tag || github.ref_name }}
@@ -111,5 +109,5 @@ jobs:
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
       contents: write
-    secrets:
-      github-token: ${{ secrets.github-token || '' }}
+    # secrets:
+    #   github-token: ${{ secrets.github-token || '' }}
