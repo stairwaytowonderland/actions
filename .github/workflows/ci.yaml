@@ -16,6 +16,9 @@ on:
 
   workflow_call:
     inputs:
+      fail-on-no-release:
+        description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
+        type: boolean
       normalize-majorver:
         description: 'Whether to normalize major version tags (e.g. v1.0.0 → v1).'
         type: boolean
@@ -34,6 +37,9 @@ on:
 
   workflow_dispatch:
     inputs:
+      fail-on-no-release:
+        description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
+        type: boolean
       normalize-majorver:
         description: 'Whether to normalize major version tags (e.g. v1.0.0 → v1).'
         type: boolean
@@ -83,7 +89,7 @@ jobs:
       action-ref: ${{ inputs.action-ref }}
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags != 'true' && 'ci.yml' || '' }}
       normalize-majorver: ${{ inputs.normalize-majorver == true }}
-      fail-on-no-release: true
+      fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
   publish:
     name: Publish
