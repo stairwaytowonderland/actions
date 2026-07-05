@@ -2,6 +2,9 @@ name: Normalize Major Version Tag
 
 on:
   workflow_call:
+    secrets:
+      github-token:
+        description: 'GitHub Personal Access Token with repo scope for creating releases.'
 
 permissions:
   contents: write
@@ -16,4 +19,6 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: stairwaytowonderland/normalize-majorver@main
+      - uses: stairwaytowonderland/normalize-majorver@v1
+        with:
+          github-token: ${{ secrets.github-token }}
