@@ -1,3 +1,9 @@
+## [1.289.0](https://github.com/stairwaytowonderland/actions/compare/v1.288.0...v1.289.0) (2026-07-05)
+
+### ✨ Features
+
+* updates ([f88d4d2](https://github.com/stairwaytowonderland/actions/commit/f88d4d2f807e618ff3069008c91d60cb1db5ef9d))
+
 ## [1.288.0](https://github.com/stairwaytowonderland/actions/compare/v1.287.0...v1.288.0) (2026-07-05)
 
 ### ✨ Features
