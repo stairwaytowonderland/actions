@@ -14,9 +14,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout code
-      uses: actions/checkout@v7
-
     - name: Detect release tags
       id: release-tag
       if: ${{ steps.set-vars.outputs.is-tag-create-workflow == 'true' }}
