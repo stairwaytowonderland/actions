@@ -31,6 +31,28 @@ on:
       action-ref:
         description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
         type: string
+    outputs:
+      version-released:
+        description: 'Whether a new release was published.'
+        value: ${{ jobs.release.outputs.new-release-published }}
+      release-version:
+        description: 'The version of the new release.'
+        value: ${{ jobs.release.outputs.new-release-version }}
+      release-git-tag:
+        description: 'The git tag of the new release.'
+        value: ${{ jobs.release.outputs.new-release-git-tag }}
+      published-release-url:
+        description: 'The URL of the published release.'
+        value: ${{ jobs.publish.outputs.release-url }}
+      published-release-tag:
+        description: 'The tag of the published release.'
+        value: ${{ jobs.publish.outputs.release-tag }}
+      published-release-sha:
+        description: 'The commit SHA of the published release.'
+        value: ${{ jobs.publish.outputs.release-sha }}
+      release-published:
+        description: 'Whether a new release was published.'
+        value: ${{ jobs.publish.outputs.release-published }}
 
   workflow_dispatch:
     inputs:
@@ -59,9 +81,6 @@ permissions:
   contents: write
   issues: write
   pull-requests: write
-
-# Use PAT instead of GITHUB_TOKEN to cause semantic-release to trigger tag pipeline when tag is created.
-# 'Fine-grained token' repo permissions: Contents
 
 jobs:
   meta:
