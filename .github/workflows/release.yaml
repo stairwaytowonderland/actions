@@ -59,13 +59,6 @@ jobs:
       new-release-notes-base64: ${{ steps.release.outputs.new-release-notes-base64 }}
 
     steps:
-      - name: Set vars
-        id: vars
-        run: |
-          echo "is-dispatch-workflow=$IS_DISPATCH_WORKFLOW" >> "$GITHUB_OUTPUT"
-        env:
-          IS_DISPATCH_WORKFLOW: ${{ inputs.dispatch-workflow != '' }}
-
       - name: Checkout
         uses: actions/checkout@v7
         with:
@@ -104,12 +97,30 @@ jobs:
           script: |
             core.setFailed('Release failed')
 
+      - name: Set dispatch fields
+        if: steps.release.outputs.new-release-published == 'true' && inputs.dispatch-workflow != ''
+        id: dispatch-fields
+        run: |
+          if [ "$GITHUB_REPOSITORY" = "stairwaytowonderland/actions" ]; then
+            echo '{
+              "action-ref": "${{ inputs.action-ref }}",
+              "tag": "${{ steps.release.outputs.new-release-git-tag }}",
+              "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
+            }' > dispatch-fields.json
+          else
+            echo '{
+              "tag": "${{ steps.release.outputs.new-release-git-tag }}",
+              "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
+            }' > dispatch-fields.json
+          fi
+          # Set a FIELDS newline separated string for the simple-workflow-dispatch action
+          FIELDS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join("\n")' dispatch-fields.json)
+          echo "fields=$(echo $FIELDS)" >> "$GITHUB_OUTPUT"
+
       - name: Dispatch Publish workflow
-        if: steps.release.outputs.new-release-published == 'true' && steps.vars.outputs.is-dispatch-workflow == 'true'
+        if: steps.release.outputs.new-release-published == 'true' && inputs.dispatch-workflow != ''
         uses: stairwaytowonderland/simple-workflow-dispatch@main
         with:
           workflow: ${{ inputs.dispatch-workflow }}
           tag: ${{ steps.release.outputs.new-release-git-tag }}
-          fields: |
-            action-ref=${{ inputs.action-ref }}
-            notes-b64=${{ steps.release.outputs.new-release-notes-base64 }}
+          fields: ${{ steps.dispatch-fields.outputs.fields }}
