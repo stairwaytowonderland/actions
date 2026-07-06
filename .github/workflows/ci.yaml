@@ -100,7 +100,7 @@ jobs:
     secrets: inherit
     with:
       action-ref: ${{ inputs.action-ref }}
-      dispatch-workflow: ${{ needs.meta.outputs.has-release-tags != 'true' && (inputs.dispatch-workflow || ('ci.yml' || 'ci.yaml')) || '' }}
+      dispatch-workflow: ${{ needs.meta.outputs.has-release-tags != 'true' && (inputs.dispatch-workflow || 'ci.yaml') || '' }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
   publish:
