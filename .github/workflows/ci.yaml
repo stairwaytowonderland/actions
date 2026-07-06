@@ -19,9 +19,6 @@ on:
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
         type: boolean
-      publish:
-        description: 'Whether to run in publish mode.'
-        type: boolean
       tag:
         description: 'Existing release tag to publish (e.g. v1.2.3)'
         type: string
@@ -90,7 +87,7 @@ jobs:
       contents: read
     with:
       action-ref: ${{ inputs.action-ref }}
-      publish: ${{ inputs.publish == true || (inputs.tag != '' && inputs.notes-b64 != '') }}
+      publish: ${{ inputs.tag != '' && inputs.notes-b64 != '' }}
 
   release:
     name: Release
