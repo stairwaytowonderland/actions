@@ -1,3 +1,9 @@
+## [1.343.0](https://github.com/stairwaytowonderland/actions/compare/v1.342.0...v1.343.0) (2026-07-08)
+
+### ✨ Features
+
+* update first-commit-action ([c55670a](https://github.com/stairwaytowonderland/actions/commit/c55670a7e9d1a73643a15a890c08c559e1d35cec))
+
 ## [1.342.0](https://github.com/stairwaytowonderland/actions/compare/v1.341.0...v1.342.0) (2026-07-08)
 
 ### ✨ Features
