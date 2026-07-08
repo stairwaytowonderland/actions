@@ -29,15 +29,19 @@ runs:
       run: |
         # Simple arithmetic to check if COMMIT_COUNT_TO_CHECK is a valid number, if not default to 0
         COMMIT_COUNT_TO_CHECK=$(( $COMMIT_COUNT_TO_CHECK + 0 )) || COMMIT_COUNT_TO_CHECK=0
+        echo "Commit count to check: $COMMIT_COUNT_TO_CHECK"
+        echo "Is zero event: $IS_ZERO_EVENT"
         if [ $COMMIT_COUNT_TO_CHECK -gt 0 ]; then
-          if [ $COMMIT_COUNT_TO_CHECK -eq 1 ] && [ $(git rev-list --count HEAD) -eq 1 ] && [ "$IS_ZERO_EVENT" = "true" ]; then
+          commit_count=$(git rev-list --count HEAD)
+          echo "Commit count: $commit_count"
+          if [ $COMMIT_COUNT_TO_CHECK -eq 1 ] && [ $commit_count -eq 1 ] && [ "$IS_ZERO_EVENT" = "true" ]; then
             echo "This is the first commit."
             echo "is-first-commit=true" >> $GITHUB_OUTPUT
             echo "::notice::This is the first commit in the repository."
-          elif [ $COMMIT_COUNT_TO_CHECK -gt 1 ] && [ $(git rev-list --count HEAD) -eq "$COMMIT_COUNT_TO_CHECK" ]; then
-            echo "This is commit number $COMMIT_COUNT_TO_CHECK."
+          elif [ $COMMIT_COUNT_TO_CHECK -gt 1 ] && [ $commit_count -le "$COMMIT_COUNT_TO_CHECK" ]; then
+            echo "This is commit number $commit_count."
             echo "is-first-commit=true" >> $GITHUB_OUTPUT
-            echo "::notice::This is the first commit in the repository."
+            echo "::notice::This is commit number $commit_count in the repository."
           else
             echo "This is not the first or specified ($COMMIT_COUNT_TO_CHECK) commit."
             echo "is-first-commit=false" >> $GITHUB_OUTPUT
