@@ -1,12 +1,12 @@
-name: Watching the Watchers
-description: A workflow to handle events when someone watches a repository. It can create a welcome issue for the watcher if they are a member of the organization, and provides outputs that can be used in subsequent steps or jobs to customize the welcome message and determine if the watcher is an organization member.
+name: Gazing the gazers
+description: A workflow to handle events when someone stars a repository. It can create a welcome issue for the stargazer if they are a member of the organization, and provides outputs that can be used in subsequent steps or jobs to customize the welcome message and determine if the stargazer is an organization member.
 
 inputs:
   create-issue:
-    description: 'Whether to create a welcome issue for the watcher (if they are a member of the organization).'
+    description: 'Whether to create a welcome issue for the stargazer (if they are a member of the organization).'
     required: false
   job-summary:
-    description: 'Whether to add a job summary with the welcome message for the watcher.'
+    description: 'Whether to add a job summary with the welcome message for the stargazer.'
     required: false
     default: 'true'
   job-summary-heading-level:
@@ -19,23 +19,23 @@ inputs:
 
 outputs:
   message-heading:
-    description: 'The heading of the welcome message created for the watcher.'
+    description: 'The heading of the welcome message created for the stargazer.'
     value: ${{ steps.welcome-message.outputs.message-heading }}
   message-body-base64:
-    description: 'The body of the welcome message created for the watcher, encoded in base64.'
+    description: 'The body of the welcome message created for the stargazer, encoded in base64.'
     value: ${{ steps.welcome-message.outputs.message-body-base64 }}
   is-organization-member:
-    description: 'Whether the watcher is a member of the organization.'
+    description: 'Whether the stargazer is a member of the organization.'
     value: ${{ steps.is-org-member.outputs.result }}
 
 runs:
   using: composite
   steps:
-    - name: Log Watch Event
+    - name: Log Star Event
       uses: actions/github-script@v9
       with:
         script: |
-          core.notice(`Repository is being watched by ${context.actor}.`);
+          core.notice(`Repository is being starred by ${context.actor}.`);
           core.info(`Event sender: ${JSON.stringify(context.payload.sender)}`);
 
     - name: Create Welcome Message
@@ -58,9 +58,9 @@ runs:
           core.debug(`Using heading level ${validHeadingLevel} for job summary heading.`);
           const messageHeading = process.env.STEP_SUMMARY_HEADING || `Welcome, @${context.payload.sender.login || context.actor}!`;
           const stargazerLink = `[stargazers](${process.env.REPOSITORY_URL}/stargazers)`;
-          const messageStargazer = `See ${stargazerLink} to see all watchers.`;
+          const messageStargazer = `See ${stargazerLink} to see all stargazers.`;
           const messageBody = process.env.STEP_SUMMARY_BODY || [
-            'Thanks for watching this repository! We appreciate your interest and support.',
+            'Thanks for starring this repository! We appreciate your interest and support.',
             '\nIf you have any questions, suggestions, or just want to say hi, feel free to open an issue or join the discussions.',
             `\n${messageStargazer}`,
           ].join('\n');
@@ -71,7 +71,7 @@ runs:
           core.setOutput('message-heading', messageHeading);
           core.setOutput('message-body-base64', messageBodyBase64);
 
-    - name: Check if Watcher is an Organization Member
+    - name: Check if Stargazer is an Organization Member
       id: is-org-member
       uses: actions/github-script@v9
       with:
@@ -79,7 +79,7 @@ runs:
         script: |
           const username = context.payload?.sender?.login || context.actor;
           if (!username) {
-            core.warning("No username found for the watcher.");
+            core.warning("No username found for the stargazer.");
             return;
           }
           const org = context.repo.owner;
@@ -89,15 +89,15 @@ runs:
               username,
             });
             const isMember = membership.state === 'active';
-            core.info(`Is watcher '${username}' a member of the organization '${org}'? ${isMember}`);
+            core.info(`Is stargazer '${username}' a member of the organization '${org}'? ${isMember}`);
             return isMember;
           } catch (error) {
             if (error.status === 403) {
-              core.warning(`Insufficient permissions to check if watcher '${username}' is a member of the organization '${org}'. Ensure the provided GitHub token has the necessary scopes.`);
+              core.warning(`Insufficient permissions to check if stargazer '${username}' is a member of the organization '${org}'. Ensure the provided GitHub token has the necessary scopes.`);
               return false;
             }
             if (error.status === 404) {
-              core.warning(`Watcher '${username}' is not a member of the organization '${org}'.`);
+              core.warning(`Stargazer '${username}' is not a member of the organization '${org}'.`);
               return false;
             }
             throw error;
