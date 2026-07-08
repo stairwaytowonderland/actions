@@ -49,7 +49,6 @@ jobs:
       message-heading: ${{ steps.stargazer.outputs.message-heading }}
       message-body-base64: ${{ steps.stargazer.outputs.message-body-base64 }}
       is-organization-member: ${{ steps.stargazer.outputs.is-organization-member }}
-
     steps:
       - name: Checkout shared actions repo
         uses: actions/checkout@v7
