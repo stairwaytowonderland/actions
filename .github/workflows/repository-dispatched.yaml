@@ -30,6 +30,12 @@ jobs:
     outputs:
       is-first-commit: ${{ steps.check-if-first-commit.outputs.is-first-commit == 'true' }}
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
       - name: Check if this is the first commit
         id: check-if-first-commit
         uses: stairwaytowonderland/actions/.github/actions/first-commit-action@v1
