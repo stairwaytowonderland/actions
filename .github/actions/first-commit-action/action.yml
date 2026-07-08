@@ -20,7 +20,7 @@ runs:
       env:
         IS_ZERO_EVENT: ${{ github.event.before == '0000000000000000000000000000000000000000' }}
       run: |
-        if [ $(git rev-list --count HEAD) -eq 1 ] && [ "$IS_ZERO_EVENT" == "true" ]; then
+        if [ $(git rev-list --count HEAD) -eq 1 ] && [ "$IS_ZERO_EVENT" = "true" ]; then
           echo "This is the first commit."
           echo "is-first-commit=true" >> $GITHUB_OUTPUT
           echo "::notice::This is the first commit in the repository."
