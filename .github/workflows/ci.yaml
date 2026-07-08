@@ -151,7 +151,8 @@ jobs:
 
   normalize-majorver:
     name: Normalize Major Version Tag
-    if: (needs.publish.outputs.release-published == 'true' || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'stairwaytowonderland/actions'
+    # if: (needs.publish.outputs.release-published == 'true' || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'stairwaytowonderland/actions'
+    if: needs.publish.outputs.release-published == 'true' && github.repository == 'stairwaytowonderland/actions'
     needs: [publish]
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
