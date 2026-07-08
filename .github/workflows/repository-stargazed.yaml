@@ -1,0 +1,18 @@
+name: ⭐ Handle Repository Stargazer
+
+on:
+  repository_dispatch:
+    types: [repository-stargazed]
+
+permissions:
+  contents: read
+
+jobs:
+  stargazer:
+    name: Handle Repository Stargazer
+    uses: ./.github/workflows/repository-dispatched.yaml
+    with:
+      repo: ${{ github.event.client_payload.repository.name }}
+      url: ${{ github.event.client_payload.repository.url }}
+      sender: ${{ github.event.client_payload.sender.login }}
+      sender-id: ${{ github.event.client_payload.sender.id }}

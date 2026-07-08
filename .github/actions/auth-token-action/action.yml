@@ -8,6 +8,10 @@ inputs:
     description: 'GitHub App private key used to generate a fallback token for PR comments.'
   app-client-id:
     description: 'GitHub App client ID used to generate a fallback token for PR comments.'
+  repo-name:
+    description: 'GitHub repository name (if not the current repository)'
+  repo-owner:
+    description: 'GitHub organization or user that owns the repository (if not the current repository)'
 
 outputs:
   auth-token:
@@ -23,9 +27,12 @@ runs:
     - name: Repo info
       id: repo-info
       shell: bash
+      env:
+        REPOSITORY_OWNER: ${{ inputs.repo-owner || github.repository_owner }}
+        REPOSITORY_NAME: ${{ inputs.repo-name || github.repository }}
       run: |
-        echo "repo-owner=${GITHUB_REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
-        echo "repo-name=${GITHUB_REPOSITORY#*/}" >> "$GITHUB_OUTPUT"
+        echo "repo-owner=${REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+        echo "repo-name=${REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
 
     - name: Resolve auth strategy
       id: auth
