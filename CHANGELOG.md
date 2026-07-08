@@ -1,3 +1,9 @@
+## [1.333.0](https://github.com/stairwaytowonderland/actions/compare/v1.332.0...v1.333.0) (2026-07-08)
+
+### ✨ Features
+
+* language specific linters ([c07afc4](https://github.com/stairwaytowonderland/actions/commit/c07afc4107dff453b340513e3a3c5b9d76fb9f2d))
+
 ## [1.332.0](https://github.com/stairwaytowonderland/actions/compare/v1.331.0...v1.332.0) (2026-07-07)
 
 ### ✨ Features
