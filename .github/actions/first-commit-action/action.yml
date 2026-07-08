@@ -8,9 +8,9 @@ branding:
 
 inputs:
   commit-count-to-check:
-    description: 'The commit count to check against (default: 1).'
+    description: 'The commit count to check against (default: 0).'
     required: false
-    default: ''
+    default: '0'
 
 outputs:
   is-first-commit:
@@ -24,20 +24,22 @@ runs:
       id: check-first-commit
       shell: bash
       env:
-        COMMIT_COUNT_TO_CHECK: ${{ inputs.commit-count-to-check || 1 }}
+        COMMIT_COUNT_TO_CHECK: ${{ inputs.commit-count-to-check || 0 }}
         IS_ZERO_EVENT: ${{ github.event.before == '0000000000000000000000000000000000000000' }}
       run: |
-        # Simple arithmetic to check if COMMIT_COUNT_TO_CHECK is a valid number, if not default to 1
-        COMMIT_COUNT_TO_CHECK=$(( $COMMIT_COUNT_TO_CHECK + 0 )) || COMMIT_COUNT_TO_CHECK=1
-        if [ "$COMMIT_COUNT_TO_CHECK" = "1" ] && [ $(git rev-list --count HEAD) -eq 1 ] && [ "$IS_ZERO_EVENT" = "true" ]; then
-          echo "This is the first commit."
-          echo "is-first-commit=true" >> $GITHUB_OUTPUT
-          echo "::notice::This is the first commit in the repository."
-        elif [ "$COMMIT_COUNT_TO_CHECK" != "1" ] && [ $(git rev-list --count HEAD) -eq "$COMMIT_COUNT_TO_CHECK" ]; then
-          echo "This is commit number $COMMIT_COUNT_TO_CHECK."
-          echo "is-first-commit=true" >> $GITHUB_OUTPUT
-          echo "::notice::This is the first commit in the repository."
-        else
-          echo "This is not the first or specified ($COMMIT_COUNT_TO_CHECK) commit."
-          echo "is-first-commit=false" >> $GITHUB_OUTPUT
+        # Simple arithmetic to check if COMMIT_COUNT_TO_CHECK is a valid number, if not default to 0
+        COMMIT_COUNT_TO_CHECK=$(( $COMMIT_COUNT_TO_CHECK + 0 )) || COMMIT_COUNT_TO_CHECK=0
+        if [ $COMMIT_COUNT_TO_CHECK -gt 0 ]; then
+          if [ $COMMIT_COUNT_TO_CHECK -eq 1 ] && [ $(git rev-list --count HEAD) -eq 1 ] && [ "$IS_ZERO_EVENT" = "true" ]; then
+            echo "This is the first commit."
+            echo "is-first-commit=true" >> $GITHUB_OUTPUT
+            echo "::notice::This is the first commit in the repository."
+          elif [ $COMMIT_COUNT_TO_CHECK -gt 1 ] && [ $(git rev-list --count HEAD) -eq "$COMMIT_COUNT_TO_CHECK" ]; then
+            echo "This is commit number $COMMIT_COUNT_TO_CHECK."
+            echo "is-first-commit=true" >> $GITHUB_OUTPUT
+            echo "::notice::This is the first commit in the repository."
+          else
+            echo "This is not the first or specified ($COMMIT_COUNT_TO_CHECK) commit."
+            echo "is-first-commit=false" >> $GITHUB_OUTPUT
+          fi
         fi

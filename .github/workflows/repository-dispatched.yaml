@@ -39,6 +39,8 @@ jobs:
       - name: Check if this is the first commit
         id: check-if-first-commit
         uses: stairwaytowonderland/actions/.github/actions/first-commit-action@v1
+        with:
+          commit-count-to-check: ${{ inputs.commit-count-to-check }}
 
   repository-dispatch:
     runs-on: ubuntu-latest
