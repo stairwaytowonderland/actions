@@ -1,3 +1,9 @@
+## [1.346.0](https://github.com/stairwaytowonderland/actions/compare/v1.345.0...v1.346.0) (2026-07-08)
+
+### ✨ Features
+
+* update dispatched workflow ([fc24249](https://github.com/stairwaytowonderland/actions/commit/fc242499d3d1f97ecf1e902ec344b040f501ee68))
+
 ## [1.345.0](https://github.com/stairwaytowonderland/actions/compare/v1.344.0...v1.345.0) (2026-07-08)
 
 ### ✨ Features
