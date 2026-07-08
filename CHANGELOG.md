@@ -1,3 +1,9 @@
+## [1.340.0](https://github.com/stairwaytowonderland/actions/compare/v1.339.0...v1.340.0) (2026-07-08)
+
+### ✨ Features
+
+* stargazer updates ([69af128](https://github.com/stairwaytowonderland/actions/commit/69af128b4a72fe3bdebc9f5f797913e334648a23))
+
 ## [1.339.0](https://github.com/stairwaytowonderland/actions/compare/v1.338.0...v1.339.0) (2026-07-08)
 
 ### ✨ Features
