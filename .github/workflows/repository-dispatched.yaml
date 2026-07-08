@@ -1,4 +1,4 @@
-name: Handle Repository Dispatch
+name: 📡 Handle Repository Dispatch
 
 on:
   workflow_call:
