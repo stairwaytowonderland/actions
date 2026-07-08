@@ -1,5 +1,37 @@
 name: CI
 
+############################################################
+# This workflow is designed to also be reusable by other workflows
+# (e.g. ci.yaml in another repository)
+
+# permissions:
+#   actions: write
+#   contents: write
+#   issues: write
+#   pull-requests: write
+
+# jobs:
+#   release-and-publish:
+#     name: Release and Publish
+#     uses: stairwaytowonderland/actions/.github/workflows/ci.yaml@v1
+#     secrets: inherit
+#     with:
+#       first-release-dispatch-workflow: ci.yaml
+#       tag: ${{ inputs.tag }}
+#       notes-b64: ${{ inputs.notes-b64 }}
+
+#   normalize-majorver:
+#     name: Normalize Major Version Tag
+#     needs: [release-and-publish]
+#     if: (needs.release-and-publish.outputs.release-published == 'true' && github.event_name == 'workflow_dispatch') || startsWith(github.ref, 'refs/tags/v')
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: write
+#     steps:
+#       - name: Normalize Major Version Tag
+#         uses: stairwaytowonderland/normalize-majorver@v1
+############################################################
+
 on:
   push:
     # Trigger 1: When main branch is updated (respects path ignores)
