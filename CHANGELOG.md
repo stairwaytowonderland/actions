@@ -1,3 +1,9 @@
+## [1.338.0](https://github.com/stairwaytowonderland/actions/compare/v1.337.0...v1.338.0) (2026-07-08)
+
+### ✨ Features
+
+* watchers -> staragazers ([afa4339](https://github.com/stairwaytowonderland/actions/commit/afa4339909d9d26ac3e1166b499b2c392a9605d1))
+
 ## [1.337.0](https://github.com/stairwaytowonderland/actions/compare/v1.336.0...v1.337.0) (2026-07-08)
 
 ### ✨ Features
