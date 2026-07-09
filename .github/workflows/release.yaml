@@ -113,9 +113,11 @@ jobs:
               "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
             }' > dispatch-fields.json
           fi
-          # Set a FIELDS newline separated string for the simple-workflow-dispatch action
-          FIELDS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join("\n")' dispatch-fields.json)
-          echo "fields=$(echo $FIELDS)" >> "$GITHUB_OUTPUT"
+
+          # Use a standard, static heredoc delimiter
+          echo "fields<<EOF" >> "$GITHUB_OUTPUT"
+          jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join("\n")' dispatch-fields.json >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
 
       - name: Dispatch Publish workflow
         if: steps.release.outputs.new-release-published == 'true' && inputs.dispatch-workflow != ''
