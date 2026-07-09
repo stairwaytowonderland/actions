@@ -48,8 +48,9 @@ updates:
       - '.github/workflows/pre-commit.yaml'
       - '.github/workflows/conventional-commit.yaml'
       - '.github/workflows/terraform-deploy.yaml'
-      - '.github/workflows/repository-created.yaml'
-      - '.github/workflows/watchers.yaml'
+      - '.github/workflows/repository-dispatched.yaml'
+      - '.github/workflows/repository-stargazed.yaml'
+      - '.github/workflows/stargazers.yaml'
     schedule:
       # interval: "monthly"
       # day: "friday"
