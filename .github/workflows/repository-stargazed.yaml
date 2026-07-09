@@ -16,3 +16,20 @@ jobs:
       url: ${{ github.event.client_payload.repository.url }}
       sender: ${{ github.event.client_payload.sender.login }}
       sender-id: ${{ github.event.client_payload.sender.id }}
+
+  summary:
+    needs: stargazer
+    runs-on: ubuntu-latest
+    env:
+      REPO_NAME: ${{ github.event.client_payload.repository.name }}
+      REPO_URL: ${{ github.event.client_payload.repository.url }}
+      SENDER_LOGIN: ${{ github.event.client_payload.sender.login }}
+      SENDER_ID: ${{ github.event.client_payload.sender.id }}
+    steps:
+      - name: Add summary
+        run: |
+          echo "## Repository Stargazer" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** $REPO_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Name:** \`$REPO_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @$SENDER_LOGIN (ID: $SENDER_ID)" >> $GITHUB_STEP_SUMMARY

@@ -29,3 +29,20 @@ jobs:
       sender: ${{ inputs.sender }}
       sender-id: ${{ inputs.sender-id }}
       # commit-count-to-check: 2
+
+  summary:
+    needs: on-create
+    runs-on: ubuntu-latest
+    env:
+      REPO_NAME: ${{ inputs.repo }}
+      REPO_URL: ${{ inputs.url }}
+      SENDER_LOGIN: ${{ inputs.sender }}
+      SENDER_ID: ${{ inputs.sender-id }}
+    steps:
+      - name: Add summary
+        run: |
+          echo "## Repository Created" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** $REPO_URL" >> $GITHUB_STEP_SUMMARY
+          echo "**Name:** \`$REPO_NAME\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** @$SENDER_LOGIN (ID: $SENDER_ID)" >> $GITHUB_STEP_SUMMARY
