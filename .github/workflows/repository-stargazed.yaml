@@ -1,4 +1,4 @@
-name: 🌟 Handle Repository Stargazer
+name: ⭐ Handle Repository Stargazer
 
 on:
   repository_dispatch:
