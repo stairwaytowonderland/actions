@@ -139,7 +139,7 @@ jobs:
   publish-debug:
     name: Publish Debug Info
     needs: [meta]
-    if: needs.meta.outputs.is-publish-workflow == 'true' && (inputs.tag != '' && inputs.notes-b64 != '')
+    if: needs.meta.outputs.is-publish-workflow == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Debug Info
