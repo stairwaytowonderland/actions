@@ -28,4 +28,4 @@ jobs:
       url: ${{ inputs.url }}
       sender: ${{ inputs.sender }}
       sender-id: ${{ inputs.sender-id }}
-      commit-count-to-check: 2
+      # commit-count-to-check: 2
