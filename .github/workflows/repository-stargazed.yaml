@@ -8,8 +8,8 @@ permissions:
   contents: read
 
 jobs:
-  stargazer:
-    name: Handle Repository Dispatch for Stargazer
+  on-stargaze:
+    name: 📡 Handle Repository Dispatch for Stargazer
     uses: ./.github/workflows/repository-dispatched.yaml
     with:
       repo: ${{ github.event.client_payload.repository.name }}
@@ -17,9 +17,9 @@ jobs:
       sender: ${{ github.event.client_payload.sender.login }}
       sender-id: ${{ github.event.client_payload.sender.id }}
 
-  summary:
-    name: ⭐ Handle Repository Stargazer
-    needs: stargazer
+  stargazer:
+    name: ⭐ On Stargaze
+    needs: on-stargaze
     runs-on: ubuntu-latest
     env:
       REPO_NAME: ${{ github.event.client_payload.repository.name }}

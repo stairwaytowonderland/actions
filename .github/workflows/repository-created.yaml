@@ -32,6 +32,7 @@ jobs:
       # commit-count-to-check: 2
 
   summary:
+    name: On Create
     needs: on-create
     runs-on: ubuntu-latest
     env:
