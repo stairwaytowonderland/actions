@@ -1,3 +1,9 @@
+## [1.363.0](https://github.com/stairwaytowonderland/actions/compare/v1.362.0...v1.363.0) (2026-07-09)
+
+### ✨ Features
+
+* publish test ([10fa298](https://github.com/stairwaytowonderland/actions/commit/10fa298821ef41c1d8119dff4a4aba8266fb3213))
+
 ## [1.362.0](https://github.com/stairwaytowonderland/actions/compare/v1.361.0...v1.362.0) (2026-07-09)
 
 ### ✨ Features
