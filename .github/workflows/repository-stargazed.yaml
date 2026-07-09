@@ -18,7 +18,7 @@ jobs:
       sender-id: ${{ github.event.client_payload.sender.id }}
 
   stargazer:
-    name: ⭐ On Stargaze
+    name: ⭐ Repository Starred
     needs: on-stargaze
     runs-on: ubuntu-latest
     env:

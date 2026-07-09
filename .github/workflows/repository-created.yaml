@@ -22,7 +22,7 @@ on:
 
 jobs:
   on-create:
-    name: Handle Repository Creation
+    name: 📡 Handle Repository Creation
     uses: ./.github/workflows/repository-dispatched.yaml
     with:
       repo: ${{ inputs.repo }}
@@ -31,8 +31,8 @@ jobs:
       sender-id: ${{ inputs.sender-id }}
       # commit-count-to-check: 2
 
-  summary:
-    name: On Create
+  repository-created:
+    name: Repository Created
     needs: on-create
     runs-on: ubuntu-latest
     env:
