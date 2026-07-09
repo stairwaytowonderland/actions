@@ -22,6 +22,7 @@ on:
 
 jobs:
   on-create:
+    name: Handle Repository Creation
     uses: ./.github/workflows/repository-dispatched.yaml
     with:
       repo: ${{ inputs.repo }}
@@ -31,6 +32,7 @@ jobs:
       # commit-count-to-check: 2
 
   summary:
+    name: Handle Repository Creation
     needs: on-create
     runs-on: ubuntu-latest
     env:

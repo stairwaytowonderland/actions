@@ -18,6 +18,7 @@ jobs:
       sender-id: ${{ github.event.client_payload.sender.id }}
 
   summary:
+    name: Handle Repository Stargazer
     needs: stargazer
     runs-on: ubuntu-latest
     env:
