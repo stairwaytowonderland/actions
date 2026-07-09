@@ -139,8 +139,8 @@ jobs:
   publish:
     name: Publish
     needs: [meta]
-    # if: needs.meta.outputs.is-publish-workflow == 'true' && (inputs.first-release-dispatch-workflow != '' && needs.meta.outputs.has-release-tags == 'true' || inputs.first-release-dispatch-workflow != '')
-    if: needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '')
+    if: needs.meta.outputs.is-publish-workflow == 'true' && (inputs.first-release-dispatch-workflow != '' && needs.meta.outputs.has-release-tags == 'true' || inputs.first-release-dispatch-workflow != '')
+    # if: needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '')
     uses: ./.github/workflows/publish.yaml
     permissions:
       contents: write
