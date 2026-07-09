@@ -49,7 +49,12 @@ jobs:
 
       - name: Log Repository Creation Event
         uses: actions/github-script@v9
+        env:
+          REPO_NAME: ${{ inputs.repo }}
+          REPO_URL: ${{ inputs.url }}
+          SENDER_LOGIN: ${{ inputs.sender }}
+          SENDER_ID: ${{ inputs.sender-id }}
         with:
           script: |
-            core.notice(`Repository is being created by ${context.actor}.`);
+            core.notice(`Repository is being created by ${context.actor} on behalf of ${process.env.SENDER_LOGIN} (ID: ${process.env.SENDER_ID}).`);
             core.info(`Event sender: ${JSON.stringify(context.payload.sender)}`);
