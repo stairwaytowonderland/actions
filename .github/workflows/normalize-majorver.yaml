@@ -23,7 +23,7 @@ jobs:
     if: >
       github.repository == 'stairwaytowonderland/actions' &&
       github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'refs/tags/v')
+      startsWith(github.event.workflow_run.head_branch, 'refs/tags/')
     steps:
       - uses: stairwaytowonderland/normalize-majorver@main
         with:
