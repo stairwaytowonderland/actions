@@ -33,3 +33,10 @@ jobs:
           echo "**URL:** $REPO_URL" >> $GITHUB_STEP_SUMMARY
           echo "**Name:** \`$REPO_NAME\`" >> $GITHUB_STEP_SUMMARY
           echo "**Triggered by:** @$SENDER_LOGIN (ID: $SENDER_ID)" >> $GITHUB_STEP_SUMMARY
+
+      - name: Log Star Event
+        uses: actions/github-script@v9
+        with:
+          script: |
+            core.notice(`Repository is being starred by ${context.actor}.`);
+            core.info(`Event sender: ${JSON.stringify(context.payload.sender)}`);
