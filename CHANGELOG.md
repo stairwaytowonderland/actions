@@ -1,3 +1,13 @@
+## [1.350.0](https://github.com/stairwaytowonderland/actions/compare/v1.349.0...v1.350.0) (2026-07-09)
+
+### ✨ Features
+
+* workflow updates ([761e8c0](https://github.com/stairwaytowonderland/actions/commit/761e8c006030df736523c810f0216beeb2c50670))
+
+### 🔧 Chores
+
+* workflow updates ([504e5d5](https://github.com/stairwaytowonderland/actions/commit/504e5d500b64890e23eefafa6f9b2712a29a89d8))
+
 ## [1.349.0](https://github.com/stairwaytowonderland/actions/compare/v1.348.0...v1.349.0) (2026-07-09)
 
 ### ✨ Features
