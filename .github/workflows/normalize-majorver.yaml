@@ -21,9 +21,11 @@ jobs:
     name: Normalize Major Version Tag
     runs-on: ubuntu-latest
     if: >
-      github.repository == 'stairwaytowonderland/actions' &&
-      github.event.workflow_run.conclusion == 'success' &&
-      startsWith(github.event.workflow_run.head_branch, 'refs/tags/')
+      github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (
+        github.repository == 'stairwaytowonderland/actions' &&
+        github.event.workflow_run.conclusion == 'success' &&
+        startsWith(github.event.workflow_run.head_ref, 'refs/tags/')
+      )
     steps:
       - uses: stairwaytowonderland/normalize-majorver@main
         with:
