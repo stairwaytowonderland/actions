@@ -1,9 +1,6 @@
 name: Normalize Major Version Tag
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
   workflow_dispatch:
   workflow_call:
     secrets:
@@ -17,52 +14,9 @@ permissions:
 # 'Fine-grained token' repo permissions: Contents
 
 jobs:
-  check-version:
-    runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
-    outputs:
-      is_valid_tag: ${{ steps.validate.outputs.is_valid_tag }}
-    steps:
-      - name: Validate Tag
-        id: validate
-        env:
-          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-        run: |
-          # Bash native regex matching your pattern (e.g., v1.2.3)
-          if [[ "$HEAD_BRANCH" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "is_valid_tag=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_valid_tag=false" >> $GITHUB_OUTPUT
-          fi
-
-  debug:
-    runs-on: ubuntu-latest
-    needs: [check-version]
-    if: github.event.workflow_run.conclusion == 'success'
-    steps:
-      - name: Debug Info
-        run: |
-          echo "GitHub event name: '${GITHUB_EVENT_NAME}'"
-          echo "GitHub ref: '${GITHUB_REF}'"
-          echo "GitHub sha: '${GITHUB_SHA}'"
-          echo "GitHub event workflow run head branch: '${GITHUB_EVENT_WORKFLOW_RUN_HEAD_BRANCH}'"
-          echo "GitHub event workflow run head sha: '${GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA}'"
-          echo "GitHub event workflow run conclusion: '${GITHUB_EVENT_WORKFLOW_RUN_CONCLUSION}'"
-          echo "Is valid tag: '${{ needs.check-version.outputs.is_valid_tag }}'"
-        env:
-          GITHUB_EVENT_WORKFLOW_RUN_HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
-          GITHUB_EVENT_WORKFLOW_RUN_HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
-          GITHUB_EVENT_WORKFLOW_RUN_CONCLUSION: ${{ github.event.workflow_run.conclusion }}
-
   normalize-majorver:
     name: Normalize Major Version Tag
     runs-on: ubuntu-latest
-    needs: [check-version]
-    if: >
-      github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (
-        github.repository == 'stairwaytowonderland/actions' &&
-        needs.check-version.outputs.is_valid_tag == 'true'
-      )
     steps:
       - uses: stairwaytowonderland/normalize-majorver@main
         with:
