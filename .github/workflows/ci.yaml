@@ -148,6 +148,7 @@ jobs:
           echo "  tag: ${{ inputs.tag }}"
           echo "  notes-b64: ${{ inputs.notes-b64 }}"
           echo "  action-ref: ${{ inputs.action-ref }}"
+          echo "  first-release-dispatch-workflow: ${{ inputs.first-release-dispatch-workflow }}"
           echo "Meta Outputs:"
           echo "  is-release-workflow: ${{ needs.meta.outputs.is-release-workflow }}"
           echo "  is-publish-workflow: ${{ needs.meta.outputs.is-publish-workflow }}"
