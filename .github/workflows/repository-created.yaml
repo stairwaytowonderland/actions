@@ -32,7 +32,6 @@ jobs:
       # commit-count-to-check: 2
 
   summary:
-    name: Repository Creation Summary
     needs: on-create
     runs-on: ubuntu-latest
     env:

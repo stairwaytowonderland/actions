@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   stargazer:
-    name: Handle Repository Stargazer
+    name: Handle Repository Dispatch for Stargazer
     uses: ./.github/workflows/repository-dispatched.yaml
     with:
       repo: ${{ github.event.client_payload.repository.name }}
@@ -18,7 +18,7 @@ jobs:
       sender-id: ${{ github.event.client_payload.sender.id }}
 
   summary:
-    name: Repository Stargazer Summary
+    name: ⭐ Handle Repository Stargazer
     needs: stargazer
     runs-on: ubuntu-latest
     env:
