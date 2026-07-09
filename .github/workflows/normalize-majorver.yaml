@@ -18,6 +18,6 @@ jobs:
     name: Normalize Major Version Tag
     runs-on: ubuntu-latest
     steps:
-      - uses: stairwaytowonderland/normalize-majorver@v1
+      - uses: stairwaytowonderland/normalize-majorver@main
         with:
           github-token: ${{ secrets.github-token || github.token }}
