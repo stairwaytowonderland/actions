@@ -78,7 +78,7 @@ jobs:
         id: set-vars
         env:
           IS_RELEASE_WORKFLOW: ${{ startsWith(github.ref, 'refs/heads/main') && ! inputs.publish }}
-          IS_PUBLISH_WORKFLOW: ${{ inputs.publish || (startsWith(github.ref, 'refs/tags/v') && github.event_name == 'push') }}
+          IS_PUBLISH_WORKFLOW: ${{ inputs.publish || (startsWith(github.ref, 'refs/tags/v')) }}
         run: |
           {
             echo "is-release-workflow=$IS_RELEASE_WORKFLOW"
