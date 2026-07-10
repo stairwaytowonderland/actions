@@ -142,27 +142,27 @@ jobs:
       dispatch-workflow: ${{ needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow || '' }}
       fail-on-no-release: ${{ inputs.fail-on-no-release == true }}
 
-  # publish-debug:
-  #   name: Publish Debug Info
-  #   needs: [meta]
-  #   if: needs.meta.outputs.is-publish-workflow == 'true'
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Debug Info
-  #       run: |
-  #         echo "Inputs:"
-  #         echo "  tag: ${{ inputs.tag }}"
-  #         echo "  notes-b64: ${{ inputs.notes-b64 }}"
-  #         echo "  action-ref: ${{ inputs.action-ref }}"
-  #         echo "  first-release-dispatch-workflow: ${{ inputs.first-release-dispatch-workflow }}"
-  #         echo "Meta Outputs:"
-  #         echo "  is-release-workflow: ${{ needs.meta.outputs.is-release-workflow }}"
-  #         echo "  is-publish-workflow: ${{ needs.meta.outputs.is-publish-workflow }}"
-  #         echo "  has-release-tags: ${{ needs.meta.outputs.has-release-tags }}"
-  #         echo "Conditions:"
-  #         echo "  publish-test-01: ${{ needs.meta.outputs.is-publish-workflow == 'true' && (inputs.first-release-dispatch-workflow != '' && needs.meta.outputs.has-release-tags == 'true' || inputs.first-release-dispatch-workflow != '') }}"
-  #         echo "  publish-test-02: ${{ needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '') }}"
-  #         echo "  publish-test-03: ${{ needs.meta.outputs.is-publish-workflow == 'true' || (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '') }}"
+  publish-debug:
+    name: Publish Debug Info
+    needs: [meta]
+    if: needs.meta.outputs.is-publish-workflow == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Info
+        run: |
+          echo "Inputs:"
+          echo "  tag: ${{ inputs.tag }}"
+          echo "  notes-b64: ${{ inputs.notes-b64 }}"
+          echo "  action-ref: ${{ inputs.action-ref }}"
+          echo "  first-release-dispatch-workflow: ${{ inputs.first-release-dispatch-workflow }}"
+          echo "Meta Outputs:"
+          echo "  is-release-workflow: ${{ needs.meta.outputs.is-release-workflow }}"
+          echo "  is-publish-workflow: ${{ needs.meta.outputs.is-publish-workflow }}"
+          echo "  has-release-tags: ${{ needs.meta.outputs.has-release-tags }}"
+          echo "Conditions:"
+          echo "  publish-test-01: ${{ needs.meta.outputs.is-publish-workflow == 'true' && (inputs.first-release-dispatch-workflow != '' && needs.meta.outputs.has-release-tags == 'true' || inputs.first-release-dispatch-workflow != '') }}"
+          echo "  publish-test-02: ${{ needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '') }}"
+          echo "  publish-test-03: ${{ needs.meta.outputs.is-publish-workflow == 'true' || (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '') }}"
 
   publish:
     name: Publish
