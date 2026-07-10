@@ -162,14 +162,14 @@ jobs:
           echo "Conditions:"
           echo "  publish-test-01: ${{ needs.meta.outputs.is-publish-workflow == 'true' && (inputs.first-release-dispatch-workflow != '' && needs.meta.outputs.has-release-tags == 'true' || inputs.first-release-dispatch-workflow != '') }}"
           echo "  publish-test-02: ${{ needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '') }}"
-          echo "  publish-test-03: ${{ needs.meta.outputs.is-publish-workflow == 'true' || (needs.meta.outputs.has-release-tags == 'true' && inputs.first-release-dispatch-workflow == '') }}"
+          echo "  publish-test-03: ${{ needs.meta.outputs.is-publish-workflow == 'true' || (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '') }}"
 
   publish:
     name: Publish
     needs: [meta]
     # if: needs.meta.outputs.is-publish-workflow == 'true' && (inputs.first-release-dispatch-workflow != '' && needs.meta.outputs.has-release-tags == 'true' || inputs.first-release-dispatch-workflow != '')
-    # if: needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '')
-    if: needs.meta.outputs.is-publish-workflow == 'true' || (needs.meta.outputs.has-release-tags == 'true' && inputs.first-release-dispatch-workflow == '')
+    if: needs.meta.outputs.is-publish-workflow == 'true' && ! (needs.meta.outputs.has-release-tags != 'true' && inputs.first-release-dispatch-workflow != '')
+    # if: needs.meta.outputs.is-publish-workflow == 'true' || (needs.meta.outputs.has-release-tags == 'true' && inputs.first-release-dispatch-workflow != '')
     uses: ./.github/workflows/publish.yaml
     permissions:
       contents: write
@@ -181,8 +181,7 @@ jobs:
 
   normalize-majorver:
     name: Normalize Major Version Tag
-    # if: (needs.publish.outputs.release-published == 'true' && github.repository == 'stairwaytowonderland/actions') || startsWith(github.ref, 'refs/tags/v')
-    if: needs.publish.outputs.release-published == 'true' && github.repository == 'stairwaytowonderland/actions'
+    if: (needs.publish.outputs.release-published == 'true' && github.repository == 'stairwaytowonderland/actions') || inputs.normalize-majorver == true
     needs: [publish]
     uses: ./.github/workflows/normalize-majorver.yaml
     permissions:
