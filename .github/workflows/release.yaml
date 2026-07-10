@@ -6,6 +6,9 @@ on:
       dispatch-workflow:
         description: 'The workflow file to dispatch after a successful release.'
         type: string
+      dispatch-workflow-normalize-majorver:
+        description: 'Whether to normalize the major version tag after a successful release.'
+        type: boolean
       fail-on-no-release:
         description: 'Fail the workflow if no release is published (e.g. if there are no relevant commits).'
         type: boolean
@@ -106,11 +109,13 @@ jobs:
               "action-ref": "${{ inputs.action-ref }}",
               "tag": "${{ steps.release.outputs.new-release-git-tag }}",
               "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
+              "normalize-majorver": "${{ inputs.dispatch-workflow-normalize-majorver == true }}"
             }' > dispatch-fields.json
           else
             echo '{
               "tag": "${{ steps.release.outputs.new-release-git-tag }}",
               "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
+              "normalize-majorver": "${{ inputs.dispatch-workflow-normalize-majorver == true }}"
             }' > dispatch-fields.json
           fi
 
