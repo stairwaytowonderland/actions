@@ -108,13 +108,13 @@ jobs:
             echo '{
               "action-ref": "${{ inputs.action-ref }}",
               "tag": "${{ steps.release.outputs.new-release-git-tag }}",
-              "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
+              "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}",
               "normalize-majorver": "${{ inputs.dispatch-workflow-normalize-majorver == true }}"
             }' > dispatch-fields.json
           else
             echo '{
               "tag": "${{ steps.release.outputs.new-release-git-tag }}",
-              "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}"
+              "notes-b64": "${{ steps.release.outputs.new-release-notes-base64 }}",
               "normalize-majorver": "${{ inputs.dispatch-workflow-normalize-majorver == true }}"
             }' > dispatch-fields.json
           fi
