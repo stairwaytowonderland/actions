@@ -1,3 +1,18 @@
+## [1.378.0](https://github.com/stairwaytowonderland/actions/compare/v1.377.0...v1.378.0) (2026-07-10)
+
+### ✨ Features
+
+* updates ([1efb391](https://github.com/stairwaytowonderland/actions/commit/1efb3910a5cda7fd353ebc5eef190f1dcb63a037))
+* updates ([5e877a6](https://github.com/stairwaytowonderland/actions/commit/5e877a69766d235baa4830280d232e8a85b5c1c2))
+* updates ([af93ba1](https://github.com/stairwaytowonderland/actions/commit/af93ba10470e0d1f3515f2dd0966e946389f9069))
+* updates ([26fb605](https://github.com/stairwaytowonderland/actions/commit/26fb6057fbccc77ca3bb02fcad3c75ccfe63c44d))
+* updates ([ab604ac](https://github.com/stairwaytowonderland/actions/commit/ab604ac15e72eb9c9daaaf88a93c874662c926b9))
+* updates ([1a38a6c](https://github.com/stairwaytowonderland/actions/commit/1a38a6c910d70b35180ca016a7e8def7ffb7c432))
+* updates ([5c3e68a](https://github.com/stairwaytowonderland/actions/commit/5c3e68ad28d83555ca8191835d530a5b724c1d60))
+* updates ([42578c4](https://github.com/stairwaytowonderland/actions/commit/42578c4a07715b82437ce50db291a6f696975b08))
+* updates ([b9552e1](https://github.com/stairwaytowonderland/actions/commit/b9552e16b0cd541bf4e33ae4adebb27e435fe98e))
+* updates ([3b00684](https://github.com/stairwaytowonderland/actions/commit/3b00684626ecabc23148b25adc88d2ad53a73293))
+
 ## [1.377.0](https://github.com/stairwaytowonderland/actions/compare/v1.376.0...v1.377.0) (2026-07-09)
 
 ### ✨ Features
