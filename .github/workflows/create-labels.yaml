@@ -1,68 +1,33 @@
-name: Labels Create
-
-concurrency:
-  group: ${{github.repository}}-${{ github.workflow }}
-  cancel-in-progress: false
+name: 🏷️ Create Labels
 
 on:
+  repository_dispatch:
+    types: [create-labels]
+
   workflow_dispatch:
     inputs:
-      # owner:
-      #   description: 'GitHub organization or user that owns the repository'
-      #   type: string
-      # repo:
-      #   description: 'GitHub repository name (if not the current repository)'
-      #   type: string
       dry-run:
         description: 'Dry run'
         type: boolean
         default: true
       update-existing:
         description: 'Whether to update existing labels (e.g. rename, change color/description).'
-        required: true
         type: boolean
-      action-ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
-        type: string
-        default: 'v1'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   create-labels:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-
-      - name: Get repo info
-        id: repo-info
-        uses: ./.actions/.github/actions/repo-info-action
-
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ steps.repo-info.outputs.repo-owner }}
-          repositories: ${{ steps.repo-info.outputs.repo-name }}
-
-      - name: Create labels
-        uses: ./.actions/.github/actions/labels-create-action
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ steps.repo-info.outputs.repo-owner }}
-          repo: ${{ steps.repo-info.outputs.repo-name }}
-          dry-run: ${{ inputs.dry-run == true }}
-          update-existing: ${{ inputs.update-existing == true }}
+    name: Create Labels
+    uses: stairwaytowonderland/label-management/.github/workflows/create-labels.yaml@v1
+    secrets: inherit
+    with:
+      dry-run: ${{ inputs.dry-run == true }}
+      update-existing: ${{ inputs.update-existing == true }}

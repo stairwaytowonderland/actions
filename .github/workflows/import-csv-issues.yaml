@@ -1,289 +1,35 @@
-name: Issues Import (from CSV)
-
-concurrency:
-  group: ${{github.repository}}-${{ github.workflow }}
-  cancel-in-progress: false
+name: 🔖 Import Issues from CSV
 
 on:
+  repository_dispatch:
+    types: [create-issues]
+
   workflow_dispatch:
     inputs:
-      # owner:
-      #   description: 'GitHub organization or user that owns the repository'
-      #   type: string
-      # repo:
-      #   description: 'GitHub repository name (if not the current repository)'
-      #   type: string
-      csv-path:
-        description: 'Path (relative) to the CSV file'
-        required: true
-        type: string
-        default: 'TODO.csv'
       dry-run:
         description: 'Dry run'
         type: boolean
         default: true
-      max-parallel:
-        description: 'Maximum number of parallel issue creations (only applies when batch is false)'
-        type: number
-        default: 5
-      batch:
-        description: 'Create issues in batches (by type)'
-        type: boolean
-        default: true
-      allow-duplicates:
-        description: 'Allow creating duplicate issues'
-        type: boolean
-      allow-closed-duplicates:
-        description: 'Allow creating duplicate issues for closed issues'
-        type: boolean
-      action-ref:
-        description: 'Git ref of the shared actions repo to use (e.g. main or a specific tag/commit)'
+
+      csv-path:
+        description: 'Path (relative) to the CSV file'
         type: string
-        default: 'v1'
+        default: 'TODO.csv'
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
-  repo-info:
-    name: Get repo info
-    runs-on: ubuntu-latest
-    outputs:
-      repo-owner: ${{ steps.repo-info.outputs.repo-owner }}
-      repo-name: ${{ steps.repo-info.outputs.repo-name }}
-    steps:
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-      - name: Get repo info
-        id: repo-info
-        uses: ./.actions/.github/actions/repo-info-action
-
-  parse-csv:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.parse.outputs.matrix }}
-      types: ${{ steps.parse.outputs.types }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '24'
-
-      - name: Install PapaParse
-        run: npm install papaparse
-
-      - name: Parse CSV and build matrix
-        id: parse
-        uses: ./.actions/.github/actions/parse-issue-csv-action
-        with:
-          csv-path: ${{ inputs.csv-path }}
-
-      - name: Show outputs
-        uses: actions/github-script@v9
-        env:
-          MATRIX: ${{ steps.parse.outputs.matrix }}
-          TYPES: ${{ steps.parse.outputs.types }}
-        with:
-          script: |
-            const matrix = JSON.parse(process.env.MATRIX);
-            const types = JSON.parse(process.env.TYPES);
-            console.log("matrix:", matrix);
-            console.log("types:", types);
-            console.log(`Total issues parsed: ${types.reduce((sum, type) => sum + (matrix[type].include.length || 0), 0)}`);
-            console.log(`Issues by type: ${types.map(type => `${type}: ${matrix[type].include.length || 0}`).join(', ')}`);
-
-      - name: Set lengths
-        uses: actions/github-script@v9
-        env:
-          MATRIX: ${{ steps.parse.outputs.matrix }}
-          TYPES: ${{ steps.parse.outputs.types }}
-        with:
-          script: |
-            const matrix = JSON.parse(process.env.MATRIX);
-            const types = JSON.parse(process.env.TYPES);
-            console.log(`Total issues parsed: ${types.reduce((sum, type) => sum + (matrix[type].include.length || 0), 0)}`);
-            console.log(`Issues by type: ${types.map(type => `${type}: ${matrix[type].include.length || 0}`).join(', ')}`);
-            for (const type of types) {
-              const count = (matrix[type] && matrix[type].include) ? matrix[type].include.length : 0;
-              console.log(`${type}-count: ${count}`);
-              core.setOutput(`${type}-count`, count);
-            }
-
-  create-labels:
-    runs-on: ubuntu-latest
-    needs: [parse-csv, repo-info]
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repositories: ${{ needs.repo-info.outputs.repo-name }}
-
-      - name: Ensure only needed labels exist
-        uses: ./.actions/.github/actions/labels-create-action
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repo: ${{ needs.repo-info.outputs.repo-name }}
-          matrix: ${{ toJson(needs.parse-csv.outputs.matrix) }}
-          dry-run: ${{ inputs.dry-run == true }}
-
-  create-issue-batch:
-    if: ${{ inputs.batch }}
-    needs: [repo-info, parse-csv, create-labels]
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        type: ${{ fromJson(needs.parse-csv.outputs.types) }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repositories: ${{ needs.repo-info.outputs.repo-name }}
-
-      - name: Create issues by type
-        if: ${{ fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include[0] != null }}
-        uses: ./.actions/.github/actions/issue-import-action
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repo: ${{ needs.repo-info.outputs.repo-name }}
-          batch-json: ${{ toJson(fromJson(needs.parse-csv.outputs.matrix)[matrix.type].include) }}
-          allow-duplicates: ${{ inputs.allow-duplicates }}
-          allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
-          priority-field-id: 535200
-          effort-field-id: 535203
-          dry-run: ${{ inputs.dry-run == true }}
-
-  merge-matrix:
-    if: ${{ !inputs.batch }}
-    needs: [parse-csv]
-    runs-on: ubuntu-latest
-    outputs:
-      all: ${{ steps.merge.outputs.all }}
-    steps:
-      - name: Merge all issue arrays
-        id: merge
-        uses: actions/github-script@v9
-        env:
-          MATRIX: ${{ needs.parse-csv.outputs.matrix }}
-          TYPES: ${{ needs.parse-csv.outputs.types }}
-        with:
-          script: |
-            const matrix = JSON.parse(process.env.MATRIX);
-            const types = JSON.parse(process.env.TYPES);
-            const merged = [];
-            for (const type of types) {
-              if (matrix[type] && Array.isArray(matrix[type].include)) {
-                merged.push(...matrix[type].include);
-              }
-            }
-            core.setOutput('all', JSON.stringify(merged));
-
-  create-issue:
-    if: ${{ !inputs.batch }}
-    needs: [repo-info, merge-matrix, create-labels]
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: ${{ inputs.max-parallel }}
-      matrix:
-        issue: ${{ fromJson(needs.merge-matrix.outputs.all) }}
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Checkout shared actions repo
-        uses: actions/checkout@v7
-        with:
-          repository: stairwaytowonderland/actions
-          path: ./.actions
-          ref: ${{ inputs.action-ref }}
-          persist-credentials: false
-          sparse-checkout: |
-            .github
-
-      - name: Generate GitHub App Token
-        id: generate-token
-        uses: actions/create-github-app-token@v3
-        with:
-          client-id: ${{ vars.ORG_REPO_USER_APP_ID }}
-          private-key: ${{ secrets.ORG_REPO_USER_PRIVATE_KEY }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repositories: ${{ needs.repo-info.outputs.repo-name }}
-
-      - name: Create issue
-        uses: ./.actions/.github/actions/issue-import-action
-        with:
-          github-token: ${{ steps.generate-token.outputs.token }}
-          owner: ${{ needs.repo-info.outputs.repo-owner }}
-          repo: ${{ needs.repo-info.outputs.repo-name }}
-          title: ${{ matrix.issue.title }}
-          priority: ${{ matrix.issue.priority }}
-          effort: ${{ matrix.issue.effort }}
-          description: ${{ matrix.issue.description }}
-          status: ${{ matrix.issue.status }}
-          completed: ${{ matrix.issue.completed }}
-          dry-run: ${{ inputs.dry-run == true }}
-          allow-duplicates: ${{ inputs.allow-duplicates }}
-          allow-closed-duplicates: ${{ inputs.allow-closed-duplicates }}
-          priority-field-id: 535200
-          effort-field-id: 535203
+  import-issues:
+    name: Import Issues
+    uses: stairwaytowonderland/issue-management/.github/workflows/import-csv-issues.yaml@v1
+    secrets: inherit
+    with:
+      batch: true
+      csv-path: ${{ inputs.csv-path || 'TODO.csv' }}
+      dry-run: ${{ inputs.dry-run == true }}
