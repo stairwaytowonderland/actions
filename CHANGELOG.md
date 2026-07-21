@@ -1,3 +1,14 @@
+## [1.385.0](https://github.com/stairwaytowonderland/actions/compare/v1.384.0...v1.385.0) (2026-07-21)
+
+### ✨ Features
+
+* update LICENSE ([463ff4d](https://github.com/stairwaytowonderland/actions/commit/463ff4d4ad289ae64d7c2408a32b5bcc6ce4c723))
+
+### 🔧 Chores
+
+* update README ([4ee8c12](https://github.com/stairwaytowonderland/actions/commit/4ee8c128250fa129fd89d62cf573448d41e75e06))
+* update reuseable workflow references ([4be9578](https://github.com/stairwaytowonderland/actions/commit/4be9578c5e49aeeac4056367d2226aab6d7fd03e))
+
 ## [1.384.0](https://github.com/stairwaytowonderland/actions/compare/v1.383.0...v1.384.0) (2026-07-10)
 
 ### ✨ Features
