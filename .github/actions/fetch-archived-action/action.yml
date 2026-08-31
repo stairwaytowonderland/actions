@@ -34,15 +34,14 @@ runs:
           // Safely grab the current organization name from the runner context
           const orgName = process.env.ORG || context.repo.owner;
 
-          // 1. We call the route as a raw HTTP string.
-          // This forces actions/github-script to respect your App's installation context.
-          const allRepos = await github.paginate(`GET /orgs/${orgName}/repos`, {
+          // 1. Fetch ALL repositories cleanly.
+          const allRepos = await github.paginate(github.rest.repos.listForOrg, {
+            org: orgName,
             per_page: 100,
             type: 'all'
           });
 
-          // 2. Because we omitted the buggy callback argument, Octokit naturally flattens
-          // the server's '.repositories' array into a standard, clean JavaScript array.
+          // 2. Filter and shape your array cleanly in the main block
           const repos = allRepos
             .filter(repo => repo.archived)
             .map(repo => ({
@@ -50,7 +49,8 @@ runs:
               owner: repo.owner.login,
               org: orgName,
               full_name: repo.full_name,
-              html_url: repo.html_url
+              html_url: repo.html_url,
+              private: repo.private
             }));
 
           core.info(`Successfully fetched ${repos.length} repositories.`);
