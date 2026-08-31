@@ -1,3 +1,9 @@
+## [1.386.0](https://github.com/stairwaytowonderland/actions/compare/v1.385.0...v1.386.0) (2026-08-31)
+
+### ✨ Features
+
+* adding fetch-archived-action ([e21d3d4](https://github.com/stairwaytowonderland/actions/commit/e21d3d49c3716102cbaedf43ac717bdc8720935c))
+
 ## [1.385.0](https://github.com/stairwaytowonderland/actions/compare/v1.384.0...v1.385.0) (2026-07-21)
 
 ### ✨ Features
