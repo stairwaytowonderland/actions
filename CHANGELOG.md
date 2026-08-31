@@ -1,3 +1,9 @@
+## [1.390.0](https://github.com/stairwaytowonderland/actions/compare/v1.389.0...v1.390.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using separate filters ([95fe88c](https://github.com/stairwaytowonderland/actions/commit/95fe88ca811871b37147ee097822da6e2be35de4))
+
 ## [1.389.0](https://github.com/stairwaytowonderland/actions/compare/v1.388.0...v1.389.0) (2026-08-31)
 
 ### ✨ Features
