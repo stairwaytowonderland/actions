@@ -48,8 +48,9 @@ runs:
                 full_name: repo.full_name,
                 html_url: repo.html_url,
                 open_issues_count: repo.open_issues_count
-              }));
-          }).filter(repo => repo.open_issues_count > 0);
+              }))
+              .filter(repo => repo.open_issues_count > 0);
+          });
 
           core.info(`Successfully fetched ${repos.length} repositories.`);
           core.info(`Repositories with open issues that are archived: ${JSON.stringify(repos, null, 2)}`);
