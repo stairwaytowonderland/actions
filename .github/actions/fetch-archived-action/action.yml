@@ -11,8 +11,10 @@ inputs:
 outputs:
   repos:
     description: 'The list of repositories with open issues.'
+    value: ${{ steps.fetch-archived.outputs.repos }}
   count:
     description: 'The count of repositories with open issues.'
+    value: ${{ steps.fetch-archived.outputs.count }}
 branding:
   color: white
   icon: archive
@@ -21,6 +23,7 @@ runs:
   using: 'composite'
   steps:
     - name: Fetch Archived Repositories
+      id: fetch-archived
       uses: actions/github-script@v9
       env:
         ORG: ${{ inputs.org }}
