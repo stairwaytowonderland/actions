@@ -36,14 +36,13 @@ runs:
 
           const repos = await github.paginate(github.rest.apps.listReposAccessibleToInstallation, {
             per_page: 100
-          }, (response: any) => { // Type-casted to 'any' to bypass Octokit's incorrect pagination types
-
-            // Guard clause in case the endpoint shape shifts slightly across plugin versions
+          }, (response) => {
+            // Safe extraction that works regardless of your octokit dependency version
             const repoData = response.data.repositories || response.data;
 
             return repoData
-              .filter((repo: any) => repo.archived)
-              .map((repo: any) => ({
+              .filter(repo => repo.archived)
+              .map(repo => ({
                 name: repo.name,
                 owner: repo.owner.login,
                 org: orgName,
