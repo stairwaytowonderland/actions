@@ -34,24 +34,44 @@ runs:
           // Safely grab the current organization name from the runner context
           const orgName = process.env.ORG || context.repo.owner;
 
-          // Step 1: Let Octokit safely handle pagination without a callback wrapper.
-          // This guarantees that 'allRepos' will always be a true, flat JavaScript array.
-          const allRepos = await github.paginate(github.rest.repos.listRepositoriesForAuthenticatedUser, {
-            per_page: 100,
-            visibility: 'all',
-            affiliation: 'owner,organization_member'
-          });
+          const repos = [];
 
-          // Step 2: Safely filter and map the complete, verified array
-          const repos = allRepos
-            .filter(repo => repo.archived)
-            .map(repo => ({
-              name: repo.name,
-              owner: repo.owner.login,
-              org: orgName,
-              full_name: repo.full_name,
-              html_url: repo.html_url
-            }));
+          try {
+            // Use the iterator. This bypasses Octokit's broken pagination wrapper
+            // and gives us direct access to the raw HTTP responses.
+            const iterator = github.paginate.iterator(
+              github.rest.apps.listReposAccessibleToInstallation,
+              { per_page: 100 }
+            );
+
+            for await (const response of iterator) {
+              // Under a GitHub App token, the API encapsulates the array strictly inside response.data.repositories
+              const pageRepos = response.data.repositories || [];
+
+              // Filter down to the exact organization and ensure they are archived
+              const matches = pageRepos
+                .filter(repo => {
+                  const isTargetOrg = repo.owner.login.toLowerCase() === orgName.toLowerCase();
+                  return isTargetOrg && repo.archived;
+                })
+                .map(repo => ({
+                  name: repo.name,
+                  owner: repo.owner.login,
+                  org: orgName,
+                  full_name: repo.full_name,
+                  html_url: repo.html_url,
+                  private: repo.private // Adding this so you can verify it captures private repos
+                }));
+
+              repos.push(...matches);
+            }
+
+            console.log(`Execution complete. Found ${repos.length} total archived repositories.`);
+            console.log(JSON.stringify(repos, null, 2));
+
+          } catch (error) {
+            console.error("API Execution Failed:", error.message);
+          }
 
           core.info(`Successfully fetched ${repos.length} repositories.`);
           core.info(`Repositories: ${JSON.stringify(repos, null, 2)}`);
