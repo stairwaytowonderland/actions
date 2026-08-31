@@ -36,7 +36,7 @@ runs:
 
           // 1. We call the route as a raw HTTP string.
           // This forces actions/github-script to respect your App's installation context.
-          const allRepos = await github.paginate("GET /orgs/${orgName}/repos", {
+          const allRepos = await github.paginate(`GET /orgs/${orgName}/repos`, {
             per_page: 100,
             type: 'all'
           });
