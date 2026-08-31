@@ -1,3 +1,9 @@
+## [1.400.0](https://github.com/stairwaytowonderland/actions/compare/v1.399.0...v1.400.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using iterator with listReposAccessibleToInstallation ([dd445fc](https://github.com/stairwaytowonderland/actions/commit/dd445fcc800240a9d33322eaeca242e0c0975377))
+
 ## [1.399.0](https://github.com/stairwaytowonderland/actions/compare/v1.398.0...v1.399.0) (2026-08-31)
 
 ### ✨ Features
