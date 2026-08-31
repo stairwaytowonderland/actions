@@ -1,3 +1,9 @@
+## [1.405.0](https://github.com/stairwaytowonderland/actions/compare/v1.404.0...v1.405.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using GET /orgs/{org}/repos ([77fc50b](https://github.com/stairwaytowonderland/actions/commit/77fc50b526be535429cadc0850c763580cf07376))
+
 ## [1.404.0](https://github.com/stairwaytowonderland/actions/compare/v1.403.0...v1.404.0) (2026-08-31)
 
 ### ✨ Features
