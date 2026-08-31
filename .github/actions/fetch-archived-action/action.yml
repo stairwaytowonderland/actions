@@ -38,16 +38,37 @@ runs:
             org: orgName,
             per_page: 100,
             type: 'all'
-          }, (response) => {
+          }, (response, done) => {
+            /* Using flatMap instead of filter + map for optimization */
+            /* return response.data
+              .filter(repo => repo.open_issues_count > 0 && !repo.archived)
+              .map(repo => ({
+                name: repo.name,
+                owner: repo.owner.login,
+                org: orgName,
+                full_name: repo.full_name,
+                html_url: repo.html_url,
+                open_issues_count: repo.open_issues_count
+              })); */
+
             // Optimization: Only keep properties the next step needs to avoid size limits
-            return response.data.map(repo => ({
-              name: repo.name,
-              owner: repo.owner.login,
-              org: orgName,
-              full_name: repo.full_name,
-              html_url: repo.html_url,
-              open_issues_count: repo.open_issues_count
-            })).filter(repo => repo.open_issues_count > 0);
+            return response.data.flatMap(repo => {
+              // 1. The Filter Condition
+              if (repo.open_issues_count > 0 && !repo.archived) {
+                // 2. The Map Transformation (Wrapped in an array)
+                return [{
+                  name: repo.name,
+                  owner: repo.owner.login,
+                  org: orgName,
+                  full_name: repo.full_name,
+                  html_url: repo.html_url,
+                  open_issues_count: repo.open_issues_count
+                }];
+              }
+
+              // 3. The Filter "Drop" Condition
+              return [];
+            });
           });
 
           core.info(`Successfully fetched ${repos.length} repositories.`);
