@@ -1,3 +1,9 @@
+## [1.389.0](https://github.com/stairwaytowonderland/actions/compare/v1.388.0...v1.389.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action fix archive logic ([ddcf620](https://github.com/stairwaytowonderland/actions/commit/ddcf620b62f22bb0a5ae1365904d27c143b35786))
+
 ## [1.388.0](https://github.com/stairwaytowonderland/actions/compare/v1.387.0...v1.388.0) (2026-08-31)
 
 ### ✨ Features
