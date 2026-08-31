@@ -34,14 +34,14 @@ runs:
           // Safely grab the current organization name from the runner context
           const orgName = process.env.ORG || context.repo.owner;
 
-          const repos = await github.paginate(github.rest.repos.listForOrg, {
-            org: orgName,
+          const repos = await github.paginate(github.rest.repos.listRepositoriesForAuthenticatedUser, {
             per_page: 100,
-            type: 'all',         // Tells the API to include all types (public, private, internal)
-            visibility: 'all'    // FORCES the API to ignore visibility thresholds for authenticated user scopes
+            visibility: 'all',  // Instructs the endpoint to include public, private, and internal repos
+            affiliation: 'owner,organization_member' // Narrows the search strictly to repositories tied to your org/account
           }, (response) => {
             return response.data
-              .filter(repo => repo.archived)
+              // Filter by organization name to avoid catching repos outside your target org
+              .filter(repo => repo.owner.login.toLowerCase() === orgName.toLowerCase() && repo.archived)
               .map(repo => ({
                 name: repo.name,
                 owner: repo.owner.login,
