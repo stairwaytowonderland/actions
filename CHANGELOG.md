@@ -1,3 +1,9 @@
+## [1.388.0](https://github.com/stairwaytowonderland/actions/compare/v1.387.0...v1.388.0) (2026-08-31)
+
+### ✨ Features
+
+* modify filter-archived-action filter and map ([d7f0f97](https://github.com/stairwaytowonderland/actions/commit/d7f0f970ad20d19a4efe42da5043018b9677e201))
+
 ## [1.387.0](https://github.com/stairwaytowonderland/actions/compare/v1.386.0...v1.387.0) (2026-08-31)
 
 ### ✨ Features
