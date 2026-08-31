@@ -34,18 +34,16 @@ runs:
           // Safely grab the current organization name from the runner context
           const orgName = process.env.ORG || context.repo.owner;
 
-          const repos = await github.paginate(github.rest.repos.listForOrg, {
-            org: orgName,
-            per_page: 100,
-            type: 'all',
-            headers: {
-              // Explicitly forces the GitHub API to parse permissions as a fully installed app
-              'X-GitHub-Api-Version': '2022-11-28'
-            }
-          }, (response, done) => {
-            return response.data
-              .filter(repo => repo.archived)
-              .map(repo => ({
+          const repos = await github.paginate(github.rest.apps.listReposAccessibleToInstallation, {
+            per_page: 100
+          }, (response: any) => { // Type-casted to 'any' to bypass Octokit's incorrect pagination types
+
+            // Guard clause in case the endpoint shape shifts slightly across plugin versions
+            const repoData = response.data.repositories || response.data;
+
+            return repoData
+              .filter((repo: any) => repo.archived)
+              .map((repo: any) => ({
                 name: repo.name,
                 owner: repo.owner.login,
                 org: orgName,
