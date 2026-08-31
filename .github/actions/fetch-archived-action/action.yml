@@ -46,15 +46,13 @@ runs:
                 owner: repo.owner.login,
                 org: orgName,
                 full_name: repo.full_name,
-                html_url: repo.html_url,
-                open_issues_count: repo.open_issues_count
-              }))
-              .filter(repo => repo.open_issues_count > 0);
+                html_url: repo.html_url
+              }));
           });
 
           core.info(`Successfully fetched ${repos.length} repositories.`);
-          core.info(`Repositories with open issues that are archived: ${JSON.stringify(repos, null, 2)}`);
-          core.info(`List of repository full names: ${JSON.stringify(repos.map(repo => repo.full_name))}`);
+          core.info(`Repositories: ${JSON.stringify(repos, null, 2)}`);
+          core.info(`List: ${JSON.stringify(repos.map(repo => repo.full_name))}`);
 
           // Serialize the array to a JSON string and set the output
           core.setOutput('repos', JSON.stringify(repos));
