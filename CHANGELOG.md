@@ -1,3 +1,9 @@
+## [1.393.0](https://github.com/stairwaytowonderland/actions/compare/v1.392.0...v1.393.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action adding headers to listForOrg request ([dff7535](https://github.com/stairwaytowonderland/actions/commit/dff75351513256f89f0b8ea717edc72cfa2fe795))
+
 ## [1.392.0](https://github.com/stairwaytowonderland/actions/compare/v1.391.0...v1.392.0) (2026-08-31)
 
 ### ✨ Features
