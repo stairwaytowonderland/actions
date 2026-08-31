@@ -1,3 +1,9 @@
+## [1.387.0](https://github.com/stairwaytowonderland/actions/compare/v1.386.0...v1.387.0) (2026-08-31)
+
+### ✨ Features
+
+* fix fetch-archived-action outputs ([94806b0](https://github.com/stairwaytowonderland/actions/commit/94806b00e74fffc218c7d471fb1b14d5206c87d2))
+
 ## [1.386.0](https://github.com/stairwaytowonderland/actions/compare/v1.385.0...v1.386.0) (2026-08-31)
 
 ### ✨ Features
