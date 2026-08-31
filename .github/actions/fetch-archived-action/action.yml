@@ -1,0 +1,54 @@
+name: Fetch Archived Action
+description: This action fetches archived repositories with open issues.
+inputs:
+  org:
+    description: 'The organization to fetch.'
+    required: false
+    default: ''
+  github-token:
+    description: 'GitHub token for authentication.'
+    required: true
+outputs:
+  repos:
+    description: 'The list of repositories with open issues.'
+  count:
+    description: 'The count of repositories with open issues.'
+branding:
+  color: white
+  icon: archive
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Fetch Archived Repositories
+      uses: actions/github-script@v9
+      env:
+        ORG: ${{ inputs.org }}
+      with:
+        # Use a PAT if you need to fetch private repositories across the whole organization
+        github-token: ${{ inputs.github-token }}
+        script: |
+          // Safely grab the current organization name from the runner context
+          const orgName = process.env.ORG || context.repo.owner;
+
+          const repos = await github.paginate(github.rest.repos.listForOrg, {
+            org: orgName,
+            per_page: 100,
+            type: 'all'
+          }, (response) => {
+            // Optimization: Only keep properties the next step needs to avoid size limits
+            return response.data.map(repo => ({
+              name: repo.name,
+              owner: repo.owner.login,
+              org: orgName,
+              full_name: repo.full_name,
+              html_url: repo.html_url,
+              open_issues_count: repo.open_issues_count
+            })).filter(repo => repo.open_issues_count > 0);
+          });
+
+          core.info(`Successfully fetched ${repos.length} repositories.`);
+
+          // Serialize the array to a JSON string and set the output
+          core.setOutput('repos', JSON.stringify(repos));
+          core.setOutput('count', repos.length);
