@@ -1,3 +1,9 @@
+## [1.401.0](https://github.com/stairwaytowonderland/actions/compare/v1.400.0...v1.401.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using GET /installation/repositories ([463e665](https://github.com/stairwaytowonderland/actions/commit/463e66582bd38f194379abbb6af96ddd344a5b7d))
+
 ## [1.400.0](https://github.com/stairwaytowonderland/actions/compare/v1.399.0...v1.400.0) (2026-08-31)
 
 ### ✨ Features
