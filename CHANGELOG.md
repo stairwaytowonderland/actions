@@ -1,3 +1,9 @@
+## [1.397.0](https://github.com/stairwaytowonderland/actions/compare/v1.396.0...v1.397.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using listForOrg ([45a436a](https://github.com/stairwaytowonderland/actions/commit/45a436a48a2eff58d932226bbe8c2e29b17781b6))
+
 ## [1.396.0](https://github.com/stairwaytowonderland/actions/compare/v1.395.0...v1.396.0) (2026-08-31)
 
 ### ✨ Features
