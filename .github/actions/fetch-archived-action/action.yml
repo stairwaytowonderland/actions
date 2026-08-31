@@ -34,13 +34,14 @@ runs:
           // Safely grab the current organization name from the runner context
           const orgName = process.env.ORG || context.repo.owner;
 
-          const repos = await github.paginate(github.rest.apps.listReposAccessibleToInstallation, {
-            per_page: 100
-          }, (response) => {
-            // Safe extraction that works regardless of your octokit dependency version
-            const repoData = response.data.repositories || response.data;
+          const repos = [];
 
-            return repoData
+          // Streams pages explicitly without guessing Octokit's unwrapping behavior
+          for await (const response of github.paginate.iterator(github.rest.apps.listReposAccessibleToInstallation, { per_page: 100 })) {
+            // At the iterator level, GitHub wraps the array strictly inside .data.repositories
+            const pageRepos = response.data.repositories || [];
+
+            const filteredPage = pageRepos
               .filter(repo => repo.archived)
               .map(repo => ({
                 name: repo.name,
@@ -49,7 +50,9 @@ runs:
                 full_name: repo.full_name,
                 html_url: repo.html_url
               }));
-          });
+
+            repos.push(...filteredPage);
+          }
 
           core.info(`Successfully fetched ${repos.length} repositories.`);
           core.info(`Repositories: ${JSON.stringify(repos, null, 2)}`);
