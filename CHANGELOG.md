@@ -1,3 +1,9 @@
+## [1.391.0](https://github.com/stairwaytowonderland/actions/compare/v1.390.0...v1.391.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action fix second filter placement ([37250fb](https://github.com/stairwaytowonderland/actions/commit/37250fb984645cd5dc2eefc9205ee4d2c3706aa7))
+
 ## [1.390.0](https://github.com/stairwaytowonderland/actions/compare/v1.389.0...v1.390.0) (2026-08-31)
 
 ### ✨ Features
