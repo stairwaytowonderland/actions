@@ -1,3 +1,9 @@
+## [1.398.0](https://github.com/stairwaytowonderland/actions/compare/v1.397.0...v1.398.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using listRepositoriesForAuthenticatedUser ([6622f32](https://github.com/stairwaytowonderland/actions/commit/6622f326ad70baae9b4bbad309dc0e1b99c361c9))
+
 ## [1.397.0](https://github.com/stairwaytowonderland/actions/compare/v1.396.0...v1.397.0) (2026-08-31)
 
 ### ✨ Features
