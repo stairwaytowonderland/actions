@@ -1,3 +1,9 @@
+## [1.394.0](https://github.com/stairwaytowonderland/actions/compare/v1.393.0...v1.394.0) (2026-08-31)
+
+### ✨ Features
+
+* fetch-archived-action using listReposAccessibleToInstallation ([86e63e8](https://github.com/stairwaytowonderland/actions/commit/86e63e81c29910f0cc8f8ac330d986eef52415d0))
+
 ## [1.393.0](https://github.com/stairwaytowonderland/actions/compare/v1.392.0...v1.393.0) (2026-08-31)
 
 ### ✨ Features
