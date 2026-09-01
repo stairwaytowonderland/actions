@@ -50,6 +50,7 @@ runs:
               org: orgName,
               full_name: repo.full_name,
               html_url: repo.html_url,
+              search_url: `https://github.com/search?q=type%3Apullrequests+is%3Aissue+is%3Aopen+archived%3Atrue+repo%3A${orgName}/${repo.name}`,
               private: repo.private,
               open_issues_count: repo.open_issues_count
             }));
