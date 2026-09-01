@@ -5,10 +5,10 @@ inputs:
     description: 'The owner to fetch.'
     required: false
     default: ''
-  owner-is-user:
-    description: 'Indicates if the owner is a user.'
+  owner-is-org:
+    description: 'Indicates if the owner is an organization.'
     required: false
-    default: ''
+    default: 'true'
   has-issues:
     description: 'Indicates if only repositories with open issues should be fetched.'
     required: false
@@ -39,7 +39,7 @@ runs:
       uses: actions/github-script@v9
       env:
         OWNER: ${{ inputs.owner }}
-        OWNER_IS_USER: ${{ inputs.owner-is-user }}
+        OWNER_IS_ORG: ${{ inputs.owner-is-org }}
         HAS_ISSUES: ${{ inputs.has-issues }}
         IS_ARCHIVED: ${{ inputs.is-archived }}
       with:
@@ -52,15 +52,15 @@ runs:
           let allRepos = [];
 
           try {
-            if (process.env.OWNER_IS_USER === 'true') {
-              allRepos = await github.paginate(github.rest.repos.listForUser, {
-                username: ownerName,
+            if (process.env.OWNER_IS_ORG === 'true') {
+              allRepos = await github.paginate(github.rest.repos.listForOrg, {
+                org: ownerName,
                 per_page: 100,
                 type: 'all'
               });
             } else {
-              allRepos = await github.paginate(github.rest.repos.listForOrg, {
-                org: ownerName,
+              allRepos = await github.paginate(github.rest.repos.listForUser, {
+                username: ownerName,
                 per_page: 100,
                 type: 'all'
               });
@@ -77,7 +77,6 @@ runs:
               owner: ownerName,
               full_name: repo.full_name,
               html_url: repo.html_url,
-              search_url: `https://github.com/search?q=type%3Apullrequests+is%3Aissue+is%3Aopen+archived%3Atrue+repo%3A${ownerName}/${repo.name}`,
               private: repo.private,
               open_issues_count: repo.open_issues_count
             }));
