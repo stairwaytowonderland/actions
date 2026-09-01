@@ -12,6 +12,8 @@ inputs:
     description: 'GitHub repository name (if not the current repository)'
   repo-owner:
     description: 'GitHub organization or user that owns the repository (if not the current repository)'
+  all-by-owner:
+    description: 'Fetch all repositories by the owner, not just the current repository'
 
 outputs:
   auth-token:
@@ -29,7 +31,7 @@ runs:
       shell: bash
       env:
         REPOSITORY_OWNER: ${{ inputs.repo-owner || github.repository_owner }}
-        REPOSITORY_NAME: ${{ inputs.repo-name || github.repository }}
+        REPOSITORY_NAME: ${{ inputs.all-by-owner != 'true' && (inputs.repo-name || github.repository) || '[all]' }}
       run: |
         echo "repo-owner=${REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
         echo "repo-name=${REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
@@ -71,7 +73,7 @@ runs:
         client-id: ${{ inputs.app-client-id }}
         private-key: ${{ inputs.app-private-key }}
         owner: ${{ steps.repo-info.outputs.repo-owner }}
-        repositories: ${{ steps.repo-info.outputs.repo-name }}
+        repositories: ${{ inputs.all-by-owner != 'true' && steps.repo-info.outputs.repo-name || '' }}
 
     - name: Set auth-token output
       id: set-output
