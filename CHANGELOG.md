@@ -1,3 +1,9 @@
+## [1.415.0](https://github.com/stairwaytowonderland/actions/compare/v1.414.0...v1.415.0) (2026-09-01)
+
+### ✨ Features
+
+* fetch-archived-action add search_url ([2f9dcaf](https://github.com/stairwaytowonderland/actions/commit/2f9dcafea1f3ec2e227162f5ca37a06f74277608))
+
 ## [1.414.0](https://github.com/stairwaytowonderland/actions/compare/v1.413.0...v1.414.0) (2026-09-01)
 
 ### ✨ Features
