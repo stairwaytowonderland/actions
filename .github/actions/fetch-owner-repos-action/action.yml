@@ -1,0 +1,90 @@
+name: Fetch Owner Repos Action
+description: This action fetches repositories owned by the specified owner.
+inputs:
+  owner:
+    description: 'The owner to fetch.'
+    required: false
+    default: ''
+  owner-is-user:
+    description: 'Indicates if the owner is a user.'
+    required: false
+    default: ''
+  has-issues:
+    description: 'Indicates if only repositories with open issues should be fetched.'
+    required: false
+    default: ''
+  is-archived:
+    description: 'Indicates if only archived repositories should be fetched.'
+    required: false
+    default: ''
+  github-token:
+    description: 'GitHub token for authentication.'
+    required: true
+outputs:
+  repos:
+    description: 'The list of repositories owned by the specified owner.'
+    value: ${{ steps.fetch-owner-repos.outputs.repos }}
+  count:
+    description: 'The count of repositories owned by the specified owner.'
+    value: ${{ steps.fetch-owner-repos.outputs.count }}
+branding:
+  color: white
+  icon: archive
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Fetch Owner Repositories
+      id: fetch-owner-repos
+      uses: actions/github-script@v9
+      env:
+        OWNER: ${{ inputs.owner }}
+        OWNER_IS_USER: ${{ inputs.owner-is-user }}
+        HAS_ISSUES: ${{ inputs.has-issues }}
+        IS_ARCHIVED: ${{ inputs.is-archived }}
+      with:
+        # Use a PAT if you need to fetch private repositories across the whole organization
+        github-token: ${{ inputs.github-token }}
+        script: |
+          // Safely grab the current organization name from the runner context
+          const ownerName = process.env.OWNER || context.repo.owner;
+
+          let allRepos = [];
+
+          try {
+            if (process.env.OWNER_IS_USER === 'true') {
+              allRepos = await github.paginate(github.rest.repos.listForUser, {
+                username: ownerName,
+                per_page: 100,
+                type: 'all'
+              });
+            } else {
+              allRepos = await github.paginate(github.rest.repos.listForOrg, {
+                org: ownerName,
+                per_page: 100,
+                type: 'all'
+              });
+            }
+          } catch (error) {
+            core.info(`Failed to fetch repositories: ${error.message}`);
+          }
+
+          const repos = allRepos
+            .filter(repo => (process.env.HAS_ISSUES !== 'true' || repo.open_issues_count > 0) && (process.env.IS_ARCHIVED !== 'true' || repo.archived))
+            .map(repo => ({
+              name: repo.name,
+              owner_login: repo.owner.login,
+              owner: ownerName,
+              full_name: repo.full_name,
+              html_url: repo.html_url,
+              search_url: `https://github.com/search?q=type%3Apullrequests+is%3Aissue+is%3Aopen+archived%3Atrue+repo%3A${ownerName}/${repo.name}`,
+              private: repo.private,
+              open_issues_count: repo.open_issues_count
+            }));
+
+          core.info(`Successfully fetched ${repos.length} repositories: ${JSON.stringify(repos.map(repo => repo.full_name))}`);
+          core.info(`Repositories: ${JSON.stringify(repos, null, 2)}`);
+
+          // Serialize the array to a JSON string and set the output
+          core.setOutput('repos', JSON.stringify(repos));
+          core.setOutput('count', repos.length);
