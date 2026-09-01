@@ -1,3 +1,9 @@
+## [1.414.0](https://github.com/stairwaytowonderland/actions/compare/v1.413.0...v1.414.0) (2026-09-01)
+
+### ✨ Features
+
+* fetch-archived-action checking repo.open_issues_count in repos filter ([2995b23](https://github.com/stairwaytowonderland/actions/commit/2995b23cad82dabd4331af1b55b188c160f905d2))
+
 ## [1.413.0](https://github.com/stairwaytowonderland/actions/compare/v1.412.0...v1.413.0) (2026-09-01)
 
 ### ✨ Features
