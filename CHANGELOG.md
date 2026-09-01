@@ -1,3 +1,9 @@
+## [1.412.0](https://github.com/stairwaytowonderland/actions/compare/v1.411.0...v1.412.0) (2026-09-01)
+
+### ✨ Features
+
+* auth-token-action modify set-output step ([ddade36](https://github.com/stairwaytowonderland/actions/commit/ddade36ec7771ac53f1a5c4880711088b76f4e6b))
+
 ## [1.411.0](https://github.com/stairwaytowonderland/actions/compare/v1.410.0...v1.411.0) (2026-09-01)
 
 ### ✨ Features
