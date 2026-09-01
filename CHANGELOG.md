@@ -1,3 +1,9 @@
+## [1.413.0](https://github.com/stairwaytowonderland/actions/compare/v1.412.0...v1.413.0) (2026-09-01)
+
+### ✨ Features
+
+* auth-token-action using GITHUB_OUTPUT for auth-token ([c58a44c](https://github.com/stairwaytowonderland/actions/commit/c58a44c0ec0e9d8116bb2f3a74cbb207493c3934))
+
 ## [1.412.0](https://github.com/stairwaytowonderland/actions/compare/v1.411.0...v1.412.0) (2026-09-01)
 
 ### ✨ Features
