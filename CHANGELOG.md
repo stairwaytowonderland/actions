@@ -1,3 +1,9 @@
+## [1.409.0](https://github.com/stairwaytowonderland/actions/compare/v1.408.0...v1.409.0) (2026-09-01)
+
+### ✨ Features
+
+* auth-token-action fix repo-info logic ([42921a0](https://github.com/stairwaytowonderland/actions/commit/42921a0c962cae8c34c0d4e63c75ab5f1ce73678))
+
 ## [1.408.0](https://github.com/stairwaytowonderland/actions/compare/v1.407.0...v1.408.0) (2026-09-01)
 
 ### ✨ Features
