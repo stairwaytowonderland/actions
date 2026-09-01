@@ -1,3 +1,9 @@
+## [1.408.0](https://github.com/stairwaytowonderland/actions/compare/v1.407.0...v1.408.0) (2026-09-01)
+
+### ✨ Features
+
+* auth-token-action removing all-by-owner input in favor of logic ([0ded2e6](https://github.com/stairwaytowonderland/actions/commit/0ded2e6a03f0c6b28dd6a24e486bfffd4119136b))
+
 ## [1.407.0](https://github.com/stairwaytowonderland/actions/compare/v1.406.0...v1.407.0) (2026-09-01)
 
 ### ✨ Features
