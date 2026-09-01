@@ -34,13 +34,14 @@ runs:
           // Safely grab the current organization name from the runner context
           const orgName = process.env.ORG || context.repo.owner;
 
-          // 1. Fetch raw array directly. Omitting the callback stops Octokit from stripping data.
-          const allRepos = await github.paginate(`GET /orgs/${orgName}/repos`, {
+          // 1. Fetch ALL repositories cleanly.
+          const allRepos = await github.paginate(github.rest.repos.listForOrg, {
+            org: orgName,
             per_page: 100,
             type: 'all'
           });
 
-          // 2. Filter and map the clean, flat result array
+          // 2. Filter and shape your array cleanly in the main block
           const repos = allRepos
             .filter(repo => repo.archived)
             .map(repo => ({
@@ -48,12 +49,12 @@ runs:
               owner: repo.owner.login,
               org: orgName,
               full_name: repo.full_name,
-              html_url: repo.html_url
+              html_url: repo.html_url,
+              private: repo.private
             }));
 
-          core.info(`Successfully fetched ${repos.length} repositories.`);
+          core.info(`Successfully fetched ${repos.length} repositories: ${JSON.stringify(repos.map(repo => repo.full_name))}`);
           core.info(`Repositories: ${JSON.stringify(repos, null, 2)}`);
-          core.info(`List: ${JSON.stringify(repos.map(repo => repo.full_name))}`);
 
           // Serialize the array to a JSON string and set the output
           core.setOutput('repos', JSON.stringify(repos));
