@@ -1,3 +1,9 @@
+## [1.407.0](https://github.com/stairwaytowonderland/actions/compare/v1.406.0...v1.407.0) (2026-09-01)
+
+### ✨ Features
+
+* auth-token-action implementing all-by-owner input ([4576086](https://github.com/stairwaytowonderland/actions/commit/45760869cf32192c22b714f3e87e5abfdea3aff5))
+
 ## [1.406.0](https://github.com/stairwaytowonderland/actions/compare/v1.405.0...v1.406.0) (2026-09-01)
 
 ### ✨ Features
