@@ -1,3 +1,9 @@
+## [1.416.0](https://github.com/stairwaytowonderland/actions/compare/v1.415.0...v1.416.0) (2026-09-01)
+
+### ✨ Features
+
+* adding fetch-owner-repos-action ([5b7dd8f](https://github.com/stairwaytowonderland/actions/commit/5b7dd8f408439dcb1acbd6629952ee4ce7770c92))
+
 ## [1.415.0](https://github.com/stairwaytowonderland/actions/compare/v1.414.0...v1.415.0) (2026-09-01)
 
 ### ✨ Features
