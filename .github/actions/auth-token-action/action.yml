@@ -29,10 +29,14 @@ runs:
       shell: bash
       env:
         REPOSITORY_OWNER: ${{ inputs.repo-owner || github.repository_owner }}
-        REPOSITORY_NAME: ${{ inputs.repo-owner != '' && inputs.repo-name || (inputs.repo-name || github.repository) }}
       run: |
-        echo "repo-owner=${REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
+        if [ -n "${{ inputs.repo-owner }}" ]; then
+          REPOSITORY_NAME="${{ inputs.repo-name }}"
+        else
+          REPOSITORY_NAME="${{ inputs.repo-name || github.repository }}"
+        fi
         echo "repo-name=${REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
+        echo "repo-owner=${REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
 
     - name: Resolve auth strategy
       id: auth
