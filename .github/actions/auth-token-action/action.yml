@@ -105,4 +105,4 @@ runs:
         fi
 
         echo "::add-mask::$TOKEN"
-        echo "::set-output name=auth-token::$TOKEN"
+        echo "auth-token=$TOKEN" >> "$GITHUB_OUTPUT"
