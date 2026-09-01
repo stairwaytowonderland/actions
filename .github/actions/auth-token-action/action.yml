@@ -76,19 +76,33 @@ runs:
         owner: ${{ steps.repo-info.outputs.repo-owner }}
         repositories: ${{ steps.repo-info.outputs.repo-name }}
 
+    # - name: Set auth-token output
+    #   id: set-output
+    #   uses: actions/github-script@v9
+    #   env:
+    #     TOKEN: ${{ steps.auth.outputs.generate-app-token == 'true' && steps.generate-token.outputs.token || inputs.github-token }}
+    #   with:
+    #     script: |
+    #       const authToken = process.env.TOKEN;
+
+    #       if (!authToken) {
+    #         core.setFailed('No auth token could be resolved. Provide github-token or app-private-key + app-client-id.');
+    #         return;
+    #       }
+
+    #       core.setSecret(authToken);
+    #       core.setOutput('auth-token', authToken);
+
     - name: Set auth-token output
       id: set-output
-      uses: actions/github-script@v9
+      shell: bash
       env:
         TOKEN: ${{ steps.auth.outputs.generate-app-token == 'true' && steps.generate-token.outputs.token || inputs.github-token }}
-      with:
-        script: |
-          const authToken = process.env.TOKEN;
+      run: |
+        if [ -z "$TOKEN" ]; then
+          echo "::error::No auth token could be resolved. Provide github-token or app-private-key + app-client-id."
+          exit 1
+        fi
 
-          if (!authToken) {
-            core.setFailed('No auth token could be resolved. Provide github-token or app-private-key + app-client-id.');
-            return;
-          }
-
-          core.setSecret(authToken);
-          core.setOutput('auth-token', authToken);
+        echo "::add-mask::$TOKEN"
+        echo "::set-output name=auth-token::$TOKEN"
