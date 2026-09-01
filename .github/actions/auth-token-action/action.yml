@@ -28,12 +28,11 @@ runs:
       id: repo-info
       shell: bash
       env:
+        REPOSITORY_NAME: ${{ inputs.repo-name || github.repository }}
         REPOSITORY_OWNER: ${{ inputs.repo-owner || github.repository_owner }}
       run: |
         if [ -n "${{ inputs.repo-owner }}" ]; then
           REPOSITORY_NAME="${{ inputs.repo-name }}"
-        else
-          REPOSITORY_NAME="${{ inputs.repo-name || github.repository }}"
         fi
         echo "repo-name=${REPOSITORY_NAME#*/}" >> "$GITHUB_OUTPUT"
         echo "repo-owner=${REPOSITORY_OWNER}" >> "$GITHUB_OUTPUT"
