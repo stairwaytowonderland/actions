@@ -49,22 +49,23 @@ runs:
       run: |
         FILES=()
 
-        # Check if REF_BEFORE is a Null SHA or empty
-        if [ "$REF_BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$REF_BEFORE" ]; then
-          echo "::warning::New branch/tag push detected (Null SHA). Dynamically locating branch point."
+        # 1. Check if the event is a true tag push
+        if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          echo "::notice::Tag push detected. Fetching files changed in the tagged commit."
+          # Get files changed in this specific commit or find the prior tag fallback
+          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
 
-          # Fetch tracking references to locate the upstream default branch target
+        # 2. Check for a non-tag Null SHA (e.g. fresh branch push)
+        elif [ "$REF_BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$REF_BEFORE" ]; then
+          echo "::notice::New branch push detected. Finding split point dynamically."
           git fetch --dry-run &>/dev/null
           DEFAULT_BRANCH=${DEFAULT_BRANCH:-$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)}
           [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH="main"
-
-          # Dynamically trace the fork point between the current commit and the main branch line
           BASE_COMMIT=$(git merge-base origin/$DEFAULT_BRANCH HEAD 2>/dev/null || echo "HEAD~1")
-          echo "::notice::Determined dynamic base merge commit: $BASE_COMMIT"
+          CHANGED_FILES=$(git diff --name-only $BASE_COMMIT HEAD)
 
-          CHANGED_FILES=$(git diff --name-only $BASE_COMMIT HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
+        # 3. Standard push event
         else
-          # Standard linear push within an established tracking branch boundary
           CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
         fi
 
