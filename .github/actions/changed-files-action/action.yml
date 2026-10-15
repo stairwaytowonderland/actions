@@ -51,11 +51,11 @@ runs:
         CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
         if [ -n "$CHANGED_FILES" ]; then
           echo "::notice::Changed files: $CHANGED_FILES"
-          # echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "changed-files<<EOF" >> $GITHUB_OUTPUT
           for file in $CHANGED_FILES; do
-            FILES+=("$file")
+            echo "$file" >> $GITHUB_OUTPUT
           done
-          echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         else
           echo "::warning::No changed files detected."
         fi
@@ -71,11 +71,11 @@ runs:
         FILES=()
         if [ -n "$SPECIFIED_PATHS" ]; then
           echo "::notice::Paths to check: $SPECIFIED_PATHS"
-          # echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
+          echo "paths<<EOF" >> $GITHUB_OUTPUT
           for path in $SPECIFIED_PATHS; do
-            FILES+=("$path")
+            echo "$path" >> $GITHUB_OUTPUT
           done
-          echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         else
           echo "::warning::No paths specified to check."
         fi
@@ -93,21 +93,22 @@ runs:
         echo "Changed files: $CHANGED_FILES"
         echo "Paths to check:"
         echo "$SPECIFIED_PATHS"
+        echo "filtered-files<<EOF" >> $GITHUB_OUTPUT
         for path in $SPECIFIED_PATHS; do
           echo "Checking path: $path"
           if echo "$CHANGED_FILES" | grep -qE "^$path$"; then
             echo "::notice::Found change to path: $path"
-            FILES+=("$path")
+            echo "$path" >> $GITHUB_OUTPUT
             SHOULD_RUN=true
             break
           fi
         done
+        echo "EOF" >> $GITHUB_OUTPUT
         if [ "$SHOULD_RUN" != 'true' ]; then
           echo "::warning::No changes found for specified paths."
         fi
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       env:
         SPECIFIED_PATHS: ${{ steps.specified-paths.outputs.paths }}
         CHANGED_FILES: ${{ steps.changed-files.outputs.changed-files }}
@@ -129,6 +130,7 @@ runs:
         echo "Commit authors: $AUTHORS"
         echo "Authors to ignore:"
         echo "$IGNORE_AUTHORS"
+        echo "filtered-files<<EOF" >> $GITHUB_OUTPUT
         for author in $IGNORE_AUTHORS; do
           echo "Checking author: $author"
           if echo "$AUTHORS" | grep -qE "^$author$"; then
@@ -136,15 +138,15 @@ runs:
             SHOULD_RUN=false
             break
           else
-            FILES+=("$author")
+            echo "$author" >> $GITHUB_OUTPUT
           fi
         done
+        echo "EOF" >> $GITHUB_OUTPUT
         if [ "$SHOULD_RUN" = 'true' ]; then
           echo "::notice::No ignored authors found in latest commit."
         fi
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       env:
         IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
 
