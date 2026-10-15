@@ -85,7 +85,7 @@ runs:
           done
           echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
         else
-          echo "::notice::No paths specified to check."
+          echo "::info::No paths specified to check."
         fi
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
@@ -110,7 +110,7 @@ runs:
         done
 
         if [ "$SHOULD_RUN" != 'true' ]; then
-          echo "::notice::No changes found for specified paths."
+          echo "::info::No changes found for specified paths."
         fi
         echo "::info::Should run based on changed paths: $SHOULD_RUN"
         echo "::info::Filtered files: ${FILES[*]}"
