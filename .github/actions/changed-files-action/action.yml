@@ -90,18 +90,18 @@ runs:
         FILES=()
         SHOULD_RUN=false
         echo "::group::Checking commits for changes to specified paths"
-        echo "Changed files: $CHANGED_FILES"
-        echo "Paths to check:"
-        echo "$SPECIFIED_PATHS"
-        for path in $SPECIFIED_PATHS; do
-          echo "Checking path: $path"
-          if echo "$CHANGED_FILES" | grep -qE "^$path$"; then
-            echo "::notice::Found change to path: $path"
-            FILES+=("$path")
-            SHOULD_RUN=true
-            break
-          fi
+
+        # Loop through each changed file individually
+        for file in $CHANGED_FILES; do
+          for path in $SPECIFIED_PATHS; do
+            if [ "$file" = "$path" ]; then
+              echo "::notice::Found change to path: $path"
+              FILES+=("$path")
+              SHOULD_RUN=true
+            fi
+          done
         done
+
         if [ "$SHOULD_RUN" != 'true' ]; then
           echo "::warning::No changes found for specified paths."
         fi
@@ -125,20 +125,25 @@ runs:
           exit 0
         fi
         echo "::group::Checking commits for ignored authors"
-        AUTHORS=$(git log -1 --pretty=format:'%an')
-        echo "Commit authors: $AUTHORS"
-        echo "Authors to ignore:"
-        echo "$IGNORE_AUTHORS"
+
+        # Get the commit author name safely
+        COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+        echo "Commit author: $COMMIT_AUTHOR"
+        echo "Authors to ignore: $IGNORE_AUTHORS"
+
+        # Loop over the list of ignored authors
         for author in $IGNORE_AUTHORS; do
-          echo "Checking author: $author"
-          if echo "$AUTHORS" | grep -qE "^$author$"; then
+          echo "Checking if '$COMMIT_AUTHOR' matches ignored author: '$author'"
+          if [ "$author" = "$COMMIT_AUTHOR" ]; then
             echo "::notice::Latest commit authored by ignored author: $author"
             SHOULD_RUN=false
             break
           else
+            # Keep track of authors that did not cause a skip
             FILES+=("$author")
           fi
         done
+
         if [ "$SHOULD_RUN" = 'true' ]; then
           echo "::notice::No ignored authors found in latest commit."
         fi
