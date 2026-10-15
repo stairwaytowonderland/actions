@@ -184,12 +184,14 @@ runs:
         AUTHORS_FILES: ${{ steps.has-authors.outputs.filtered-authors }}
       run: |
         # If AUTHORS_FILES is empty, it means an ignored author was hit in the prior step
-        INTERSECTED_FILES=()
-        for file in $PATHS_FILES; do
-          #if [[ " ${AUTHORS_FILES[*]} " == *" $file "* ]]; then
-            INTERSECTED_FILES+=("$file")
-          #fi
-        done
+        # INTERSECTED_FILES=()
+        # for file in $PATHS_FILES; do
+        #   if [[ " ${AUTHORS_FILES[*]} " == *" $file "* ]]; then
+        #     INTERSECTED_FILES+=("$file")
+        #   fi
+        # done
+        # echo "::notice::Intersected files: ${INTERSECTED_FILES[*]}"
+        # echo "intersected-files=${INTERSECTED_FILES[*]}" >> $GITHUB_OUTPUT
 
-        echo "::notice::Intersected files: ${INTERSECTED_FILES[*]}"
-        echo "intersected-files=${INTERSECTED_FILES[*]}" >> $GITHUB_OUTPUT
+        echo "::notice::Intersected files: ${PATHS_FILES}"
+        echo "intersected-files=${PATHS_FILES}" >> $GITHUB_OUTPUT
