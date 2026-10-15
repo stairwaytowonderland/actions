@@ -89,7 +89,7 @@ runs:
       run: |
         FILES=()
         if [ -n "$SPECIFIED_PATHS" ]; then
-          echo "::debug::Paths to check: $SPECIFIED_PATHS"
+          echo "::notice::Paths to check: $SPECIFIED_PATHS"
           # echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
           for path in $SPECIFIED_PATHS; do
             FILES+=("$path")
@@ -121,7 +121,7 @@ runs:
         done
 
         if [ "$SHOULD_RUN" != 'true' ]; then
-          echo "::notice::No changes found for specified paths."
+          echo "::debug::No changes found for specified paths."
         fi
         echo "::debug::Should run based on changed paths: $SHOULD_RUN"
         echo "::debug::Filtered files: ${FILES[*]}"
@@ -140,7 +140,7 @@ runs:
         AUTHORS=()
         SHOULD_RUN=true
         if [ -z "$IGNORE_AUTHORS" ]; then
-          echo "::notice::No authors specified to ignore, skipping author check."
+          echo "::debug::No authors specified to ignore, skipping author check."
           echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
           exit 0
         fi
@@ -154,7 +154,7 @@ runs:
         for author in $IGNORE_AUTHORS; do
           echo "Checking if '$COMMIT_AUTHOR' matches ignored author: '$author'"
           if [ "$author" = "$COMMIT_AUTHOR" ]; then
-            echo "::notice::Latest commit authored by ignored author: $author"
+            echo "::debug::Latest commit authored by ignored author: $author"
             SHOULD_RUN=false
             break
           else
@@ -164,7 +164,7 @@ runs:
         done
 
         if [ "$SHOULD_RUN" = 'true' ]; then
-          echo "::notice::No ignored authors found in latest commit."
+          echo "::debug::No ignored authors found in latest commit."
         fi
         echo "::debug::Should run based on authors: $SHOULD_RUN"
         echo "::debug::Filtered authors: ${AUTHORS[*]}"
