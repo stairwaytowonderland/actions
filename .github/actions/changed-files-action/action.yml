@@ -49,12 +49,22 @@ runs:
       run: |
         FILES=()
 
-        # Check if REF_BEFORE is a Null SHA (all zeros)
+        # Check if REF_BEFORE is a Null SHA or empty
         if [ "$REF_BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$REF_BEFORE" ]; then
-          echo "::warning::New branch or tag push detected. Falling back to parent commit diff."
-          # Diff the current commit against its parent commit
-          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
+          echo "::warning::New branch/tag push detected (Null SHA). Dynamically locating branch point."
+
+          # Fetch tracking references to locate the upstream default branch target
+          git fetch --dry-run &>/dev/null
+          DEFAULT_BRANCH=${DEFAULT_BRANCH:-$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)}
+          [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH="main"
+
+          # Dynamically trace the fork point between the current commit and the main branch line
+          BASE_COMMIT=$(git merge-base origin/$DEFAULT_BRANCH HEAD 2>/dev/null || echo "HEAD~1")
+          echo "::notice::Determined dynamic base merge commit: $BASE_COMMIT"
+
+          CHANGED_FILES=$(git diff --name-only $BASE_COMMIT HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
         else
+          # Standard linear push within an established tracking branch boundary
           CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
         fi
 
@@ -65,9 +75,10 @@ runs:
           done
           echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
         else
-          echo "::notice::No changed files detected."
+          echo "::warning::No changed files detected."
         fi
       env:
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         REF_BEFORE: ${{ github.event.before }}
         REF_AFTER: ${{ github.event.after }}
 
