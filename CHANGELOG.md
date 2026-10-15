@@ -1,3 +1,9 @@
+## [1.434.0](https://github.com/stairwaytowonderland/actions/compare/v1.433.0...v1.434.0) (2026-10-15)
+
+### ✨ Features
+
+* fix changed-files-action action ([e8b9328](https://github.com/stairwaytowonderland/actions/commit/e8b9328c1064a7417b24fc956aa717100b096e01))
+
 ## [1.433.0](https://github.com/stairwaytowonderland/actions/compare/v1.432.0...v1.433.0) (2026-10-15)
 
 ### ✨ Features
