@@ -124,9 +124,9 @@ runs:
         if [ "$SHOULD_RUN" != 'true' ]; then
           echo "::debug::No changes found for specified paths."
         fi
-        echo "::debug::Should run based on changed paths: $SHOULD_RUN"
-        echo "::debug::Filtered files: ${FILES[*]}"
         echo "::endgroup::"
+        echo "Should run based on changed paths: $SHOULD_RUN"
+        echo "Filtered files: ${FILES[*]}"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       env:
@@ -167,9 +167,9 @@ runs:
         if [ "$SHOULD_RUN" = 'true' ]; then
           echo "::debug::No ignored authors found in latest commit."
         fi
-        echo "::debug::Should run based on authors: $SHOULD_RUN"
-        echo "::debug::Filtered authors: ${AUTHORS[*]}"
         echo "::endgroup::"
+        echo "Should run based on authors: $SHOULD_RUN"
+        echo "Filtered authors: ${AUTHORS[*]}"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-authors=${AUTHORS[*]}" >> $GITHUB_OUTPUT
       env:
