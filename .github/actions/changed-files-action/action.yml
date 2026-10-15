@@ -55,8 +55,7 @@ runs:
           for file in $CHANGED_FILES; do
             FILES+=("$file")
           done
-          # echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
-          (IFS=$'\n'; echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT)
+          echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
         else
           echo "::warning::No changed files detected."
         fi
@@ -76,8 +75,7 @@ runs:
           for path in $SPECIFIED_PATHS; do
             FILES+=("$path")
           done
-          # echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
-          (IFS=$'\n'; echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT)
+          echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
         else
           echo "::warning::No paths specified to check."
         fi
@@ -109,8 +107,7 @@ runs:
         fi
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        # echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
-        (IFS=$'\n'; echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT)
+        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       env:
         SPECIFIED_PATHS: ${{ steps.specified-paths.outputs.paths }}
         CHANGED_FILES: ${{ steps.changed-files.outputs.changed-files }}
@@ -147,8 +144,7 @@ runs:
         fi
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        # echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
-        (IFS=$'\n'; echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT)
+        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       env:
         IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
 
@@ -162,5 +158,4 @@ runs:
       run: |
         INTERSECTED_FILES=$(comm -12 <(echo "$PATHS_FILES" | sort) <(echo "$AUTHORS_FILES" | sort))
         echo "Intersected files: $INTERSECTED_FILES"
-        # echo "intersected-files=$INTERSECTED_FILES" >> $GITHUB_OUTPUT
-        (IFS=$'\n'; echo "intersected-files=$INTERSECTED_FILES" >> $GITHUB_OUTPUT)
+        echo "intersected-files=$INTERSECTED_FILES" >> $GITHUB_OUTPUT
