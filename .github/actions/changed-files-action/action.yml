@@ -117,7 +117,7 @@ runs:
       if: steps.check-event.outputs.is-ignore-event != 'true'
       shell: bash
       run: |
-        FILES=()
+        AUTHORS=()
         SHOULD_RUN=true
         if [ -z "$IGNORE_AUTHORS" ]; then
           echo "::notice::No authors specified to ignore, skipping author check."
@@ -140,7 +140,7 @@ runs:
             break
           else
             # Keep track of authors that did not cause a skip
-            FILES+=("$author")
+            AUTHORS+=("$author")
           fi
         done
 
@@ -149,7 +149,7 @@ runs:
         fi
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
+        echo "filtered-authors=${AUTHORS[*]}" >> $GITHUB_OUTPUT
       env:
         IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
 
