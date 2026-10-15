@@ -59,7 +59,7 @@ runs:
         fi
 
         if [ -n "$CHANGED_FILES" ]; then
-          echo "::info::Changed files: $CHANGED_FILES"
+          echo "::notice::Changed files: $CHANGED_FILES"
           for file in $CHANGED_FILES; do
             FILES+=("$file")
           done
@@ -78,14 +78,14 @@ runs:
       run: |
         FILES=()
         if [ -n "$SPECIFIED_PATHS" ]; then
-          echo "::info::Paths to check: $SPECIFIED_PATHS"
+          echo "::debug::Paths to check: $SPECIFIED_PATHS"
           # echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
           for path in $SPECIFIED_PATHS; do
             FILES+=("$path")
           done
           echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
         else
-          echo "::info::No paths specified to check."
+          echo "::debug::No paths specified to check."
         fi
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
@@ -102,7 +102,7 @@ runs:
         for file in $CHANGED_FILES; do
           for path in $SPECIFIED_PATHS; do
             if [ "$file" = "$path" ]; then
-              echo "::info::Found change to path: $path"
+              echo "::debug::Found change to path: $path"
               FILES+=("$path")
               SHOULD_RUN=true
             fi
@@ -110,10 +110,10 @@ runs:
         done
 
         if [ "$SHOULD_RUN" != 'true' ]; then
-          echo "::info::No changes found for specified paths."
+          echo "::notice::No changes found for specified paths."
         fi
-        echo "::info::Should run based on changed paths: $SHOULD_RUN"
-        echo "::info::Filtered files: ${FILES[*]}"
+        echo "::debug::Should run based on changed paths: $SHOULD_RUN"
+        echo "::debug::Filtered files: ${FILES[*]}"
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
@@ -129,7 +129,7 @@ runs:
         AUTHORS=()
         SHOULD_RUN=true
         if [ -z "$IGNORE_AUTHORS" ]; then
-          echo "::info::No authors specified to ignore, skipping author check."
+          echo "::notice::No authors specified to ignore, skipping author check."
           echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
           exit 0
         fi
@@ -143,7 +143,7 @@ runs:
         for author in $IGNORE_AUTHORS; do
           echo "Checking if '$COMMIT_AUTHOR' matches ignored author: '$author'"
           if [ "$author" = "$COMMIT_AUTHOR" ]; then
-            echo "::info::Latest commit authored by ignored author: $author"
+            echo "::notice::Latest commit authored by ignored author: $author"
             SHOULD_RUN=false
             break
           else
@@ -153,10 +153,10 @@ runs:
         done
 
         if [ "$SHOULD_RUN" = 'true' ]; then
-          echo "::info::No ignored authors found in latest commit."
+          echo "::notice::No ignored authors found in latest commit."
         fi
-        echo "::info::Should run based on authors: $SHOULD_RUN"
-        echo "::info::Filtered authors: ${AUTHORS[*]}"
+        echo "::debug::Should run based on authors: $SHOULD_RUN"
+        echo "::debug::Filtered authors: ${AUTHORS[*]}"
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-authors=${AUTHORS[*]}" >> $GITHUB_OUTPUT
@@ -179,5 +179,5 @@ runs:
           #fi
         done
 
-        echo "::info::Intersected files: ${INTERSECTED_FILES[*]}"
+        echo "::notice::Intersected files: ${INTERSECTED_FILES[*]}"
         echo "intersected-files=${INTERSECTED_FILES[*]}" >> $GITHUB_OUTPUT
