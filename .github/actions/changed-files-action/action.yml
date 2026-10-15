@@ -84,7 +84,7 @@ runs:
 
     - name: Get specified paths
       id: specified-paths
-      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.specified-paths.outputs.paths != ''
+      if: steps.check-event.outputs.is-ignore-event != 'true' && inputs.paths != ''
       shell: bash
       run: |
         FILES=()
@@ -103,7 +103,7 @@ runs:
 
     - name: Determine if workflow should run based on changed paths
       id: has-paths
-      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != ''
+      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
       shell: bash
       run: |
         FILES=()
