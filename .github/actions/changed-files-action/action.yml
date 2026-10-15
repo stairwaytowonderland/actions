@@ -48,10 +48,18 @@ runs:
       shell: bash
       run: |
         FILES=()
-        CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
+
+        # Check if REF_BEFORE is a Null SHA (all zeros)
+        if [ "$REF_BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$REF_BEFORE" ]; then
+          echo "::notice::New branch or tag push detected. Falling back to parent commit diff."
+          # Diff the current commit against its parent commit
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
+        else
+          CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
+        fi
+
         if [ -n "$CHANGED_FILES" ]; then
           echo "::notice::Changed files: $CHANGED_FILES"
-          # echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
           for file in $CHANGED_FILES; do
             FILES+=("$file")
           done
