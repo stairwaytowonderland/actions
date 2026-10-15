@@ -47,7 +47,7 @@ runs:
       if: steps.check-event.outputs.is-ignore-event != 'true'
       shell: bash
       run: |
-        echo "CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)"
+        CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
         if [ -n "$CHANGED_FILES" ]; then
           echo "::notice::Changed files: $CHANGED_FILES"
           echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
