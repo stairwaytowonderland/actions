@@ -51,7 +51,7 @@ runs:
 
         # Check if REF_BEFORE is a Null SHA (all zeros)
         if [ "$REF_BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$REF_BEFORE" ]; then
-          echo "::notice::New branch or tag push detected. Falling back to parent commit diff."
+          echo "::warning::New branch or tag push detected. Falling back to parent commit diff."
           # Diff the current commit against its parent commit
           CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
         else
@@ -59,13 +59,13 @@ runs:
         fi
 
         if [ -n "$CHANGED_FILES" ]; then
-          echo "::notice::Changed files: $CHANGED_FILES"
+          echo "::info::Changed files: $CHANGED_FILES"
           for file in $CHANGED_FILES; do
             FILES+=("$file")
           done
           echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
         else
-          echo "::warning::No changed files detected."
+          echo "::notice::No changed files detected."
         fi
       env:
         REF_BEFORE: ${{ github.event.before }}
@@ -73,33 +73,32 @@ runs:
 
     - name: Get specified paths
       id: specified-paths
-      if: steps.check-event.outputs.is-ignore-event != 'true'
+      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.specified-paths.outputs.paths != ''
       shell: bash
       run: |
         FILES=()
         if [ -n "$SPECIFIED_PATHS" ]; then
-          echo "::notice::Paths to check: $SPECIFIED_PATHS"
+          echo "::info::Paths to check: $SPECIFIED_PATHS"
           # echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
           for path in $SPECIFIED_PATHS; do
             FILES+=("$path")
           done
           echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
         else
-          echo "::warning::No paths specified to check."
+          echo "::notice::No paths specified to check."
         fi
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
 
     - name: Determine if workflow should run based on changed paths
       id: has-paths
-      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
+      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != ''
       shell: bash
       run: |
         FILES=()
         SHOULD_RUN=false
         echo "::group::Checking commits for changes to specified paths"
 
-        # Loop through each changed file individually
         for file in $CHANGED_FILES; do
           for path in $SPECIFIED_PATHS; do
             if [ "$file" = "$path" ]; then
@@ -111,8 +110,10 @@ runs:
         done
 
         if [ "$SHOULD_RUN" != 'true' ]; then
-          echo "::warning::No changes found for specified paths."
+          echo "::notice::No changes found for specified paths."
         fi
+        echo "::info::Should run based on changed paths: $SHOULD_RUN"
+        echo "::info::Filtered files: ${FILES[*]}"
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
@@ -139,7 +140,6 @@ runs:
         echo "Commit author: $COMMIT_AUTHOR"
         echo "Authors to ignore: $IGNORE_AUTHORS"
 
-        # Loop over the list of ignored authors
         for author in $IGNORE_AUTHORS; do
           echo "Checking if '$COMMIT_AUTHOR' matches ignored author: '$author'"
           if [ "$author" = "$COMMIT_AUTHOR" ]; then
@@ -155,6 +155,8 @@ runs:
         if [ "$SHOULD_RUN" = 'true' ]; then
           echo "::info::No ignored authors found in latest commit."
         fi
+        echo "::info::Should run based on authors: $SHOULD_RUN"
+        echo "::info::Filtered authors: ${AUTHORS[*]}"
         echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-authors=${AUTHORS[*]}" >> $GITHUB_OUTPUT
@@ -163,12 +165,19 @@ runs:
 
     - name: Intersect filtered files from paths and authors
       id: intersect-files
-      if: steps.check-event.outputs.is-ignore-event != 'true'
+      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.has-paths.outputs.filtered-files != '' && steps.has-authors.outputs.filtered-authors != ''
       shell: bash
       env:
         PATHS_FILES: ${{ steps.has-paths.outputs.filtered-files }}
-        AUTHORS_FILES: ${{ steps.has-authors.outputs.filtered-files }}
+        AUTHORS_FILES: ${{ steps.has-authors.outputs.filtered-authors }}
       run: |
-        INTERSECTED_FILES=$(comm -12 <(echo "$PATHS_FILES" | sort) <(echo "$AUTHORS_FILES" | sort))
-        echo "Intersected files: $INTERSECTED_FILES"
-        echo "intersected-files=$INTERSECTED_FILES" >> $GITHUB_OUTPUT
+        # If AUTHORS_FILES is empty, it means an ignored author was hit in the prior step
+        INTERSECTED_FILES=()
+        for file in $PATHS_FILES; do
+          #if [[ " ${AUTHORS_FILES[*]} " == *" $file "* ]]; then
+            INTERSECTED_FILES+=("$file")
+          #fi
+        done
+
+        echo "::info::Intersected files: ${INTERSECTED_FILES[*]}"
+        echo "intersected-files=${INTERSECTED_FILES[*]}" >> $GITHUB_OUTPUT
