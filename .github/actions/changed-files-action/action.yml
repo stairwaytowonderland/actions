@@ -47,10 +47,15 @@ runs:
       if: steps.check-event.outputs.is-ignore-event != 'true'
       shell: bash
       run: |
+        FILES=()
         CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
         if [ -n "$CHANGED_FILES" ]; then
           echo "::notice::Changed files: $CHANGED_FILES"
-          echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          # echo "changed-files=$CHANGED_FILES" >> $GITHUB_OUTPUT
+          for file in $CHANGED_FILES; do
+            FILES+=("$file")
+          done
+          echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
         else
           echo "::warning::No changed files detected."
         fi
@@ -63,9 +68,14 @@ runs:
       if: steps.check-event.outputs.is-ignore-event != 'true'
       shell: bash
       run: |
+        FILES=()
         if [ -n "$SPECIFIED_PATHS" ]; then
           echo "::notice::Paths to check: $SPECIFIED_PATHS"
-          echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
+          # echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
+          for path in $SPECIFIED_PATHS; do
+            FILES+=("$path")
+          done
+          echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
         else
           echo "::warning::No paths specified to check."
         fi
