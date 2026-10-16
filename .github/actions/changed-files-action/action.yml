@@ -130,6 +130,9 @@ runs:
       #   echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
       #   echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       run: |
+        # Explicitly enable recursive glob matching
+        shopt -s globstar
+
         FILES=()
         SHOULD_RUN=false
         echo "::group::Checking commits for changes to specified paths"
