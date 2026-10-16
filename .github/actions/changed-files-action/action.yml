@@ -92,11 +92,10 @@ runs:
         if [ -n "$SPECIFIED_PATHS" ]; then
           echo "::notice::Paths to check: $SPECIFIED_PATHS"
           # Convert space-separated patterns cleanly into newlines
-          CLEAN_PATHS=$(echo "$SPECIFIED_PATHS" | tr ' ' '\n')
 
           # Use a multiline GitHub output to safely store the patterns
           echo "paths<<EOF" >> $GITHUB_OUTPUT
-          echo "$CLEAN_PATHS" >> $GITHUB_OUTPUT
+          echo "$SPECIFIED_PATHS" | tr ' ' '\n'
           echo "EOF" >> $GITHUB_OUTPUT
         else
           echo "::warning::No paths specified to check."
@@ -134,20 +133,24 @@ runs:
       run: |
         FILES=()
         SHOULD_RUN=false
-
         echo "::group::Checking paths using Git pattern engine"
 
-        # Pass your patterns directly into git check-ignore via standard input
-        # It will print out any files from $CHANGED_FILES that match your patterns in $SPECIFIED_PATHS
-        MATCHED_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | git check-ignore --stdin --non-matching --no-index 2>/dev/null | grep -v '^[[:space:]]*#' || true)
+        # Write patterns cleanly into a temporary file
+        echo "$SPECIFIED_PATHS" > .git/match_patterns
 
-        if [ -n "$MATCHED_FILES" ]; then
-          SHOULD_RUN=true
-          for file in $MATCHED_FILES; do
-            echo "::debug::Found file matching pattern: $file"
-            FILES+=("$file")
-          done
-        else
+        for file in $CHANGED_FILES; do
+          # --no-index allows checking arbitrary strings without real disk lookups
+          # An exit status of 0 means the file matched a pattern in our file
+          if git check-ignore -q --no-index --exclude-from=.git/match_patterns "$file" 2>/dev/null; then
+             echo "::notice::Found file '$file' matching path patterns."
+             FILES+=("$file")
+             SHOULD_RUN=true
+          fi
+        done
+
+        rm -f .git/match_patterns
+
+        if [ "$SHOULD_RUN" != 'true' ]; then
           echo "::warning::No changes found for specified paths."
         fi
         echo "Should run based on changed paths: $SHOULD_RUN"
