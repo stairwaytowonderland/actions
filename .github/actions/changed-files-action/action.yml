@@ -106,6 +106,29 @@ runs:
       id: has-paths
       if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
       shell: bash
+      # run: |
+      #   FILES=()
+      #   SHOULD_RUN=false
+      #   echo "::group::Checking commits for changes to specified paths"
+
+      #   for file in $CHANGED_FILES; do
+      #     for path in $SPECIFIED_PATHS; do
+      #       if [ "$file" = "$path" ]; then
+      #         echo "::debug::Found change to path: $path"
+      #         FILES+=("$path")
+      #         SHOULD_RUN=true
+      #       fi
+      #     done
+      #   done
+
+      #   if [ "$SHOULD_RUN" != 'true' ]; then
+      #     echo "::debug::No changes found for specified paths."
+      #   fi
+      #   echo "::endgroup::"
+      #   echo "Should run based on changed paths: $SHOULD_RUN"
+      #   echo "Filtered files: ${FILES[*]}"
+      #   echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
+      #   echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       run: |
         FILES=()
         SHOULD_RUN=false
@@ -113,20 +136,21 @@ runs:
 
         for file in $CHANGED_FILES; do
           for path in $SPECIFIED_PATHS; do
-            if [ "$file" = "$path" ]; then
-              echo "::debug::Found change to path: $path"
-              FILES+=("$path")
+            # Using double brackets allows Bash to treat $path natively as a glob pattern
+            if [[ "$file" == $path ]]; then
+              echo "::notice::Found file '$file' matching pattern: $path"
+              FILES+=("$file")
               SHOULD_RUN=true
             fi
           done
         done
 
         if [ "$SHOULD_RUN" != 'true' ]; then
-          echo "::debug::No changes found for specified paths."
+          echo "::warning::No changes found for specified paths."
         fi
-        echo "::endgroup::"
         echo "Should run based on changed paths: $SHOULD_RUN"
         echo "Filtered files: ${FILES[*]}"
+        echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       env:
@@ -167,9 +191,9 @@ runs:
         if [ "$SHOULD_RUN" = 'true' ]; then
           echo "::debug::No ignored authors found in latest commit."
         fi
-        echo "::endgroup::"
         echo "Should run based on authors: $SHOULD_RUN"
         echo "Filtered authors: ${AUTHORS[*]}"
+        echo "::endgroup::"
         echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
         echo "filtered-authors=${AUTHORS[*]}" >> $GITHUB_OUTPUT
       env:
