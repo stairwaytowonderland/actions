@@ -138,14 +138,17 @@ runs:
         echo "::group::Checking commits for changes to specified paths"
 
         for file in $CHANGED_FILES; do
-          for path in $SPECIFIED_PATHS; do
-            # Using double brackets allows Bash to treat $path natively as a glob pattern
+          # Use a while loop with a heredoc to safely parse patterns without early filesystem glob expansion
+          while read -r path; do
+            # Skip empty lines
+            [ -z "$path" ] && continue
+
             if [[ "$file" == $path ]]; then
               echo "::notice::Found file '$file' matching pattern: $path"
               FILES+=("$file")
               SHOULD_RUN=true
             fi
-          done
+          done <<< "$SPECIFIED_PATHS"
         done
 
         if [ "$SHOULD_RUN" != 'true' ]; then
