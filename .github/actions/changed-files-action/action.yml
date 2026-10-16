@@ -42,19 +42,27 @@ runs:
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       with:
         script: |
-          const exec = require('child_process').execSync;
           const { Minimatch } = require('minimatch');
+          const execSync = require('child_process').execSync;
 
-          // Initialize output states safely
           let changedFilesList = [];
           let filteredFilesList = [];
           let triggerUpdate = false;
 
-          // 1. Evaluate Ignore Events Condition
           const currentEvent = context.eventName;
-          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s]+/).filter(Boolean);
+          // const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s,]+/).filter(Boolean);
+
+          // Fix for Section 1 (Ignore Events)
+          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\r\n\s,]+/).filter(Boolean);
+
+          // Fix for Section 3 (Glob Path Matches)
+          const inputPaths = (process.env.SPECIFIED_PATHS || '').split(/[\r\n,]+/).map(p => p.trim()).filter(Boolean);
+
+          // Fix for Section 4 (Ignore Authors)
+          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '').split(/[\r\n,]+/).map(a => a.trim()).filter(Boolean);
+
           if (ignoreEvents.includes(currentEvent)) {
-            console.log(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`);
+            core.info(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`);
             core.setOutput('changed_files', '');
             core.setOutput('changed_files_filtered', '');
             core.setOutput('trigger_update', 'false');
@@ -69,55 +77,55 @@ runs:
             const nullSha = '0000000000000000000000000000000000000000';
 
             if (isTag) {
-              console.log('Tag push event identified. Parsing specific target commit details.');
-              diffOutput = exec('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' });
+              core.info('Tag push event identified. Parsing target commit structural changes.');
+              diffOutput = execSync('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' });
             } else if (!refBefore || refBefore === nullSha) {
-              console.log('New branch tree push identified. Dynamically evaluating fork boundary points.');
+              core.info('New branch tree push identified. Dynamically evaluating fork boundary points.');
               let defaultBranch = process.env.DEFAULT_BRANCH || 'main';
               let baseCommit = 'HEAD~1';
               try {
-                baseCommit = exec(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim();
+                baseCommit = execSync(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim();
               } catch (e) {
-                console.log('Unable to calculate base branch intersection. Defaulting safely to parent check.');
+                core.info('Unable to calculate base branch intersection. Defaulting safely to parent check.');
               }
-              diffOutput = exec(`git diff --name-only ${baseCommit} HEAD`, { encoding: 'utf8' });
+              diffOutput = execSync(`git diff --name-only ${baseCommit} HEAD`, { encoding: 'utf8' });
             } else {
-              diffOutput = exec(`git diff --name-only ${refBefore} ${context.payload.after}`, { encoding: 'utf8' });
+              diffOutput = execSync(`git diff --name-only ${refBefore} ${context.payload.after}`, { encoding: 'utf8' });
             }
 
             changedFilesList = diffOutput.split('\n').map(f => f.trim()).filter(Boolean);
-            console.log(`Detected Changed Files: ${changedFilesList.join(', ')}`);
+            core.info(`Detected Changed Files: ${changedFilesList.join(', ')}`);
           } catch (error) {
-            console.log(`Git processing execution failed safely: ${error.message}`);
+            core.info(`Git processing execution completed with empty frames: ${error.message}`);
           }
 
           // 3. Process Glob Path Matches
-          const inputPaths = (process.env.SPECIFIED_PATHS || '').split(/[\(\r\\)n\s]+/).filter(Boolean);
+          const inputPaths = (process.env.SPECIFIED_PATHS || '').split(/[\(\r\\)n,]+/).map(p => p.trim()).filter(Boolean);
           if (inputPaths.length > 0 && changedFilesList.length > 0) {
             const matchers = inputPaths.map(pattern => new Minimatch(pattern, { dot: true, matchBase: false }));
 
             filteredFilesList = changedFilesList.filter(file => {
               return matchers.some(matcher => matcher.match(file));
             });
-            console.log(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`);
+            core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`);
           } else {
-            console.log('No specific path patterns provided, or changed file list is empty.');
+            core.info('No explicit path patterns provided or changed file list is empty.');
           }
 
           // 4. Validate Commit Author Authority
           let authorIsAllowed = true;
-          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '').split(/[\(\r\\)n\s]+/).filter(Boolean);
+          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '').split(/[\(\r\\)n,]+/).map(a => a.trim()).filter(Boolean);
 
           if (ignoreAuthors.length > 0) {
             try {
-              const commitAuthor = exec("git log -1 --pretty=format:'%an'", { encoding: 'utf8' }).trim();
-              console.log(`Commit authored by: '${commitAuthor}'`);
+              const commitAuthor = execSync("git log -1 --pretty=format:'%an'", { encoding: 'utf8' }).trim();
+              core.info(`Commit authored by: '${commitAuthor}'`);
               if (ignoreAuthors.includes(commitAuthor)) {
-                console.log(`Commit author '${commitAuthor}' is blacklisted.`);
+                core.info(`Commit author '${commitAuthor}' matches ignore criteria.`);
                 authorIsAllowed = false;
               }
             } catch (error) {
-              console.log(`Unable to safely extract git user meta references: ${error.message}`);
+              core.info(`Unable to extract git user metadata references: ${error.message}`);
             }
           }
 
@@ -128,4 +136,4 @@ runs:
 
           core.setOutput('changed_files', changedFilesList.join(' '));
           core.setOutput('changed_files_filtered', triggerUpdate ? filteredFilesList.join(' ') : '');
-          core.setOutput('trigger_update', triggerUpdate == true);
+          core.setOutput('trigger_update', String(triggerUpdate));
