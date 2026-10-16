@@ -42,109 +42,138 @@ runs:
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       with:
         script: |
-          const { Minimatch } = require('minimatch');
-          const execSync = require('child_process').execSync;
+          const execSync = require('child_process').execSync
 
-          let changedFilesList = [];
-          let filteredFilesList = [];
-          let triggerUpdate = false;
+          let changedFilesList = []
+          let filteredFilesList = []
+          let triggerUpdate = false
+
+          // Pure JavaScript glob-to-regex matcher to eliminate all external npm dependencies
+          const matchGlob = (file, pattern) => {
+            const regexStr =
+              '^' +
+              pattern
+                .replace(/[.+^\${}()|[\]\\]/g, '\\$&') // Escape standard regex operators safely
+                .replace(/\*\*\//g, '(?:.*/)?') // Handle directory prefixes with an optional slash
+                .replace(/\/\*\*/g, '(?:\/.*)?') // Handle trailing directory trees with an optional slash
+                .replace(/\*\*/g, '.*') // Fallback for standalone double-stars
+                .replace(/\*/g, '[^/]*') + // Single star matches characters up to a directory slash
+              '\$'
+            return new RegExp(regexStr).test(file)
+          }
 
           // 1. Evaluate Ignore Events Condition - Split strictly by carriage return, newline, spaces, or commas
-          const currentEvent = context.eventName;
-          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s,]+/).filter(Boolean);
+          const currentEvent = context.eventName
+          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s,]+/).filter(Boolean)
           if (ignoreEvents.includes(currentEvent)) {
-            core.info(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`);
-            core.setOutput('changed_files', '');
-            core.setOutput('changed_files_filtered', '');
-            core.setOutput('trigger_update', 'false');
-            return;
+            core.info(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`)
+            core.setOutput('changed-files', '')
+            core.setOutput('changed-files-filtered', '')
+            core.setOutput('trigger-update', 'false')
+            return false
           }
 
           // 2. Determine Changed Files Safely with Shallow Clone Fallbacks
-          let diffOutput = '';
-          const isTag = process.env.GITHUB_REF && process.env.GITHUB_REF.startsWith('refs/tags/');
-          const refBefore = context.payload.before;
-          const nullSha = '0000000000000000000000000000000000000000';
+          let diffOutput = ''
+          const isTag = process.env.GITHUB_REF && process.env.GITHUB_REF.startsWith('refs/tags/')
+          const refBefore = context.payload.before
+          const nullSha = '0000000000000000000000000000000000000000'
 
           if (isTag) {
-            core.info('Tag push event identified. Parsing target commit structural changes.');
+            core.info('Tag push event identified. Parsing target commit structural changes.')
             try {
-              diffOutput = execSync('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' });
+              diffOutput = execSync('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' })
             } catch (e) {
-              core.info('Shallow clone or missing parent detected during tag push. Falling back to git show.');
+              core.info('Shallow clone or missing parent detected during tag push. Falling back to git show.')
               try {
-                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' });
+                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
               } catch (err) {
-                core.info(`Fallback git show failed: ${err.message}`);
+                core.info(`Fallback git show failed: ${err.message}`)
               }
             }
           } else if (!refBefore || refBefore === nullSha) {
-            core.info('New branch tree push identified. Dynamically evaluating fork boundary points.');
-            let defaultBranch = process.env.DEFAULT_BRANCH || 'main';
-            let baseCommit = '';
+            core.info('New branch tree push identified. Dynamically evaluating fork boundary points.')
+            let defaultBranch = process.env.DEFAULT_BRANCH || 'main'
+            let baseCommit = ''
 
             try {
-              baseCommit = execSync(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim();
-              diffOutput = execSync(`git diff --name-only ${baseCommit} HEAD`, { encoding: 'utf8' });
+              baseCommit = execSync(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim()
+              diffOutput = execSync(`git diff --name-only ${baseCommit} HEAD`, { encoding: 'utf8' })
             } catch (e) {
-              core.info('Unable to calculate base branch intersection or history is shallow. Falling back to git show.');
+              core.info('Unable to calculate base branch intersection or history is shallow. Falling back to git show.')
               try {
-                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' });
+                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
               } catch (err) {
-                core.info(`Fallback git show failed: ${err.message}`);
+                core.info(`Fallback git show failed: ${err.message}`)
               }
             }
           } else {
             try {
-              diffOutput = execSync(`git diff --name-only ${refBefore} ${context.payload.after}`, { encoding: 'utf8' });
+              diffOutput = execSync(`git diff --name-only ${refBefore} ${context.payload.after}`, { encoding: 'utf8' })
             } catch (e) {
-              core.info('Standard diff failed due to shallow clone. Falling back to git show.');
+              core.info('Standard diff failed due to shallow clone. Falling back to git show.')
               try {
-                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' });
+                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
               } catch (err) {
-                core.info(`Fallback git show failed: ${err.message}`);
+                core.info(`Fallback git show failed: ${err.message}`)
               }
             }
           }
 
-          changedFilesList = diffOutput.split('\n').map(f => f.trim()).filter(Boolean);
-          core.info(`Detected Changed Files: ${changedFilesList.join(', ')}`);
+          changedFilesList = diffOutput
+            .split('\n')
+            .map((f) => f.trim())
+            .filter(Boolean)
+
+          core.info(`Detected Changed Files: ${changedFilesList.join(', ')}`)
 
           // 3. Process Glob Path Matches - Split strictly by carriage return, newline, spaces, or commas
-          const inputPaths = (process.env.SPECIFIED_PATHS || '').split(/[\(\r\\)n\s,]+/).map(p => p.trim()).filter(Boolean);
-          if (inputPaths.length > 0 && changedFilesList.length > 0) {
-            const matchers = inputPaths.map(pattern => new Minimatch(pattern, { dot: true, matchBase: false }));
+          const inputPaths = (process.env.SPECIFIED_PATHS || '')
+            .split(/[\(\r\\)n\s,]+/)
+            .map((p) => p.trim())
+            .filter(Boolean)
 
-            filteredFilesList = changedFilesList.filter(file => {
-              return matchers.some(matcher => matcher.match(file));
-            });
-            core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`);
+          core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
+
+          if (inputPaths.length > 0 && changedFilesList.length > 0) {
+            filteredFilesList = changedFilesList.filter((file) => {
+              return inputPaths.some((pattern) => matchGlob(file, pattern))
+            })
+            core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`)
           } else {
-            core.info('No explicit path patterns provided or changed file list is empty.');
+            core.info('No explicit path patterns provided or changed file list is empty.')
           }
 
           // 4. Validate Commit Author Authority - Split strictly by carriage return, newline, spaces, or commas
-          let authorIsAllowed = true;
-          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '').split(/[\(\r\\)n\s,]+/).map(a => a.trim()).filter(Boolean);
+          let authorIsAllowed = true
+          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '')
+            .split(/[\(\r\\)n\s,]+/)
+            .map((a) => a.trim())
+            .filter(Boolean)
 
           if (ignoreAuthors.length > 0) {
             try {
-              const commitAuthor = execSync("git log -1 --pretty=format:'%an'", { encoding: 'utf8' }).trim();
-              core.info(`Commit authored by: '${commitAuthor}'`);
+              const commitAuthor = execSync("git log -1 --pretty=format:'%an'", { encoding: 'utf8' }).trim()
+              core.info(`Commit authored by: '${commitAuthor}'`)
               if (ignoreAuthors.includes(commitAuthor)) {
-                core.info(`Commit author '${commitAuthor}' matches ignore criteria.`);
-                authorIsAllowed = false;
+                core.info(`Commit author '${commitAuthor}' matches ignore criteria.`)
+                authorIsAllowed = false
               }
             } catch (error) {
-              core.info(`Unable to extract git user metadata references: ${error.message}`);
+              core.info(`Unable to extract git user metadata references: ${error.message}`)
             }
           }
 
           // 5. Establish Ultimate Trigger Condition Output
           if (authorIsAllowed && filteredFilesList.length > 0) {
-            triggerUpdate = true;
+            triggerUpdate = true
           }
 
-          core.setOutput('changed_files', changedFilesList.join(' '));
-          core.setOutput('changed_files_filtered', triggerUpdate ? filteredFilesList.join(' ') : '');
-          core.setOutput('trigger_update', String(triggerUpdate));
+          const changedFilesOutput = changedFilesList.join(' ')
+          const filteredFilesOutput = triggerUpdate ? filteredFilesList.join(' ') : ''
+
+          core.setOutput('changed-files', changedFilesOutput)
+          core.setOutput('changed-files-filtered', filteredFilesOutput)
+          core.setOutput('trigger-update', triggerUpdate == true)
+
+          return triggerUpdate
