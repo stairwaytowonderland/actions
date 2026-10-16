@@ -107,29 +107,6 @@ runs:
       id: has-paths
       if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
       shell: bash
-      # run: |
-      #   FILES=()
-      #   SHOULD_RUN=false
-      #   echo "::group::Checking commits for changes to specified paths"
-
-      #   for file in $CHANGED_FILES; do
-      #     for path in $SPECIFIED_PATHS; do
-      #       if [ "$file" = "$path" ]; then
-      #         echo "::debug::Found change to path: $path"
-      #         FILES+=("$path")
-      #         SHOULD_RUN=true
-      #       fi
-      #     done
-      #   done
-
-      #   if [ "$SHOULD_RUN" != 'true' ]; then
-      #     echo "::debug::No changes found for specified paths."
-      #   fi
-      #   echo "::endgroup::"
-      #   echo "Should run based on changed paths: $SHOULD_RUN"
-      #   echo "Filtered files: ${FILES[*]}"
-      #   echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-      #   echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       run: |
         FILES=()
         SHOULD_RUN=false
@@ -206,21 +183,14 @@ runs:
 
     - name: Intersect filtered files from paths and authors
       id: intersect-files
-      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.has-paths.outputs.filtered-files != '' && steps.has-authors.outputs.filtered-authors != ''
+      # Only skip if the event is ignored, or if either evaluation step explicitly flagged a falsy outcome
+      if: |
+        steps.check-event.outputs.is-ignore-event != 'true' &&
+        steps.has-paths.outputs.trigger-update == 'true' &&
+        steps.has-authors.outputs.trigger-update == 'true'
       shell: bash
       env:
         PATHS_FILES: ${{ steps.has-paths.outputs.filtered-files }}
-        AUTHORS_FILES: ${{ steps.has-authors.outputs.filtered-authors }}
       run: |
-        # If AUTHORS_FILES is empty, it means an ignored author was hit in the prior step
-        # INTERSECTED_FILES=()
-        # for file in $PATHS_FILES; do
-        #   if [[ " ${AUTHORS_FILES[*]} " == *" $file "* ]]; then
-        #     INTERSECTED_FILES+=("$file")
-        #   fi
-        # done
-        # echo "::notice::Intersected files: ${INTERSECTED_FILES[*]}"
-        # echo "intersected-files=${INTERSECTED_FILES[*]}" >> $GITHUB_OUTPUT
-
         echo "::notice::Intersected files: ${PATHS_FILES}"
         echo "intersected-files=${PATHS_FILES}" >> $GITHUB_OUTPUT
