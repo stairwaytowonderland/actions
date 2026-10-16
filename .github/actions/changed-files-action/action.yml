@@ -28,169 +28,104 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Check event
-      id: check-event
+    - name: Initialize matching dependencies
       shell: bash
-      run: |
-        if [ -z "$IGNORE_EVENTS" ]; then
-          echo "is-ignore-event=false" >> $GITHUB_OUTPUT
-        elif echo "$IGNORE_EVENTS" | grep -qE "^${GITHUB_EVENT_NAME}$"; then
-          echo "is-ignore-event=true" >> $GITHUB_OUTPUT
-        else
-          echo "is-ignore-event=false" >> $GITHUB_OUTPUT
-        fi
-      env:
-        IGNORE_EVENTS: ${{ inputs.ignore-events }}
+      run: npm install minimatch@10.0.1 --no-save --no-audit --no-fund --quiet
 
-    - name: Get changed files
-      id: changed-files
-      if: steps.check-event.outputs.is-ignore-event != 'true'
-      shell: bash
-      run: |
-        FILES=()
-
-        # 1. Check if the event is a true tag push
-        if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-          echo "::notice::Tag push detected. Fetching files changed in the tagged commit."
-          # Get files changed in this specific commit or find the prior tag fallback
-          CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || git show --name-only --pretty="" HEAD)
-
-        # 2. Check for a non-tag Null SHA (e.g. fresh branch push)
-        elif [ "$REF_BEFORE" = "0000000000000000000000000000000000000000" ] || [ -z "$REF_BEFORE" ]; then
-          echo "::notice::New branch push detected. Finding split point dynamically."
-          git fetch --dry-run &>/dev/null
-          DEFAULT_BRANCH=${DEFAULT_BRANCH:-$(git remote show origin | grep 'HEAD branch' | cut -d' ' -f5)}
-          [ -n "$DEFAULT_BRANCH" ] || DEFAULT_BRANCH="main"
-          BASE_COMMIT=$(git merge-base origin/$DEFAULT_BRANCH HEAD 2>/dev/null || echo "HEAD~1")
-          CHANGED_FILES=$(git diff --name-only $BASE_COMMIT HEAD)
-
-        # 3. Standard push event
-        else
-          CHANGED_FILES=$(git diff --name-only $REF_BEFORE $REF_AFTER)
-        fi
-
-        if [ -n "$CHANGED_FILES" ]; then
-          echo "::notice::Changed files: $CHANGED_FILES"
-          for file in $CHANGED_FILES; do
-            FILES+=("$file")
-          done
-          echo "changed-files=${FILES[*]}" >> $GITHUB_OUTPUT
-        else
-          echo "::warning::No changed files detected."
-        fi
-      env:
-        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        REF_BEFORE: ${{ github.event.before }}
-        REF_AFTER: ${{ github.event.after }}
-
-    - name: Get specified paths
-      id: specified-paths
-      if: steps.check-event.outputs.is-ignore-event != 'true' && inputs.paths != ''
-      shell: bash
-      run: |
-        FILES=()
-        if [ -n "$SPECIFIED_PATHS" ]; then
-          echo "::notice::Paths to check: $SPECIFIED_PATHS"
-          # Convert space-separated patterns cleanly into newlines
-
-          # Use a multiline GitHub output to safely store the patterns
-          echo "paths<<EOF" >> $GITHUB_OUTPUT
-          echo "$SPECIFIED_PATHS" | tr ' ' '\n'
-          echo "EOF" >> $GITHUB_OUTPUT
-        else
-          echo "::warning::No paths specified to check."
-        fi
+    - name: Process Workflow Logic
+      id: process-workflow
+      uses: actions/github-script@v9
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
-
-    - name: Determine if workflow should run based on changed paths
-      id: has-paths
-      if: steps.check-event.outputs.is-ignore-event != 'true' && steps.changed-files.outputs.changed-files != '' && steps.specified-paths.outputs.paths != ''
-      shell: bash
-      run: |
-        FILES=()
-        SHOULD_RUN=false
-        echo "::group::Checking paths using Git pattern engine"
-
-        # Write patterns cleanly into a temporary file
-        echo "$SPECIFIED_PATHS" > .git/match_patterns
-
-        for file in $CHANGED_FILES; do
-          # --no-index allows checking arbitrary strings without real disk lookups
-          # An exit status of 0 means the file matched a pattern in our file
-          if git check-ignore -q --no-index --exclude-from=.git/match_patterns "$file" 2>/dev/null; then
-             echo "::notice::Found file '$file' matching path patterns."
-             FILES+=("$file")
-             SHOULD_RUN=true
-          fi
-        done
-
-        rm -f .git/match_patterns
-
-        if [ "$SHOULD_RUN" != 'true' ]; then
-          echo "::warning::No changes found for specified paths."
-        fi
-        echo "Should run based on changed paths: $SHOULD_RUN"
-        echo "Filtered files: ${FILES[*]}"
-        echo "::endgroup::"
-        echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
-      env:
-        SPECIFIED_PATHS: ${{ steps.specified-paths.outputs.paths }}
-        CHANGED_FILES: ${{ steps.changed-files.outputs.changed-files }}
-
-    - name: Determine if workflow should run based on commit authors
-      id: has-authors
-      if: steps.check-event.outputs.is-ignore-event != 'true'
-      shell: bash
-      run: |
-        AUTHORS=()
-        SHOULD_RUN=true
-        if [ -z "$IGNORE_AUTHORS" ]; then
-          echo "::debug::No authors specified to ignore, skipping author check."
-          echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-          exit 0
-        fi
-        echo "::group::Checking commits for ignored authors"
-
-        # Get the commit author name safely
-        COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
-        echo "Commit author: $COMMIT_AUTHOR"
-        echo "Authors to ignore: $IGNORE_AUTHORS"
-
-        for author in $IGNORE_AUTHORS; do
-          echo "Checking if '$COMMIT_AUTHOR' matches ignored author: '$author'"
-          if [ "$author" = "$COMMIT_AUTHOR" ]; then
-            echo "::debug::Latest commit authored by ignored author: $author"
-            SHOULD_RUN=false
-            break
-          else
-            # Keep track of authors that did not cause a skip
-            AUTHORS+=("$author")
-          fi
-        done
-
-        if [ "$SHOULD_RUN" = 'true' ]; then
-          echo "::debug::No ignored authors found in latest commit."
-        fi
-        echo "Should run based on authors: $SHOULD_RUN"
-        echo "Filtered authors: ${AUTHORS[*]}"
-        echo "::endgroup::"
-        echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
-        echo "filtered-authors=${AUTHORS[*]}" >> $GITHUB_OUTPUT
-      env:
         IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
+        IGNORE_EVENTS: ${{ inputs.ignore-events }}
+        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+      with:
+        script: |
+          const exec = require('child_process').execSync;
+          const { Minimatch } = require('minimatch');
 
-    - name: Intersect filtered files from paths and authors
-      id: intersect-files
-      # Only skip if the event is ignored, or if either evaluation step explicitly flagged a falsy outcome
-      if: |
-        steps.check-event.outputs.is-ignore-event != 'true' &&
-        steps.has-paths.outputs.trigger-update == 'true' &&
-        steps.has-authors.outputs.trigger-update == 'true'
-      shell: bash
-      env:
-        PATHS_FILES: ${{ steps.has-paths.outputs.filtered-files }}
-      run: |
-        echo "::notice::Intersected files: ${PATHS_FILES}"
-        echo "intersected-files=${PATHS_FILES}" >> $GITHUB_OUTPUT
+          // Initialize output states safely
+          let changedFilesList = [];
+          let filteredFilesList = [];
+          let triggerUpdate = false;
+
+          // 1. Evaluate Ignore Events Condition
+          const currentEvent = context.eventName;
+          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s]+/).filter(Boolean);
+          if (ignoreEvents.includes(currentEvent)) {
+            console.log(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`);
+            core.setOutput('changed_files', '');
+            core.setOutput('changed_files_filtered', '');
+            core.setOutput('trigger_update', 'false');
+            return;
+          }
+
+          // 2. Determine Changed Files Safely
+          try {
+            let diffOutput = '';
+            const isTag = process.env.GITHUB_REF && process.env.GITHUB_REF.startsWith('refs/tags/');
+            const refBefore = context.payload.before;
+            const nullSha = '0000000000000000000000000000000000000000';
+
+            if (isTag) {
+              console.log('Tag push event identified. Parsing specific target commit details.');
+              diffOutput = exec('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' });
+            } else if (!refBefore || refBefore === nullSha) {
+              console.log('New branch tree push identified. Dynamically evaluating fork boundary points.');
+              let defaultBranch = process.env.DEFAULT_BRANCH || 'main';
+              let baseCommit = 'HEAD~1';
+              try {
+                baseCommit = exec(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim();
+              } catch (e) {
+                console.log('Unable to calculate base branch intersection. Defaulting safely to parent check.');
+              }
+              diffOutput = exec(`git diff --name-only ${baseCommit} HEAD`, { encoding: 'utf8' });
+            } else {
+              diffOutput = exec(`git diff --name-only ${refBefore} ${context.payload.after}`, { encoding: 'utf8' });
+            }
+
+            changedFilesList = diffOutput.split('\n').map(f => f.trim()).filter(Boolean);
+            console.log(`Detected Changed Files: ${changedFilesList.join(', ')}`);
+          } catch (error) {
+            console.log(`Git processing execution failed safely: ${error.message}`);
+          }
+
+          // 3. Process Glob Path Matches
+          const inputPaths = (process.env.SPECIFIED_PATHS || '').split(/[\(\r\\)n\s]+/).filter(Boolean);
+          if (inputPaths.length > 0 && changedFilesList.length > 0) {
+            const matchers = inputPaths.map(pattern => new Minimatch(pattern, { dot: true, matchBase: false }));
+
+            filteredFilesList = changedFilesList.filter(file => {
+              return matchers.some(matcher => matcher.match(file));
+            });
+            console.log(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`);
+          } else {
+            console.log('No specific path patterns provided, or changed file list is empty.');
+          }
+
+          // 4. Validate Commit Author Authority
+          let authorIsAllowed = true;
+          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '').split(/[\(\r\\)n\s]+/).filter(Boolean);
+
+          if (ignoreAuthors.length > 0) {
+            try {
+              const commitAuthor = exec("git log -1 --pretty=format:'%an'", { encoding: 'utf8' }).trim();
+              console.log(`Commit authored by: '${commitAuthor}'`);
+              if (ignoreAuthors.includes(commitAuthor)) {
+                console.log(`Commit author '${commitAuthor}' is blacklisted.`);
+                authorIsAllowed = false;
+              }
+            } catch (error) {
+              console.log(`Unable to safely extract git user meta references: ${error.message}`);
+            }
+          }
+
+          // 5. Establish Ultimate Trigger Condition Output
+          if (authorIsAllowed && filteredFilesList.length > 0) {
+            triggerUpdate = true;
+          }
+
+          core.setOutput('changed_files', changedFilesList.join(' '));
+          core.setOutput('changed_files_filtered', triggerUpdate ? filteredFilesList.join(' ') : '');
+          core.setOutput('trigger_update', triggerUpdate == true);
