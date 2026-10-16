@@ -130,28 +130,22 @@ runs:
       #   echo "trigger-update=${SHOULD_RUN}" >> $GITHUB_OUTPUT
       #   echo "filtered-files=${FILES[*]}" >> $GITHUB_OUTPUT
       run: |
-        # Explicitly enable recursive glob matching
-        shopt -s globstar
-
         FILES=()
         SHOULD_RUN=false
-        echo "::group::Checking commits for changes to specified paths"
 
-        for file in $CHANGED_FILES; do
-          # Use a while loop with a heredoc to safely parse patterns without early filesystem glob expansion
-          while read -r path; do
-            # Skip empty lines
-            [ -z "$path" ] && continue
+        echo "::group::Checking paths using Git pattern engine"
 
-            if [[ "$file" == $path ]]; then
-              echo "::notice::Found file '$file' matching pattern: $path"
-              FILES+=("$file")
-              SHOULD_RUN=true
-            fi
-          done <<< "$SPECIFIED_PATHS"
-        done
+        # Pass your patterns directly into git check-ignore via standard input
+        # It will print out any files from $CHANGED_FILES that match your patterns
+        MATCHED_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | git check-ignore --stdin --non-matching --no-index 2>/dev/null | grep -v '^[[:space:]]*#' || true)
 
-        if [ "$SHOULD_RUN" != 'true' ]; then
+        if [ -n "$MATCHED_FILES" ]; then
+          SHOULD_RUN=true
+          for file in $MATCHED_FILES; do
+            echo "::debug::Found file matching pattern: $file"
+            FILES+=("$file")
+          done
+        else
           echo "::warning::No changes found for specified paths."
         fi
         echo "Should run based on changed paths: $SHOULD_RUN"
