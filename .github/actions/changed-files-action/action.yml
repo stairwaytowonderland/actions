@@ -91,13 +91,15 @@ runs:
         FILES=()
         if [ -n "$SPECIFIED_PATHS" ]; then
           echo "::notice::Paths to check: $SPECIFIED_PATHS"
-          # echo "paths=$SPECIFIED_PATHS" >> $GITHUB_OUTPUT
-          for path in $SPECIFIED_PATHS; do
-            FILES+=("$path")
-          done
-          echo "paths=${FILES[*]}" >> $GITHUB_OUTPUT
+          # Convert space-separated patterns cleanly into newlines
+          CLEAN_PATHS=$(echo "$SPECIFIED_PATHS" | tr ' ' '\n')
+
+          # Use a multiline GitHub output to safely store the patterns
+          echo "paths<<EOF" >> $GITHUB_OUTPUT
+          echo "$CLEAN_PATHS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
         else
-          echo "::debug::No paths specified to check."
+          echo "::warning::No paths specified to check."
         fi
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
@@ -136,7 +138,7 @@ runs:
         echo "::group::Checking paths using Git pattern engine"
 
         # Pass your patterns directly into git check-ignore via standard input
-        # It will print out any files from $CHANGED_FILES that match your patterns
+        # It will print out any files from $CHANGED_FILES that match your patterns in $SPECIFIED_PATHS
         MATCHED_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | git check-ignore --stdin --non-matching --no-index 2>/dev/null | grep -v '^[[:space:]]*#' || true)
 
         if [ -n "$MATCHED_FILES" ]; then
