@@ -1,3 +1,9 @@
+## [1.437.0](https://github.com/stairwaytowonderland/actions/compare/v1.436.0...v1.437.0) (2026-10-16)
+
+### ✨ Features
+
+* adjust changed-files-action action to support glob patterns in paths ([9ec5f2b](https://github.com/stairwaytowonderland/actions/commit/9ec5f2b111c19f716d584792b98996cdaed3f2ff))
+
 ## [1.436.0](https://github.com/stairwaytowonderland/actions/compare/v1.435.0...v1.436.0) (2026-10-15)
 
 ### ✨ Features
