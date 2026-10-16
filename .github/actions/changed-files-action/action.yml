@@ -49,18 +49,9 @@ runs:
           let filteredFilesList = [];
           let triggerUpdate = false;
 
+          // 1. Evaluate Ignore Events Condition
           const currentEvent = context.eventName;
-          // const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s,]+/).filter(Boolean);
-
-          // Fix for Section 1 (Ignore Events)
-          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\r\n\s,]+/).filter(Boolean);
-
-          // Fix for Section 3 (Glob Path Matches)
-          const inputPaths = (process.env.SPECIFIED_PATHS || '').split(/[\r\n,]+/).map(p => p.trim()).filter(Boolean);
-
-          // Fix for Section 4 (Ignore Authors)
-          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '').split(/[\r\n,]+/).map(a => a.trim()).filter(Boolean);
-
+          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s,]+/).filter(Boolean);
           if (ignoreEvents.includes(currentEvent)) {
             core.info(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`);
             core.setOutput('changed_files', '');
