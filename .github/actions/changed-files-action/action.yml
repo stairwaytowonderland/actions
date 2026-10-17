@@ -33,7 +33,7 @@ runs:
       run: npm install minimatch@10.0.1 --no-save --no-audit --no-fund --quiet
 
     - name: Process Workflow Logic
-      id: process-workflow
+      id: changed-files
       uses: actions/github-script@v9
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
@@ -190,9 +190,8 @@ runs:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
         RESULTS: ${{ steps.changed-files.outputs.result }}
       run: |
-        echo "Changed Files: ${{ steps.changed-files.outputs.changed-files }}"
-        echo "Filtered Changed Files: ${{ steps.changed-files.outputs.changed-files-filtered }}"
-        echo "Trigger Update: ${{ steps.changed-files.outputs.trigger-update }}"
+        echo "Output JSON:"
+        echo "$OUTPUT_JSON"
         echo "--------------------"
         echo "Results:"
         echo "$RESULTS"
