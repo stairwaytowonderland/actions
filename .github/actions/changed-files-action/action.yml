@@ -4,7 +4,7 @@ description: 'Reusable action to get an authorization token either from a GitHub
 inputs:
   show-summary:
     description: 'Whether to include a summary of changed files in the GitHub Actions summary.'
-    default: 'false'
+    default: false
   paths:
     description: 'The paths to check for changes. If any of these paths have changed, the action will output a list of changed files.'
     # default: |
