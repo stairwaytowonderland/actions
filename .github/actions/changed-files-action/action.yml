@@ -64,11 +64,12 @@ runs:
 
           // 1. Evaluate Ignore Events Condition
           const ignoreEvents = parseInput('IGNORE_EVENTS')
-          if (ignoreEvents.includes(context.eventName)) {
+          const eventIsIgnored = ignoreEvents.includes(context.eventName)
+
+          if (eventIsIgnored) {
             core.info(`Event '${context.eventName}' matches ignore configuration. Skipping processing.`)
             core.setOutput('changed-files', '')
             core.setOutput('changed-files-filtered', '')
-            core.setOutput('trigger-update', 'false')
             return false
           }
 
@@ -152,10 +153,16 @@ runs:
 
           if (showSummary) {
             core.summary.addRaw(`<table>
+              <tr><th>Specified Path Patterns</th><td>${inputPaths.join(', ')}</td></tr>
               <tr><th>Changed Files</th><td>${changedFilesList.join(', ')}</td></tr>
               <tr><th>Filtered Files</th><td>${filteredFilesList.join(', ')}</td></tr>
+              <tr><th>Ignore Authors</th><td>${ignoreAuthors.join(', ')}</td></tr>
+              <tr><th>Author Is Allowed</th><td>${authorIsAllowed}</td></tr>
+              <tr><th>Ignore Events</th><td>${ignoreEvents.join(', ')}</td></tr>
+              <tr><th>Event Is Allowed</th><td>${eventIsIgnored}</td></tr>
               <tr><th>Result</th><td>${result}</td></tr>
-            </table>`)
+              </table>`)
+
             await core.summary.write()
           }
 
