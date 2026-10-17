@@ -130,7 +130,8 @@ runs:
 
           // 3. Process Glob Path Matches - Split strictly by carriage return, newline, spaces, or commas
           const inputPaths = (process.env.SPECIFIED_PATHS || '')
-            .split(/,|[\r\n\s]+/)
+            .replace(/\r/g, '')
+            .split(/[\n, ]+/)
             .map((p) => p.trim())
             .filter(Boolean)
 
