@@ -182,7 +182,7 @@ runs:
           core.setOutput('changed-files-filtered', filteredFilesOutput)
           core.setOutput('trigger-update', triggerUpdateOutput)
 
-          return triggerUpdate
+          return triggerUpdate ? 'foo' : 'bar'
 
     - name: Show Outputs
       shell: bash
@@ -190,8 +190,9 @@ runs:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
         RESULTS: ${{ steps.changed-files.outputs.result }}
       run: |
-        echo "Output JSON:"
-        echo "$OUTPUT_JSON"
+        echo "Changed Files: ${{ steps.changed-files.outputs.changed-files }}"
+        echo "Filtered Changed Files: ${{ steps.changed-files.outputs.changed-files-filtered }}"
+        echo "Trigger Update: ${{ steps.changed-files.outputs.trigger-update }}"
         echo "--------------------"
         echo "Results:"
         echo "$RESULTS"
