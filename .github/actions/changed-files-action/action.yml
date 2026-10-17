@@ -18,6 +18,9 @@ inputs:
   ignore-events:
     description: 'A newline delimited list of GitHub event names to ignore when checking for changes (e.g. push, pull_request, workflow_dispatch).'
 outputs:
+  result:
+    description: 'The overall result of the changed files check.'
+    value: ${{ steps.changed-files.outputs.result }}
   changed-files:
     description: 'A newline delimited list of changed files.'
     value: ${{ steps.changed-files.outputs.changed-files }}
