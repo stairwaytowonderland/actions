@@ -1,3 +1,9 @@
+## [1.462.0](https://github.com/stairwaytowonderland/actions/compare/v1.461.0...v1.462.0) (2026-10-17)
+
+### ✨ Features
+
+* add show-summary input to changed-files-action action ([08607a6](https://github.com/stairwaytowonderland/actions/commit/08607a696f7faea1d88c88dd932510f2ce9c1fc4))
+
 ## [1.461.0](https://github.com/stairwaytowonderland/actions/compare/v1.460.0...v1.461.0) (2026-10-17)
 
 ### ✨ Features
