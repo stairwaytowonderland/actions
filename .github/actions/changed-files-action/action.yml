@@ -126,6 +126,7 @@ runs:
           }
 
           changedFilesList = diffOutput
+            .replace(/\r/g, '')
             .split('\n')
             .map((f) => f.trim())
             .filter(Boolean)
