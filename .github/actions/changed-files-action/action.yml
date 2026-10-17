@@ -36,6 +36,8 @@ runs:
         IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
         IGNORE_EVENTS: ${{ inputs.ignore-events }}
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        # Input environment variable for show-summary so getBooleanInput works in a composite action
+        INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
         script: |
           // Import the execSync function from the child_process module for executing Git commands
