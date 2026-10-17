@@ -64,7 +64,8 @@ runs:
 
           // 1. Evaluate Ignore Events Condition - Split strictly by carriage return, newline, spaces, or commas
           const currentEvent = context.eventName
-          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/[\(\r\\)n\s,]+/).filter(Boolean)
+          const ignoreEvents = (process.env.IGNORE_EVENTS || '').split(/,|[\r\n\s]+/).filter(Boolean)
+
           if (ignoreEvents.includes(currentEvent)) {
             core.info(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`)
             core.setOutput('changed-files', '')
@@ -129,7 +130,7 @@ runs:
 
           // 3. Process Glob Path Matches - Split strictly by carriage return, newline, spaces, or commas
           const inputPaths = (process.env.SPECIFIED_PATHS || '')
-            .split(/[\(\r\\)n\s,]+/)
+            .split(/,|[\r\n\s]+/)
             .map((p) => p.trim())
             .filter(Boolean)
 
@@ -147,7 +148,7 @@ runs:
           // 4. Validate Commit Author Authority - Split strictly by carriage return, newline, spaces, or commas
           let authorIsAllowed = true
           const ignoreAuthors = (process.env.IGNORE_AUTHORS || '')
-            .split(/[\(\r\\)n\s,]+/)
+            .split(/,|[\r\n\s]+/)
             .map((a) => a.trim())
             .filter(Boolean)
 
