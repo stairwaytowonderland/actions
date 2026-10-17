@@ -173,8 +173,30 @@ runs:
           const changedFilesOutput = changedFilesList.join(' ')
           const filteredFilesOutput = triggerUpdate ? filteredFilesList.join(' ') : ''
 
+          core.info(`Changed Files: ${changedFilesOutput}`)
+          core.info(`Filtered Changed Files: ${filteredFilesOutput}`)
+          core.info(`Trigger Update: ${triggerUpdate == true}`)
+
           core.setOutput('changed-files', changedFilesOutput)
           core.setOutput('changed-files-filtered', filteredFilesOutput)
           core.setOutput('trigger-update', triggerUpdate == true)
 
-          return triggerUpdate
+          # return triggerUpdate
+
+          return {
+            'changed-files': changedFilesOutput,
+            'changed-files-filtered': filteredFilesOutput,
+            'trigger-update': triggerUpdate == true,
+          }
+
+    - name: Show Outputs
+      shell: bash
+      env:
+        OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
+        RESULTS: ${{ steps.changed-files.outputs.result }}
+      run: |
+        echo "Output JSON:"
+        echo "$OUTPUT_JSON"
+        echo "--------------------"
+        echo "Results:"
+        echo "$RESULTS"
