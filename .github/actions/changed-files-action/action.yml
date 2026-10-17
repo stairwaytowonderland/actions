@@ -158,8 +158,6 @@ runs:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
         RESULTS: ${{ steps.changed-files.outputs.result }}
       run: |
+        echo "Results: $RESULTS"
         echo "Output JSON:"
         echo "$OUTPUT_JSON"
-        echo "--------------------"
-        echo "Results:"
-        echo "$RESULTS"
