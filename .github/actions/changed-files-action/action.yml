@@ -172,22 +172,17 @@ runs:
 
           const changedFilesOutput = changedFilesList.join(' ')
           const filteredFilesOutput = triggerUpdate ? filteredFilesList.join(' ') : ''
+          const triggerUpdateOutput = triggerUpdate == true
 
           core.info(`Changed Files: ${changedFilesOutput}`)
           core.info(`Filtered Changed Files: ${filteredFilesOutput}`)
-          core.info(`Trigger Update: ${triggerUpdate == true}`)
+          core.info(`Trigger Update: ${triggerUpdateOutput}`)
 
           core.setOutput('changed-files', changedFilesOutput)
           core.setOutput('changed-files-filtered', filteredFilesOutput)
-          core.setOutput('trigger-update', triggerUpdate == true)
+          core.setOutput('trigger-update', triggerUpdateOutput)
 
-          # return triggerUpdate
-
-          return {
-            'changed-files': changedFilesOutput,
-            'changed-files-filtered': filteredFilesOutput,
-            'trigger-update': triggerUpdate == true,
-          }
+          return triggerUpdate
 
     - name: Show Outputs
       shell: bash
