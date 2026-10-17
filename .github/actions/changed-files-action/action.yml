@@ -42,36 +42,32 @@ runs:
         DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
       with:
         script: |
-          const execSync = require('child_process').execSync
+          // Import the execSync function from the child_process module for executing Git commands
+          const { execSync } = require('child_process')
 
-          let changedFilesList = []
-          let filteredFilesList = []
-          let triggerUpdate = false
+          // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
+          const parseInput = (envVar) =>
+            (process.env[envVar] || '')
+              .split(/[\r\n\s,]+/)
+              .map((p) => p.trim())
+              .filter(Boolean)
 
-          // Pure JavaScript glob-to-regex matcher to eliminate all external npm dependencies
+          // Custom glob-to-regex matcher to eliminate all external npm dependencies
           const matchGlob = (file, pattern) => {
             const regexStr =
               '^' +
               pattern
-                .replace(/[.+^\${}()|[\]\\]/g, '\\$&') // Escape standard regex operators safely
-                .replace(/\*\*\//g, '(?:.*/)?') // Handle directory prefixes with an optional slash
-                .replace(/\/\*\*/g, '(?:\/.*)?') // Handle trailing directory trees with an optional slash
-                .replace(/\*\*/g, '.*') // Fallback for standalone double-stars
-                .replace(/\*/g, '[^/]*') + // Single star matches characters up to a directory slash
+                .replace(/[.+^\${}()|[\]\\]/g, '\\$&') // 1. Escape regular regex characters safely
+                .replace(/\*\*/g, '.*') // 2. Turn ** straight into a recursive wildcard (.*)
+                .replace(/(?<!\.)\*/g, '[^/]*') + // 3. Turn single * into folder-only matches
               '\$'
             return new RegExp(regexStr).test(file)
           }
 
-          // 1. Evaluate Ignore Events Condition - Split strictly by carriage return, newline, spaces, or commas
-          const currentEvent = context.eventName
-          const ignoreEvents = (process.env.IGNORE_EVENTS || '')
-            .replace(/\r/g, '')
-            .split(/[\n, ]+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-
-          if (ignoreEvents.includes(currentEvent)) {
-            core.info(`Event '${currentEvent}' matches ignore configuration. Skipping processing.`)
+          // 1. Evaluate Ignore Events Condition
+          const ignoreEvents = parseInput('IGNORE_EVENTS')
+          if (ignoreEvents.includes(context.eventName)) {
+            core.info(`Event '${context.eventName}' matches ignore configuration. Skipping processing.`)
             core.setOutput('changed-files', '')
             core.setOutput('changed-files-filtered', '')
             core.setOutput('trigger-update', 'false')
@@ -84,80 +80,59 @@ runs:
           const refBefore = context.payload.before
           const nullSha = '0000000000000000000000000000000000000000'
 
+          // Determine strategy arguments upfront
+          let gitDiffArgs = ['diff', '--name-only', refBefore, context.payload.after]
           if (isTag) {
             core.info('Tag push event identified. Parsing target commit structural changes.')
-            try {
-              diffOutput = execSync('git diff-tree --no-commit-id --name-only -r HEAD', { encoding: 'utf8' })
-            } catch (e) {
-              core.info('Shallow clone or missing parent detected during tag push. Falling back to git show.')
-              try {
-                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
-              } catch (err) {
-                core.info(`Fallback git show failed: ${err.message}`)
-              }
-            }
+            gitDiffArgs = ['diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD']
           } else if (!refBefore || refBefore === nullSha) {
             core.info('New branch tree push identified. Dynamically evaluating fork boundary points.')
-            let defaultBranch = process.env.DEFAULT_BRANCH || 'main'
-            let baseCommit = ''
-
+            const defaultBranch = process.env.DEFAULT_BRANCH || 'main'
             try {
-              baseCommit = execSync(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim()
-              diffOutput = execSync(`git diff --name-only ${baseCommit} HEAD`, { encoding: 'utf8' })
-            } catch (e) {
-              core.info('Unable to calculate base branch intersection or history is shallow. Falling back to git show.')
-              try {
-                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
-              } catch (err) {
-                core.info(`Fallback git show failed: ${err.message}`)
-              }
-            }
-          } else {
-            try {
-              diffOutput = execSync(`git diff --name-only ${refBefore} ${context.payload.after}`, { encoding: 'utf8' })
-            } catch (e) {
-              core.info('Standard diff failed due to shallow clone. Falling back to git show.')
-              try {
-                diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
-              } catch (err) {
-                core.info(`Fallback git show failed: ${err.message}`)
-              }
+              const baseCommit = execSync(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim()
+              gitDiffArgs = ['diff', '--name-only', baseCommit, 'HEAD']
+            } catch {
+              gitDiffArgs = null // Force fallback to git show if merge-base fails
             }
           }
 
-          changedFilesList = diffOutput
-            .replace(/\r/g, '')
+          // Execute diff strategy, with a unified fallback to git show for shallow clones
+          try {
+            if (!gitDiffArgs) throw new Error('Forcing fallback execution strategy.')
+            diffOutput = execSync(`git ${gitDiffArgs.join(' ')}`, { encoding: 'utf8' })
+          } catch (err) {
+            core.info(
+              `Primary Git tracking strategy failed or history is shallow. Falling back to git show. Details: ${err.message}`
+            )
+            try {
+              diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
+            } catch (fallbackErr) {
+              core.info(`Fallback git show strategy failed completely: ${fallbackErr.message}`)
+            }
+          }
+
+          const changedFilesList = diffOutput
             .split('\n')
             .map((f) => f.trim())
             .filter(Boolean)
 
           core.info(`Detected Changed Files: ${changedFilesList.join(', ')}`)
 
-          // 3. Process Glob Path Matches - Split strictly by carriage return, newline, spaces, or commas
-          const inputPaths = (process.env.SPECIFIED_PATHS || '')
-            .replace(/\r/g, '')
-            .split(/[\n, ]+/)
-            .map((p) => p.trim())
-            .filter(Boolean)
-
+          // 3. Process Glob Path Matches
+          let filteredFilesList = []
+          const inputPaths = parseInput('SPECIFIED_PATHS')
           core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
 
           if (inputPaths.length > 0 && changedFilesList.length > 0) {
-            filteredFilesList = changedFilesList.filter((file) => {
-              return inputPaths.some((pattern) => matchGlob(file, pattern))
-            })
+            filteredFilesList = changedFilesList.filter((file) => inputPaths.some((pattern) => matchGlob(file, pattern)))
             core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`)
           } else {
             core.info('No explicit path patterns provided or changed file list is empty.')
           }
 
-          // 4. Validate Commit Author Authority - Split strictly by carriage return, newline, spaces, or commas
+          // 4. Validate Commit Author Authority
           let authorIsAllowed = true
-          const ignoreAuthors = (process.env.IGNORE_AUTHORS || '')
-            .replace(/\r/g, '')
-            .split(/[\n, ]+/)
-            .map((a) => a.trim())
-            .filter(Boolean)
+          const ignoreAuthors = parseInput('IGNORE_AUTHORS')
 
           if (ignoreAuthors.length > 0) {
             try {
@@ -173,21 +148,11 @@ runs:
           }
 
           // 5. Establish Ultimate Trigger Condition Output
-          if (authorIsAllowed && filteredFilesList.length > 0) {
-            triggerUpdate = true
-          }
+          const triggerUpdate = authorIsAllowed && filteredFilesList.length > 0
 
-          const changedFilesOutput = changedFilesList.join(' ')
-          const filteredFilesOutput = triggerUpdate ? filteredFilesList.join(' ') : ''
-          const triggerUpdateOutput = triggerUpdate == true
-
-          core.info(`Changed Files: ${changedFilesOutput}`)
-          core.info(`Filtered Changed Files: ${filteredFilesOutput}`)
-          core.info(`Trigger Update: ${triggerUpdateOutput}`)
-
-          core.setOutput('changed-files', changedFilesOutput)
-          core.setOutput('changed-files-filtered', filteredFilesOutput)
-          core.setOutput('trigger-update', triggerUpdateOutput)
+          core.setOutput('changed-files', changedFilesList.join(' '))
+          core.setOutput('changed-files-filtered', triggerUpdate ? filteredFilesList.join(' ') : '')
+          core.setOutput('trigger-update', triggerUpdate.toString())
 
           return triggerUpdate
 
