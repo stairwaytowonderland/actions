@@ -2,6 +2,9 @@ name: Get Authorization Token
 description: 'Reusable action to get an authorization token either from a GitHub App or a user (or personal) access token.'
 
 inputs:
+  show-summary:
+    description: 'Whether to include a summary of changed files in the GitHub Actions summary.'
+    default: 'false'
   paths:
     description: 'The paths to check for changes. If any of these paths have changed, the action will output a list of changed files.'
     # default: |
@@ -146,6 +149,15 @@ runs:
           // 5. Establish Ultimate Trigger Condition Output
           const triggerUpdate = authorIsAllowed && filteredFilesList.length > 0
 
+          if (core.getBooleanInput('show-summary')) {
+            core.summary.addRaw(`<table>
+              <tr><th>Changed Files</th><td>${changedFilesList.join(', ')}</td></tr>
+              <tr><th>Filtered Files</th><td>${filteredFilesList.join(', ')}</td></tr>
+              <tr><th>Trigger Update</th><td>${triggerUpdate}</td></tr>
+            </table>`)
+            await core.summary.write()
+          }
+
           core.setOutput('changed-files', changedFilesList.join(' '))
           core.setOutput('changed-files-filtered', triggerUpdate ? filteredFilesList.join(' ') : '')
           core.setOutput('trigger-update', triggerUpdate.toString())
@@ -154,6 +166,7 @@ runs:
 
     - name: Show Outputs
       shell: bash
+      if: runner.debug == '1'
       env:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
         RESULTS: ${{ steps.changed-files.outputs.result }}
