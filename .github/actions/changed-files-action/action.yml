@@ -4,7 +4,7 @@ description: 'Reusable action to get an authorization token either from a GitHub
 inputs:
   show-summary:
     description: 'Whether to include a summary of changed files in the GitHub Actions summary.'
-    default: false
+    default: 'false'
   paths:
     description: 'The paths to check for changes. If any of these paths have changed, the action will output a list of changed files.'
     # default: |
@@ -24,9 +24,6 @@ outputs:
   changed-files-filtered:
     description: 'A newline delimited list of changed files that match the specified paths and are not authored by ignored authors.'
     value: ${{ steps.changed-files.outputs.changed-files-filtered }}
-  trigger-update:
-    description: 'Whether to trigger an update based on the changed files and ignored authors.'
-    value: ${{ steps.changed-files.outputs.trigger-update }}
 
 runs:
   using: 'composite'
@@ -147,30 +144,29 @@ runs:
           }
 
           // 5. Establish Ultimate Trigger Condition Output
-          const triggerUpdate = authorIsAllowed && filteredFilesList.length > 0
+          const result = authorIsAllowed && filteredFilesList.length > 0
 
           if (core.getBooleanInput('show-summary')) {
             core.summary.addRaw(`<table>
               <tr><th>Changed Files</th><td>${changedFilesList.join(', ')}</td></tr>
               <tr><th>Filtered Files</th><td>${filteredFilesList.join(', ')}</td></tr>
-              <tr><th>Trigger Update</th><td>${triggerUpdate}</td></tr>
+              <tr><th>Result</th><td>${result}</td></tr>
             </table>`)
             await core.summary.write()
           }
 
           core.setOutput('changed-files', changedFilesList.join(' '))
-          core.setOutput('changed-files-filtered', triggerUpdate ? filteredFilesList.join(' ') : '')
-          core.setOutput('trigger-update', triggerUpdate.toString())
+          core.setOutput('changed-files-filtered', result ? filteredFilesList.join(' ') : '')
 
-          return triggerUpdate
+          return result
 
     - name: Show Outputs
       shell: bash
       if: runner.debug == '1'
       env:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
-        RESULTS: ${{ steps.changed-files.outputs.result }}
+        RESULT: ${{ steps.changed-files.outputs.result }}
       run: |
-        echo "Results: $RESULTS"
+        echo "Result: $RESULT"
         echo "Output JSON:"
         echo "$OUTPUT_JSON"
