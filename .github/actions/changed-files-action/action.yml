@@ -28,10 +28,6 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    - name: Initialize matching dependencies
-      shell: bash
-      run: npm install minimatch@10.0.1 --no-save --no-audit --no-fund --quiet
-
     - name: Determine Changed Files
       id: changed-files
       uses: actions/github-script@v9
