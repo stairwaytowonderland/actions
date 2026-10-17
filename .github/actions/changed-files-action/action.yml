@@ -20,10 +20,10 @@ outputs:
     value: ${{ steps.changed-files.outputs.changed-files }}
   changed-files-filtered:
     description: 'A newline delimited list of changed files that match the specified paths and are not authored by ignored authors.'
-    value: ${{ steps.intersect-files.outputs.intersected-files }}
+    value: ${{ steps.changed-files.outputs.changed-files-filtered }}
   trigger-update:
     description: 'Whether to trigger an update based on the changed files and ignored authors.'
-    value: ${{ steps.has-paths.outputs.trigger-update == 'true' && steps.has-authors.outputs.trigger-update == 'true' }}
+    value: ${{ steps.changed-files.outputs.trigger-update }}
 
 runs:
   using: 'composite'
@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: npm install minimatch@10.0.1 --no-save --no-audit --no-fund --quiet
 
-    - name: Process Workflow Logic
+    - name: Determine Changed Files
       id: changed-files
       uses: actions/github-script@v9
       env:
@@ -182,7 +182,7 @@ runs:
           core.setOutput('changed-files-filtered', filteredFilesOutput)
           core.setOutput('trigger-update', triggerUpdateOutput)
 
-          return triggerUpdate ? 'foo' : 'bar'
+          return triggerUpdate
 
     - name: Show Outputs
       shell: bash
