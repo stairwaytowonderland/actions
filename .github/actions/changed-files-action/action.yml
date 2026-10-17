@@ -146,7 +146,9 @@ runs:
           // 5. Establish Ultimate Trigger Condition Output
           const result = authorIsAllowed && filteredFilesList.length > 0
 
-          if (core.getBooleanInput('show-summary')) {
+          const showSummary = core.getBooleanInput('show-summary')
+
+          if (showSummary) {
             core.summary.addRaw(`<table>
               <tr><th>Changed Files</th><td>${changedFilesList.join(', ')}</td></tr>
               <tr><th>Filtered Files</th><td>${filteredFilesList.join(', ')}</td></tr>
