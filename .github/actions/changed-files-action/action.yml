@@ -38,7 +38,7 @@ runs:
         SPECIFIED_PATHS: ${{ inputs.paths }}
         IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
         IGNORE_EVENTS: ${{ inputs.ignore-events }}
-        DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         # Input environment variable for show-summary so getBooleanInput works in a composite action
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
@@ -89,9 +89,10 @@ runs:
             gitDiffArgs = ['diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD']
           } else if (!refBefore || refBefore === nullSha) {
             core.info('New branch tree push identified. Dynamically evaluating fork boundary points.')
-            const defaultBranch = process.env.DEFAULT_BRANCH || 'main'
+            const branchName = process.env['BRANCH_NAME'] || execSync(`git branch --show-current`, { encoding: 'utf8' }).trim()
+            core.info(`Determined branch name: ${branchName}`)
             try {
-              const baseCommit = execSync(`git merge-base origin/${defaultBranch} HEAD`, { encoding: 'utf8' }).trim()
+              const baseCommit = execSync(`git merge-base origin/${branchName} HEAD`, { encoding: 'utf8' }).trim()
               gitDiffArgs = ['diff', '--name-only', baseCommit, 'HEAD']
             } catch {
               gitDiffArgs = null // Force fallback to git show if merge-base fails
