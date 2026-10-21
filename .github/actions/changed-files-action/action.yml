@@ -31,6 +31,11 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    # Setup Dependencies
+    - name: Install Runtime Dependencies
+      run: npm install @actions/exec
+      shell: bash
+
     - name: Determine Changed Files
       id: changed-files
       uses: actions/github-script@v9
@@ -43,13 +48,14 @@ runs:
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
         script: |
-          // Import the execSync function from the child_process module for executing Git commands
-          const { execSync } = require('child_process')
+          // Import the getExecOutput function from the @actions/exec package
+          const exec = await import('@actions/exec')
+          const { getExecOutput } = exec
 
           // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
           const parseInput = (envVar) =>
             (process.env[envVar] || '')
-              .split(/[\r\n\s,]+/)
+              .split(/[\(\r\)n\s,]+/)
               .map((p) => p.trim())
               .filter(Boolean)
 
@@ -89,10 +95,22 @@ runs:
             gitDiffArgs = ['diff-tree', '--no-commit-id', '--name-only', '-r', 'HEAD']
           } else if (!refBefore || refBefore === nullSha) {
             core.info('New branch tree push identified. Dynamically evaluating fork boundary points.')
-            const branchName = process.env['BRANCH_NAME'] || execSync(`git branch --show-current`, { encoding: 'utf8' }).trim()
+
+            let branchName = process.env['BRANCH_NAME'] || ''
+            if (!branchName) {
+              try {
+                const branchResult = await getExecOutput('git', ['branch', '--show-current'])
+                branchName = branchResult.stdout.trim()
+              } catch (branchErr) {
+                core.info(`Failed to auto-detect current git branch: ${branchErr.message}`)
+              }
+            }
+
             core.info(`Determined branch name: ${branchName}`)
+
             try {
-              const baseCommit = execSync(`git merge-base origin/${branchName} HEAD`, { encoding: 'utf8' }).trim()
+              const mergeBaseResult = await getExecOutput('git', ['merge-base', `origin/${branchName}`, 'HEAD'])
+              const baseCommit = mergeBaseResult.stdout.trim()
               gitDiffArgs = ['diff', '--name-only', baseCommit, 'HEAD']
             } catch {
               gitDiffArgs = null // Force fallback to git show if merge-base fails
@@ -102,13 +120,15 @@ runs:
           // Execute diff strategy, with a unified fallback to git show for shallow clones
           try {
             if (!gitDiffArgs) throw new Error('Forcing fallback execution strategy.')
-            diffOutput = execSync(`git ${gitDiffArgs.join(' ')}`, { encoding: 'utf8' })
+            const diffResult = await getExecOutput('git', gitDiffArgs)
+            diffOutput = diffResult.stdout
           } catch (err) {
             core.info(
               `Primary Git tracking strategy failed or history is shallow. Falling back to git show. Details: ${err.message}`
             )
             try {
-              diffOutput = execSync('git show --name-only --pretty="" HEAD', { encoding: 'utf8' })
+              const fallbackResult = await getExecOutput('git', ['show', '--name-only', '--pretty=', 'HEAD'])
+              diffOutput = fallbackResult.stdout
             } catch (fallbackErr) {
               core.info(`Fallback git show strategy failed completely: ${fallbackErr.message}`)
             }
@@ -139,7 +159,8 @@ runs:
 
           if (ignoreAuthors.length > 0) {
             try {
-              const commitAuthor = execSync("git log -1 --pretty=format:'%an'", { encoding: 'utf8' }).trim()
+              const authorResult = await getExecOutput('git', ['log', '-1', '--pretty=format:%an'])
+              const commitAuthor = authorResult.stdout.trim()
               core.info(`Commit authored by: '${commitAuthor}'`)
               if (ignoreAuthors.includes(commitAuthor)) {
                 core.info(`Commit author '${commitAuthor}' matches ignore criteria.`)
@@ -153,21 +174,25 @@ runs:
           // 5. Establish Ultimate Trigger Condition Output
           const result = authorIsAllowed && filteredFilesList.length > 0
 
-          const showSummary = core.getBooleanInput('show-summary')
+          const showSummary = core.getBooleanInput('show-summary') && process.env.GITHUB_STEP_SUMMARY.length > 0
 
-          if (showSummary) {
-            core.summary.addRaw(`<table>
-              <tr><th>Specified Path Patterns</th><td>${inputPaths.join(', ')}</td></tr>
-              <tr><th>Changed Files</th><td>${changedFilesList.join(', ')}</td></tr>
-              <tr><th>Filtered Files</th><td>${filteredFilesList.join(', ')}</td></tr>
-              <tr><th>Ignore Authors</th><td>${ignoreAuthors.join(', ')}</td></tr>
-              <tr><th>Author Is Allowed</th><td>${authorIsAllowed}</td></tr>
-              <tr><th>Ignore Events</th><td>${ignoreEvents.join(', ')}</td></tr>
-              <tr><th>Event Is Allowed</th><td>${!eventIsIgnored}</td></tr>
-              <tr><th>Result</th><td>${result}</td></tr>
-              </table>`)
+          try {
+            if (showSummary) {
+              core.summary.addRaw(`<table>
+                <tr><th>Specified Path Patterns</th><td>${inputPaths.join(', ')}</td></tr>
+                <tr><th>Changed Files</th><td>${changedFilesList.join(', ')}</td></tr>
+                <tr><th>Filtered Files</th><td>${filteredFilesList.join(', ')}</td></tr>
+                <tr><th>Ignore Authors</th><td>${ignoreAuthors.join(', ')}</td></tr>
+                <tr><th>Author Is Allowed</th><td>${authorIsAllowed}</td></tr>
+                <tr><th>Ignore Events</th><td>${ignoreEvents.join(', ')}</td></tr>
+                <tr><th>Event Is Allowed</th><td>${eventIsIgnored}</td></tr>
+                <tr><th>Result</th><td>${result}</td></tr>
+                </table>`)
 
-            await core.summary.write()
+              await core.summary.write({ overwrite: true })
+            }
+          } catch (error) {
+            core.info(`Failed to generate summary: ${error.message}`)
           }
 
           core.setOutput('changed-files', changedFilesList.join(' '))
