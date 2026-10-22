@@ -48,7 +48,8 @@ runs:
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
         script: |
-          const getExecOutput = (await import('@actions/exec')).getExecOutput
+          const exec = await import('@actions/exec')
+          const { getExecOutput } = exec
           const { minimatch } = require('minimatch')
 
           // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
