@@ -33,7 +33,7 @@ runs:
   steps:
     # Setup Dependencies
     - name: Install Runtime Dependencies
-      run: npm install @actions/exec
+      run: npm install @actions/exec minimatch
       shell: bash
 
     - name: Determine Changed Files
@@ -48,9 +48,9 @@ runs:
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
         script: |
-          // Import the getExecOutput function from the @actions/exec package
-          const exec = await import('@actions/exec')
+          // Leverage the pre-bundled 'exec' global argument injected by github-script
           const { getExecOutput } = exec
+          const { minimatch } = require('minimatch')
 
           // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
           const parseInput = (envVar) =>
@@ -71,7 +71,7 @@ runs:
             return new RegExp(regexStr).test(file)
           }
 
-          // 1. Evaluate Ignore Events Condition
+          // * 1. Evaluate Ignore Events Condition
           const ignoreEvents = parseInput('IGNORE_EVENTS')
           const eventIsIgnored = ignoreEvents.includes(context.eventName)
 
@@ -82,7 +82,7 @@ runs:
             return false
           }
 
-          // 2. Determine Changed Files Safely with Shallow Clone Fallbacks
+          // * 2. Determine Changed Files Safely with Shallow Clone Fallbacks
           let diffOutput = ''
           const isTag = process.env.GITHUB_REF && process.env.GITHUB_REF.startsWith('refs/tags/')
           const refBefore = context.payload.before
@@ -141,19 +141,22 @@ runs:
 
           core.info(`Detected Changed Files: ${changedFilesList.join(', ')}`)
 
-          // 3. Process Glob Path Matches
+          // * 3. Process Glob Path Matches
           let filteredFilesList = []
           const inputPaths = parseInput('SPECIFIED_PATHS')
           core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
 
           if (inputPaths.length > 0 && changedFilesList.length > 0) {
-            filteredFilesList = changedFilesList.filter((file) => inputPaths.some((pattern) => matchGlob(file, pattern)))
+            // Filter files cleanly by checking if they match any of the provided glob patterns
+            filteredFilesList = changedFilesList.filter((file) =>
+              inputPaths.some((pattern) => minimatch(file, pattern, { dot: true }))
+            )
             core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`)
           } else {
             core.info('No explicit path patterns provided or changed file list is empty.')
           }
 
-          // 4. Validate Commit Author Authority
+          // * 4. Validate Commit Author Authority
           let authorIsAllowed = true
           const ignoreAuthors = parseInput('IGNORE_AUTHORS')
 
@@ -171,7 +174,7 @@ runs:
             }
           }
 
-          // 5. Establish Ultimate Trigger Condition Output
+          // * 5. Establish Ultimate Trigger Condition Output
           const result = authorIsAllowed && filteredFilesList.length > 0
 
           const showSummary = core.getBooleanInput('show-summary') && process.env.GITHUB_STEP_SUMMARY.length > 0
