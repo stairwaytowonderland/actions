@@ -1,3 +1,9 @@
+## [1.477.0](https://github.com/stairwaytowonderland/actions/compare/v1.476.0...v1.477.0) (2026-10-23)
+
+### ✨ Features
+
+* remove unused in changed-files-action ([7362862](https://github.com/stairwaytowonderland/actions/commit/7362862e57881c0dab21913cf33b2a0a79bd5247))
+
 ## [1.476.0](https://github.com/stairwaytowonderland/actions/compare/v1.475.0...v1.476.0) (2026-10-23)
 
 ### ✨ Features
