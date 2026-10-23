@@ -48,8 +48,11 @@ runs:
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
         script: |
-          // Leverage the pre-bundled 'exec' global argument injected by github-script
-          const { getExecOutput } = exec
+          // Dynamically import the official packages to guarantee availability
+          // const actionsExec = await import('@actions/exec')
+          // const { getExecOutput } = actionsExec
+
+          // Require the minimatch package for glob pattern matching
           const { minimatch } = require('minimatch')
 
           // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
@@ -99,7 +102,7 @@ runs:
             let branchName = process.env['BRANCH_NAME'] || ''
             if (!branchName) {
               try {
-                const branchResult = await getExecOutput('git', ['branch', '--show-current'])
+                const branchResult = await exec.getExecOutput('git', ['branch', '--show-current'])
                 branchName = branchResult.stdout.trim()
               } catch (branchErr) {
                 core.info(`Failed to auto-detect current git branch: ${branchErr.message}`)
@@ -109,7 +112,7 @@ runs:
             core.info(`Determined branch name: ${branchName}`)
 
             try {
-              const mergeBaseResult = await getExecOutput('git', ['merge-base', `origin/${branchName}`, 'HEAD'])
+              const mergeBaseResult = await exec.getExecOutput('git', ['merge-base', `origin/${branchName}`, 'HEAD'])
               const baseCommit = mergeBaseResult.stdout.trim()
               gitDiffArgs = ['diff', '--name-only', baseCommit, 'HEAD']
             } catch {
@@ -120,14 +123,14 @@ runs:
           // Execute diff strategy, with a unified fallback to git show for shallow clones
           try {
             if (!gitDiffArgs) throw new Error('Forcing fallback execution strategy.')
-            const diffResult = await getExecOutput('git', gitDiffArgs)
+            const diffResult = await exec.getExecOutput('git', gitDiffArgs)
             diffOutput = diffResult.stdout
           } catch (err) {
             core.info(
               `Primary Git tracking strategy failed or history is shallow. Falling back to git show. Details: ${err.message}`
             )
             try {
-              const fallbackResult = await getExecOutput('git', ['show', '--name-only', '--pretty=', 'HEAD'])
+              const fallbackResult = await exec.getExecOutput('git', ['show', '--name-only', '--pretty=', 'HEAD'])
               diffOutput = fallbackResult.stdout
             } catch (fallbackErr) {
               core.info(`Fallback git show strategy failed completely: ${fallbackErr.message}`)
@@ -162,7 +165,7 @@ runs:
 
           if (ignoreAuthors.length > 0) {
             try {
-              const authorResult = await getExecOutput('git', ['log', '-1', '--pretty=format:%an'])
+              const authorResult = await exec.getExecOutput('git', ['log', '-1', '--pretty=format:%an'])
               const commitAuthor = authorResult.stdout.trim()
               core.info(`Commit authored by: '${commitAuthor}'`)
               if (ignoreAuthors.includes(commitAuthor)) {
