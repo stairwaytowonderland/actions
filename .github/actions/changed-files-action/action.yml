@@ -48,10 +48,6 @@ runs:
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
       with:
         script: |
-          // Dynamically import the official packages to guarantee availability
-          // const actionsExec = await import('@actions/exec')
-          // const { getExecOutput } = actionsExec
-
           // Require the minimatch package for glob pattern matching
           const { minimatch } = require('minimatch')
 
@@ -61,18 +57,6 @@ runs:
               .split(/[\r\n\s,]+/)
               .map((p) => p.trim())
               .filter(Boolean)
-
-          // Custom glob-to-regex matcher to eliminate all external npm dependencies
-          const matchGlob = (file, pattern) => {
-            const regexStr =
-              '^' +
-              pattern
-                .replace(/[.+^\${}()|[\]\\]/g, '\\$&') // 1. Escape regular regex characters safely
-                .replace(/\*\*/g, '.*') // 2. Turn ** straight into a recursive wildcard (.*)
-                .replace(/(?<!\.)\*/g, '[^/]*') + // 3. Turn single * into folder-only matches
-              '\$'
-            return new RegExp(regexStr).test(file)
-          }
 
           // * 1. Evaluate Ignore Events Condition
           const ignoreEvents = parseInput('IGNORE_EVENTS')
