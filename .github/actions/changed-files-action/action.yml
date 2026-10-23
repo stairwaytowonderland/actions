@@ -134,10 +134,23 @@ runs:
           core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
 
           if (inputPaths.length > 0 && changedFilesList.length > 0) {
-            // Filter files cleanly by checking if they match any of the provided glob patterns
-            filteredFilesList = changedFilesList.filter((file) =>
-              inputPaths.some((pattern) => minimatch(file, pattern, { dot: true }))
-            )
+            // 1. Separate patterns into inclusion and exclusion groups upfront
+            const exclusions = inputPaths.filter((p) => p.startsWith('!'))
+            const inclusions = inputPaths.filter((p) => !p.startsWith('!'))
+
+            filteredFilesList = changedFilesList.filter((file) => {
+              // 2. A file must match at least one inclusion pattern
+              // If there are no explicit inclusions specified, default to true (match all)
+              const matchesInclusion =
+                inclusions.length === 0 || inclusions.some((pattern) => minimatch(file, pattern, { dot: true }))
+
+              // 3. A file must NOT match any exclusion patterns
+              // We strip the leading '!' because we are manually managing the negation via .some()
+              const matchesExclusion = exclusions.some((pattern) => minimatch(file, pattern.slice(1), { dot: true }))
+
+              return matchesInclusion && !matchesExclusion
+            })
+
             core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`)
           } else {
             core.info('No explicit path patterns provided or changed file list is empty.')
