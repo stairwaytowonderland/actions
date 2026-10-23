@@ -1,3 +1,9 @@
+## [1.481.0](https://github.com/stairwaytowonderland/actions/compare/v1.480.0...v1.481.0) (2026-10-23)
+
+### ✨ Features
+
+* implement parsePathsInput in changed-files-action ([18e2e0e](https://github.com/stairwaytowonderland/actions/commit/18e2e0e2ad5d96c173d7c9b2fa95609c44451226))
+
 ## [1.480.0](https://github.com/stairwaytowonderland/actions/compare/v1.479.0...v1.480.0) (2026-10-23)
 
 ### ✨ Features
