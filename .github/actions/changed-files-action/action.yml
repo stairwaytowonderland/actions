@@ -54,7 +54,7 @@ runs:
           // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
           const parseInput = (envVar) =>
             (process.env[envVar] || '')
-              .split(/[\r\n\s,]+/)
+              .split(/[\r\n\s]+|,(?![^{]*})/) // Splits on spaces/newlines, or commas NOT inside {}
               .map((p) => p.trim())
               .filter(Boolean)
 
