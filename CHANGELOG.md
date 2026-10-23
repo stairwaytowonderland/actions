@@ -1,3 +1,9 @@
+## [1.479.0](https://github.com/stairwaytowonderland/actions/compare/v1.478.0...v1.479.0) (2026-10-23)
+
+### ✨ Features
+
+* fix parseInput to allow for braces in paths in changed-files-action ([a1066fc](https://github.com/stairwaytowonderland/actions/commit/a1066fcb4745bf645fc1553fe3c1f598f508b199))
+
 ## [1.478.0](https://github.com/stairwaytowonderland/actions/compare/v1.477.0...v1.478.0) (2026-10-23)
 
 ### ✨ Features
