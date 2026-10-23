@@ -1,3 +1,9 @@
+## [1.478.0](https://github.com/stairwaytowonderland/actions/compare/v1.477.0...v1.478.0) (2026-10-23)
+
+### ✨ Features
+
+* using implement path exclusions in changed-files-action ([9b79b30](https://github.com/stairwaytowonderland/actions/commit/9b79b304725293bc6beeeb697354e378284867df))
+
 ## [1.477.0](https://github.com/stairwaytowonderland/actions/compare/v1.476.0...v1.477.0) (2026-10-23)
 
 ### ✨ Features
