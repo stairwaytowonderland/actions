@@ -1,3 +1,9 @@
+## [1.480.0](https://github.com/stairwaytowonderland/actions/compare/v1.479.0...v1.480.0) (2026-10-23)
+
+### ✨ Features
+
+* fix eventIsIgnore summary output in changed-files-action ([2a19060](https://github.com/stairwaytowonderland/actions/commit/2a190602f50aec51c6b751ece32bd46f79cdac7f))
+
 ## [1.479.0](https://github.com/stairwaytowonderland/actions/compare/v1.478.0...v1.479.0) (2026-10-23)
 
 ### ✨ Features
