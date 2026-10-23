@@ -129,24 +129,45 @@ runs:
           core.info(`Detected Changed Files: ${changedFilesList.join(', ')}`)
 
           // * 3. Process Glob Path Matches
+          // A bulletproof tokenizer that handles GitHub Actions env/input line variations cleanly
+          const parsePathsInput = (envVar) => {
+            const rawInput = process.env[envVar] || ''
+            // Split purely by newlines, carriage returns, or commas outside braces
+            return (
+              rawInput
+                .split(/[\r\n]+|,(?![^{]*})/)
+                .map((p) => p.trim())
+                // Filter out empty lines, comments, and handle space-separated squashing from runner envs
+                .flatMap((p) => (p.includes(' ') && !p.startsWith('!') ? p.split(/\s+/) : p))
+                .map((p) => p.trim())
+                .filter(Boolean)
+            )
+          }
+
+          const inputPaths = parsePathsInput('SPECIFIED_PATHS')
+
+          core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
+
           let filteredFilesList = []
-          const inputPaths = parseInput('SPECIFIED_PATHS')
+
           core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
 
           if (inputPaths.length > 0 && changedFilesList.length > 0) {
-            // 1. Separate patterns into inclusion and exclusion groups upfront
+            // Separate patterns cleanly into explicit inclusion and exclusion groups
             const exclusions = inputPaths.filter((p) => p.startsWith('!'))
             const inclusions = inputPaths.filter((p) => !p.startsWith('!'))
 
             filteredFilesList = changedFilesList.filter((file) => {
-              // 2. A file must match at least one inclusion pattern
-              // If there are no explicit inclusions specified, default to true (match all)
+              // 1. Must match at least one inclusion pattern (or default to true if none specified)
               const matchesInclusion =
                 inclusions.length === 0 || inclusions.some((pattern) => minimatch(file, pattern, { dot: true }))
 
-              // 3. A file must NOT match any exclusion patterns
-              // We strip the leading '!' because we are manually managing the negation via .some()
-              const matchesExclusion = exclusions.some((pattern) => minimatch(file, pattern.slice(1), { dot: true }))
+              // 2. Must NOT match any exclusion patterns
+              // Slide the index by 1 to strip the '!' cleanly regardless of environmental spaces
+              const matchesExclusion = exclusions.some((pattern) => {
+                const cleanPattern = pattern.startsWith('!') ? pattern.slice(1).trim() : pattern
+                return minimatch(file, cleanPattern, { dot: true })
+              })
 
               return matchesInclusion && !matchesExclusion
             })
