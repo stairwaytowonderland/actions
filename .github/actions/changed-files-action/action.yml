@@ -188,7 +188,7 @@ runs:
                 <tr><th>Ignore Authors</th><td>${ignoreAuthors.join(', ')}</td></tr>
                 <tr><th>Author Is Allowed</th><td>${authorIsAllowed}</td></tr>
                 <tr><th>Ignore Events</th><td>${ignoreEvents.join(', ')}</td></tr>
-                <tr><th>Event Is Allowed</th><td>${eventIsIgnored}</td></tr>
+                <tr><th>Event Is Allowed</th><td>${!eventIsIgnored}</td></tr>
                 <tr><th>Result</th><td>${result}</td></tr>
                 </table>`)
 
