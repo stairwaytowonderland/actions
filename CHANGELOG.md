@@ -1,3 +1,9 @@
+## [1.476.0](https://github.com/stairwaytowonderland/actions/compare/v1.475.0...v1.476.0) (2026-10-23)
+
+### ✨ Features
+
+* using minimatch in changed-files-action ([54c8e1f](https://github.com/stairwaytowonderland/actions/commit/54c8e1f35d24b22b2c1b9eefcef135d53ed45a09))
+
 ## [1.475.0](https://github.com/stairwaytowonderland/actions/compare/v1.474.0...v1.475.0) (2026-10-22)
 
 ### ✨ Features
