@@ -17,6 +17,9 @@ inputs:
     #   semantic-release-bot
   ignore-events:
     description: 'A newline delimited list of GitHub event names to ignore when checking for changes (e.g. push, pull_request, workflow_dispatch).'
+  only-specified-paths:
+    description: 'Whether to only consider changes in the specified paths.'
+    default: 'false'
 outputs:
   result:
     description: 'The overall result of the changed files check.'
@@ -46,6 +49,8 @@ runs:
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         # Input environment variable for show-summary so getBooleanInput works in a composite action
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
+        INPUT_ONLY_SPECIFIED_PATHS: ${{ inputs.only-specified-paths }}
+
       with:
         script: |
           // Require the minimatch package for glob pattern matching
@@ -145,8 +150,10 @@ runs:
           }
 
           const inputPaths = parsePathsInput('SPECIFIED_PATHS')
-
           core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
+
+          const onlySpecifiedPaths = core.getBooleanInput('only-specified-paths')
+          core.info(`Only Specified Paths Enforcement: ${onlySpecifiedPaths}`)
 
           let filteredFilesList = []
 
@@ -171,6 +178,16 @@ runs:
 
               return matchesInclusion && !matchesExclusion
             })
+
+            // if onlySpecifiedPaths is true, the filteredFilesList must match only the changedFilesList
+            if (onlySpecifiedPaths) {
+              core.debug(`Only specified paths enforcement is enabled.`)
+              const unmatchedFiles = changedFilesList.filter((file) => !filteredFilesList.includes(file))
+              if (unmatchedFiles.length > 0) {
+                core.info(`Files not matching specified paths: ${unmatchedFiles.join(', ')}`)
+                filteredFilesList = []
+              }
+            }
 
             core.info(`Files Matching Path Patterns: ${filteredFilesList.join(', ')}`)
           } else {
