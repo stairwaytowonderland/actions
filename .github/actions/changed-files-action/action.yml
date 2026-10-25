@@ -48,8 +48,8 @@ runs:
         IGNORE_EVENTS: ${{ inputs.ignore-events }}
         BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         # Input environment variable for show-summary so getBooleanInput works in a composite action
-        INPUT_SHOW-SUMMARY: ${{ inputs.show-summary }}
-        INPUT_ONLY_SPECIFIED_PATHS: ${{ inputs.only-specified-paths }}
+        INPUT_SHOW-SUMMARY: ${{ inputs.show-summary == 'true' }}
+        INPUT_ONLY-SPECIFIED-PATHS: ${{ inputs.only-specified-paths == 'true' }}
 
       with:
         script: |
