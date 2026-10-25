@@ -1,3 +1,9 @@
+## [1.485.0](https://github.com/stairwaytowonderland/actions/compare/v1.484.0...v1.485.0) (2026-10-25)
+
+### ✨ Features
+
+* cleanup changed-files-action ([9506583](https://github.com/stairwaytowonderland/actions/commit/9506583428c13f44913fdfdec64bdd7878e732e6))
+
 ## [1.484.0](https://github.com/stairwaytowonderland/actions/compare/v1.483.0...v1.484.0) (2026-10-25)
 
 ### ✨ Features
