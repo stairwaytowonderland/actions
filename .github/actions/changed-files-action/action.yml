@@ -43,10 +43,10 @@ runs:
       id: changed-files
       uses: actions/github-script@v9
       env:
-        SPECIFIED_PATHS: ${{ inputs.paths }}
-        IGNORE_AUTHORS: ${{ inputs.ignore-authors }}
-        IGNORE_EVENTS: ${{ inputs.ignore-events }}
-        BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+        INPUT_SPECIFIED-PATHS: ${{ inputs.paths }}
+        INPUT_IGNORE-AUTHORS: ${{ inputs.ignore-authors }}
+        INPUT_IGNORE-EVENTS: ${{ inputs.ignore-events }}
+        # BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         # Input environment variable for show-summary so getBooleanInput works in a composite action
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary == 'true' }}
         INPUT_ONLY-SPECIFIED-PATHS: ${{ inputs.only-specified-paths == 'true' }}
@@ -57,14 +57,14 @@ runs:
           const { minimatch } = require('minimatch')
 
           // Reusable input tokenizer to safely split environment variables by commas, spaces, or lines
-          const parseInput = (envVar) =>
-            (process.env[envVar] || '')
+          const parseInput = (name) =>
+            (core.getInput(name) || '')
               .split(/[\r\n\s]+|,(?![^{]*})/) // Splits on spaces/newlines, or commas NOT inside {}
               .map((p) => p.trim())
               .filter(Boolean)
 
           // * 1. Evaluate Ignore Events Condition
-          const ignoreEvents = parseInput('IGNORE_EVENTS')
+          const ignoreEvents = parseInput('ignore-events')
           const eventIsIgnored = ignoreEvents.includes(context.eventName)
 
           if (eventIsIgnored) {
@@ -88,7 +88,7 @@ runs:
           } else if (!refBefore || refBefore === nullSha) {
             core.info('New branch tree push identified. Dynamically evaluating fork boundary points.')
 
-            let branchName = process.env['BRANCH_NAME'] || ''
+            let branchName = process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || ''
             if (!branchName) {
               try {
                 const branchResult = await exec.getExecOutput('git', ['branch', '--show-current'])
@@ -135,8 +135,8 @@ runs:
 
           // * 3. Process Glob Path Matches
           // A bulletproof tokenizer that handles GitHub Actions env/input line variations cleanly
-          const parsePathsInput = (envVar) => {
-            const rawInput = process.env[envVar] || ''
+          const parsePathsInput = (name) => {
+            const rawInput = core.getInput(name) || ''
             // Split purely by newlines, carriage returns, or commas outside braces
             return (
               rawInput
@@ -149,15 +149,13 @@ runs:
             )
           }
 
-          const inputPaths = parsePathsInput('SPECIFIED_PATHS')
+          const inputPaths = parsePathsInput('specified-paths')
           core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
 
           const onlySpecifiedPaths = core.getBooleanInput('only-specified-paths')
           core.info(`Only Specified Paths Enforcement: ${onlySpecifiedPaths}`)
 
           let filteredFilesList = []
-
-          core.info(`Specified Path Patterns: ${inputPaths.join(', ')}`)
 
           if (inputPaths.length > 0 && changedFilesList.length > 0) {
             // Separate patterns cleanly into explicit inclusion and exclusion groups
@@ -176,7 +174,9 @@ runs:
                 return minimatch(file, cleanPattern, { dot: true })
               })
 
-              return matchesInclusion && !matchesExclusion
+              const result = matchesInclusion && !matchesExclusion
+
+              return result
             })
 
             // if onlySpecifiedPaths is true, the filteredFilesList must match only the changedFilesList
@@ -196,7 +196,7 @@ runs:
 
           // * 4. Validate Commit Author Authority
           let authorIsAllowed = true
-          const ignoreAuthors = parseInput('IGNORE_AUTHORS')
+          const ignoreAuthors = parseInput('ignore-authors')
 
           if (ignoreAuthors.length > 0) {
             try {
