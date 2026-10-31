@@ -1,3 +1,9 @@
+## [1.486.0](https://github.com/stairwaytowonderland/actions/compare/v1.485.0...v1.486.0) (2026-10-31)
+
+### ✨ Features
+
+* fix changed-files-action dependency install ([e00a03c](https://github.com/stairwaytowonderland/actions/commit/e00a03c1abdae252b077283aa0dbf9480c88d53c))
+
 ## [1.485.0](https://github.com/stairwaytowonderland/actions/compare/v1.484.0...v1.485.0) (2026-10-25)
 
 ### ✨ Features
