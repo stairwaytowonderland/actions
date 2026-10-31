@@ -36,7 +36,9 @@ runs:
   steps:
     # Setup Dependencies
     - name: Install Runtime Dependencies
-      run: npm install @actions/exec minimatch
+      run: |
+        npm install --ignore-scripts --no-save @actions/exec@$(node -pe "require('./package.json').devDependencies['@actions/exec'] || require('./package.json').overrides['@actions/exec'] || 'latest'")
+        npm install --ignore-scripts --no-save minimatch@$(node -pe "require('./package.json').devDependencies['minimatch'] || require('./package.json').overrides['minimatch'] || 'latest'")
       shell: bash
 
     - name: Determine Changed Files
