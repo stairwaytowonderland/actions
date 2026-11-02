@@ -54,15 +54,15 @@ runs:
 
     # Setup Dependencies
     - name: Install Runtime Dependencies
+      if: steps.check-enabled.outputs.enabled == 'true'
+      shell: bash
       run: |
         npm install --ignore-scripts --no-save @actions/exec@$(node -pe "require('./package.json').devDependencies['@actions/exec'] || require('./package.json').overrides['@actions/exec'] || 'latest'")
         npm install --ignore-scripts --no-save minimatch@$(node -pe "require('./package.json').devDependencies['minimatch'] || require('./package.json').overrides['minimatch'] || 'latest'")
-      shell: bash
 
     - name: Determine Changed Files
       id: changed-files
       if: steps.check-enabled.outputs.enabled == 'true'
-      uses: actions/github-script@v9
       env:
         INPUT_SPECIFIED-PATHS: ${{ inputs.paths }}
         INPUT_IGNORE-AUTHORS: ${{ inputs.ignore-authors }}
@@ -71,7 +71,7 @@ runs:
         # Input environment variable for show-summary so getBooleanInput works in a composite action
         INPUT_SHOW-SUMMARY: ${{ inputs.show-summary == 'true' }}
         INPUT_ONLY-SPECIFIED-PATHS: ${{ inputs.only-specified-paths == 'true' }}
-
+      uses: actions/github-script@v9
       with:
         script: |
           // Require the minimatch package for glob pattern matching
