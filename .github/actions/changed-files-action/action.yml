@@ -20,6 +20,9 @@ inputs:
   only-specified-paths:
     description: 'Whether to only consider changes in the specified paths.'
     default: 'false'
+  enabled:
+    description: 'Whether the action is enabled.'
+    default: 'true'
 outputs:
   result:
     description: 'The overall result of the changed files check.'
@@ -34,6 +37,14 @@ outputs:
 runs:
   using: 'composite'
   steps:
+    - name: Check if Action is Enabled
+      if: ${{ inputs.enabled != 'true' }}
+      shell: bash
+      run: |
+        echo "Action is disabled. Skipping processing."
+        echo "result=true" >> $GITHUB_OUTPUT
+        echo "changed-files=" >> $GITHUB_OUTPUT
+        echo "changed-files-filtered=" >> $GITHUB_OUTPUT
     # Setup Dependencies
     - name: Install Runtime Dependencies
       run: |
@@ -43,6 +54,7 @@ runs:
 
     - name: Determine Changed Files
       id: changed-files
+      if: ${{ inputs.enabled == 'true' }}
       uses: actions/github-script@v9
       env:
         INPUT_SPECIFIED-PATHS: ${{ inputs.paths }}
@@ -246,7 +258,7 @@ runs:
 
     - name: Show Outputs
       shell: bash
-      if: runner.debug == '1'
+      if: runner.debug == '1' && inputs.enabled == 'true'
       env:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
         RESULT: ${{ steps.changed-files.outputs.result }}
