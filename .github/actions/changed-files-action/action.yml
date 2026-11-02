@@ -268,8 +268,8 @@ runs:
       shell: bash
       env:
         IS_ENABLED: ${{ steps.check-enabled.outputs.enabled == 'true' }}
-        CHECK_ENABLED_RESULT: ${{ steps.check-enabled.outputs.result }}
-        CHANGED_FILES_RESULT: ${{ steps.changed-files.outputs.changed-files }}
+        CHECK_ENABLED_RESULT: ${{ steps.check-enabled.outputs.result == 'true' }}
+        CHANGED_FILES_RESULT: ${{ steps.changed-files.outputs.result == 'true' }}
       run: |
         if [ "$IS_ENABLED" == "true" ]; then
           echo "result=$CHANGED_FILES_RESULT" >> $GITHUB_OUTPUT
