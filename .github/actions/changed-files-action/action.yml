@@ -43,7 +43,7 @@ runs:
       env:
         SPECIFIED_PATHS: ${{ inputs.paths }}
       run: |
-        if [ -n "$(echo SPECIFIED_PATHS | tr -d '\n')" ]; then
+        if [ -n "$(echo $SPECIFIED_PATHS | tr -d '\n')" ]; then
           echo "Specified paths provided. Enabling processing."
           echo "enabled=true" >> $GITHUB_OUTPUT
         else
