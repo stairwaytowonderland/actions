@@ -1,3 +1,9 @@
+## [1.487.0](https://github.com/stairwaytowonderland/actions/compare/v1.486.0...v1.487.0) (2026-11-02)
+
+### ✨ Features
+
+* implement enabled input ([63b4ced](https://github.com/stairwaytowonderland/actions/commit/63b4cedd74e6175bec5eb86c02af0109fd393ba0))
+
 ## [1.486.0](https://github.com/stairwaytowonderland/actions/compare/v1.485.0...v1.486.0) (2026-10-31)
 
 ### ✨ Features
