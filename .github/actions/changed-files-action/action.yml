@@ -20,13 +20,13 @@ inputs:
   only-specified-paths:
     description: 'Whether to only consider changes in the specified paths.'
     default: 'false'
-  enabled:
-    description: 'Whether the action is enabled.'
-    default: 'true'
 outputs:
+  enabled:
+    description: 'Whether the action is enabled based on the specified paths.'
+    value: ${{ steps.check-enabled.outputs.enabled }}
   result:
     description: 'The overall result of the changed files check.'
-    value: ${{ steps.changed-files.outputs.result }}
+    value: ${{ steps.determine-result.outputs.result }}
   changed-files:
     description: 'A newline delimited list of changed files.'
     value: ${{ steps.changed-files.outputs.changed-files }}
@@ -38,13 +38,20 @@ runs:
   using: 'composite'
   steps:
     - name: Check if Action is Enabled
-      if: ${{ inputs.enabled != 'true' }}
+      id: check-enabled
       shell: bash
+      env:
+        SPECIFIED_PATHS: ${{ inputs.paths }}
       run: |
-        echo "Action is disabled. Skipping processing."
-        echo "result=true" >> $GITHUB_OUTPUT
-        echo "changed-files=" >> $GITHUB_OUTPUT
-        echo "changed-files-filtered=" >> $GITHUB_OUTPUT
+        if [ -n "$SPECIFIED_PATHS" ]; then
+          echo "Specified paths provided. Enabling processing."
+          echo "enabled=true" >> $GITHUB_OUTPUT
+        else
+          echo "No specified paths provided. Skipping processing."
+          echo "enabled=false" >> $GITHUB_OUTPUT
+          echo "result=true" >> $GITHUB_OUTPUT
+        fi
+
     # Setup Dependencies
     - name: Install Runtime Dependencies
       run: |
@@ -54,7 +61,7 @@ runs:
 
     - name: Determine Changed Files
       id: changed-files
-      if: ${{ inputs.enabled == 'true' }}
+      if: steps.check-enabled.outputs.enabled == 'true'
       uses: actions/github-script@v9
       env:
         INPUT_SPECIFIED-PATHS: ${{ inputs.paths }}
@@ -256,9 +263,23 @@ runs:
 
           return result
 
+    - name: Determine Result
+      id: determine-result
+      shell: bash
+      env:
+        IS_ENABLED: ${{ steps.check-enabled.outputs.enabled == 'true' }}
+        CHECK_ENABLED_RESULT: ${{ steps.check-enabled.outputs.result }}
+        CHANGED_FILES_RESULT: ${{ steps.changed-files.outputs.changed-files }}
+      run: |
+        if [ "$IS_ENABLED" == "true" ]; then
+          echo "result=$CHANGED_FILES_RESULT" >> $GITHUB_OUTPUT
+        else
+          echo "result=$CHECK_ENABLED_RESULT" >> $GITHUB_OUTPUT
+        fi
+
     - name: Show Outputs
       shell: bash
-      if: runner.debug == '1' && inputs.enabled == 'true'
+      if: runner.debug == '1' && steps.check-enabled.outputs.enabled == 'true'
       env:
         OUTPUT_JSON: ${{ toJson(steps.changed-files.outputs) }}
         RESULT: ${{ steps.changed-files.outputs.result }}
