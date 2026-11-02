@@ -1,3 +1,9 @@
+## [1.490.0](https://github.com/stairwaytowonderland/actions/compare/v1.489.0...v1.490.0) (2026-11-02)
+
+### ✨ Features
+
+* implement dynamic enabled ([31195e5](https://github.com/stairwaytowonderland/actions/commit/31195e515d95f301b60b1bee58d2ed9ba0575bc0))
+
 ## [1.489.0](https://github.com/stairwaytowonderland/actions/compare/v1.488.0...v1.489.0) (2026-11-02)
 
 ### ✨ Features
